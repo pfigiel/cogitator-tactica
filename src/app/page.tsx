@@ -1,0 +1,92 @@
+"use client";
+
+import { useState } from "react";
+import { CombatFormState, CombatResult } from "@/lib/calculator/types";
+import { calculate } from "@/lib/calculator";
+import { UNITS } from "@/data/units";
+import PromptInput from "@/components/PromptInput";
+import CombatForm from "@/components/CombatForm";
+import ResultsDisplay from "@/components/ResultsDisplay";
+
+const DEFAULT_FORM: CombatFormState = {
+  phase: "shooting",
+  attackerUnitId: "intercessors",
+  attackerCount: 10,
+  defenderUnitId: "ork_boyz",
+  defenderCount: 20,
+  defenderInCover: false,
+  firstFighter: "attacker",
+};
+
+export default function Home() {
+  const [form, setForm] = useState<CombatFormState>(DEFAULT_FORM);
+  const [result, setResult] = useState<CombatResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  function handleCalculate() {
+    setError(null);
+    const attacker = UNITS[form.attackerUnitId];
+    const defender = UNITS[form.defenderUnitId];
+
+    if (!attacker || !defender) {
+      setError("Unknown unit selected.");
+      return;
+    }
+
+    try {
+      const combatResult = calculate(
+        form.phase === "shooting"
+          ? {
+              phase: "shooting",
+              attacker: { unit: attacker, modelCount: form.attackerCount },
+              defender: { unit: defender, modelCount: form.defenderCount, inCover: form.defenderInCover },
+            }
+          : {
+              phase: "melee",
+              attacker: { unit: attacker, modelCount: form.attackerCount },
+              defender: { unit: defender, modelCount: form.defenderCount, inCover: form.defenderInCover },
+              firstFighter: form.firstFighter,
+            }
+      );
+      setResult(combatResult);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Calculation failed");
+    }
+  }
+
+  return (
+    <main className="max-w-4xl mx-auto px-4 py-10 space-y-10">
+      {/* Header */}
+      <header className="text-center space-y-1">
+        <h1 className="text-4xl font-black uppercase tracking-widest text-amber-500">
+          WH40K Battle Calc
+        </h1>
+        <p className="text-gray-400 text-sm">Statistics calculator for Warhammer 40,000 10th Edition</p>
+      </header>
+
+      {/* Prompt input */}
+      <section className="bg-gray-800/50 border border-gray-700 rounded-xl p-6">
+        <PromptInput onParsed={(parsed) => setForm(parsed)} />
+      </section>
+
+      {/* Form */}
+      <section className="bg-gray-800/50 border border-gray-700 rounded-xl p-6">
+        <CombatForm
+          state={form}
+          onChange={setForm}
+          onCalculate={handleCalculate}
+        />
+        {error && (
+          <p className="mt-3 text-red-400 text-sm">Error: {error}</p>
+        )}
+      </section>
+
+      {/* Results */}
+      {result && (
+        <section className="bg-gray-800/50 border border-gray-700 rounded-xl p-6">
+          <ResultsDisplay result={result} />
+        </section>
+      )}
+    </main>
+  );
+}
