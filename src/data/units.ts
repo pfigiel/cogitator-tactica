@@ -21,10 +21,39 @@ export const UNITS: Record<string, UnitProfile> = {
         damage: 1,
         abilities: [],
       },
+      {
+        name: "Bolt Pistol",
+        attacks: 1,
+        skill: 3, // BS 3+
+        strength: 4,
+        ap: 0,
+        damage: 1,
+        abilities: [],
+      },
+      {
+        // Krak grenade profile (typically 1 per 5 models, max 2 per squad)
+        name: "Grenade Launcher (Krak)",
+        attacks: 1,
+        skill: 3, // BS 3+
+        strength: 9,
+        ap: 2,
+        damage: 2,
+        abilities: [],
+      },
+      {
+        // Frag grenade profile
+        name: "Grenade Launcher (Frag)",
+        attacks: 1,
+        skill: 3, // BS 3+
+        strength: 4,
+        ap: 0,
+        damage: 1,
+        abilities: [{ type: "SUSTAINED_HITS", value: 1 }],
+      },
     ],
     meleeWeapons: [
       {
-        name: "Bolt Rifle (Melee Butt) / Close Combat",
+        name: "Close Combat Weapon",
         attacks: 3,
         skill: 3, // WS 3+
         strength: 4,
@@ -45,6 +74,15 @@ export const UNITS: Record<string, UnitProfile> = {
       {
         name: "Slugga",
         attacks: 1,
+        skill: 5, // BS 5+
+        strength: 4,
+        ap: 0,
+        damage: 1,
+        abilities: [],
+      },
+      {
+        name: "Shoota",
+        attacks: 2,
         skill: 5, // BS 5+
         strength: 4,
         ap: 0,

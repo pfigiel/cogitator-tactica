@@ -1,10 +1,10 @@
 /**
  * Core combat resolution pipeline shared by both shooting and melee phases.
- * Given an attacker weapon profile + model count + defender profile, returns
- * a list of CombatSteps and summary stats.
+ * Given a weapon profile + model count + defender profile, returns a WeaponResult
+ * with a detailed step breakdown and summary stats.
  */
 
-import { WeaponProfile, UnitProfile, CombatStep, DirectionalResult } from "./types";
+import { WeaponProfile, UnitProfile, CombatStep, WeaponResult } from "./types";
 import {
   pSuccess,
   P_CRIT,
@@ -19,31 +19,30 @@ import {
   devastatingWoundMortals,
 } from "./rules";
 
-export function resolveCombat(
-  attackerUnit: UnitProfile,
-  attackerCount: number,
-  attackerWeapon: WeaponProfile,
+export function resolveWeapon(
+  modelCount: number,
+  weapon: WeaponProfile,
   defenderUnit: UnitProfile,
   defenderInCover: boolean
-): DirectionalResult {
+): WeaponResult {
   const steps: CombatStep[] = [];
 
   // ── Step 1: Attacks ────────────────────────────────────────────────────────
-  const totalAttacks = attackerCount * attackerWeapon.attacks;
+  const totalAttacks = modelCount * weapon.attacks;
   steps.push({
     label: "Attacks",
-    input: attackerCount,
+    input: modelCount,
     average: totalAttacks,
-    note: `${attackerCount} models × ${attackerWeapon.attacks} attacks each`,
+    note: `${modelCount} models × ${weapon.attacks} attacks each`,
   });
 
   // ── Step 2: Hit roll ───────────────────────────────────────────────────────
   const { normalHits: rawNormal, critHits: rawCrit, note: hitNote } =
-    resolveHits(totalAttacks, attackerWeapon.skill, attackerWeapon.abilities);
+    resolveHits(totalAttacks, weapon.skill, weapon.abilities);
 
   const afterHitAbilities = applyHitAbilities(
     { normalHits: rawNormal, critHits: rawCrit, normalWounds: 0, critWounds: 0 },
-    attackerWeapon.abilities
+    weapon.abilities
   );
 
   const totalHits = afterHitAbilities.normalHits + afterHitAbilities.critHits;
@@ -62,10 +61,10 @@ export function resolveCombat(
   });
 
   // ── Step 3: Wound roll ─────────────────────────────────────────────────────
-  const woundThresh = woundThreshold(attackerWeapon.strength, defenderUnit.toughness);
+  const woundThresh = woundThreshold(weapon.strength, defenderUnit.toughness);
 
   // Lethal hits auto-wound (crit hits)
-  const autoWounds = lethalHitAutoWounds(afterHitAbilities.critHits, attackerWeapon.abilities);
+  const autoWounds = lethalHitAutoWounds(afterHitAbilities.critHits, weapon.abilities);
   const hitsToWoundRoll = afterHitAbilities.normalHits + (afterHitAbilities.critHits - autoWounds);
 
   const normalWoundProb = pSuccess(woundThresh);
@@ -76,7 +75,7 @@ export function resolveCombat(
 
   const totalWounds = autoWounds + normalWounds;
 
-  const woundNotes: string[] = [`Wound on ${woundThresh}+ (S${attackerWeapon.strength} vs T${defenderUnit.toughness})`];
+  const woundNotes: string[] = [`Wound on ${woundThresh}+ (S${weapon.strength} vs T${defenderUnit.toughness})`];
   if (autoWounds > 0) woundNotes.push(`+${autoWounds.toFixed(2)} auto-wounds (Lethal Hits)`);
 
   const afterWoundAbilities = applyWoundAbilities(
@@ -86,7 +85,7 @@ export function resolveCombat(
       normalWounds: adjustedNormalWounds,
       critWounds: critWounds + autoWounds,
     },
-    attackerWeapon.abilities
+    weapon.abilities
   );
 
   steps.push({
@@ -99,13 +98,13 @@ export function resolveCombat(
   // ── Step 4: Saving throw ───────────────────────────────────────────────────
   const saveCritWounds = devastatingWoundMortals(
     afterWoundAbilities.critWounds,
-    attackerWeapon.abilities
+    weapon.abilities
   );
   const woundsRequiringSave = totalWounds - saveCritWounds;
 
   const saveThresh = effectiveSaveThreshold(
     defenderUnit.save,
-    attackerWeapon.ap,
+    weapon.ap,
     defenderInCover,
     defenderUnit.invuln
   );
@@ -113,7 +112,7 @@ export function resolveCombat(
   const unsavedFromRoll = woundsRequiringSave * failSaveProb;
   const totalUnsaved = unsavedFromRoll + saveCritWounds;
 
-  const saveNotes: string[] = [`Save on ${saveThresh}+ (${defenderUnit.save}+ save, AP-${attackerWeapon.ap}${defenderInCover ? ", in cover" : ""})`];
+  const saveNotes: string[] = [`Save on ${saveThresh}+ (${defenderUnit.save}+ save, AP-${weapon.ap}${defenderInCover ? ", in cover" : ""})`];
   if (saveCritWounds > 0)
     saveNotes.push(`+${saveCritWounds.toFixed(2)} mortals bypass saves (Devastating Wounds)`);
 
@@ -125,13 +124,13 @@ export function resolveCombat(
   });
 
   // ── Step 5: Damage ─────────────────────────────────────────────────────────
-  const averageDamage = totalUnsaved * attackerWeapon.damage;
+  const averageDamage = totalUnsaved * weapon.damage;
 
   steps.push({
     label: "Damage",
     input: totalUnsaved,
     average: averageDamage,
-    note: `${attackerWeapon.damage} damage per unsaved wound`,
+    note: `${weapon.damage} damage per unsaved wound`,
   });
 
   // ── Step 6: Models slain ───────────────────────────────────────────────────
@@ -148,8 +147,8 @@ export function resolveCombat(
   });
 
   return {
-    attackerName: `${attackerUnit.name} (${attackerCount})`,
-    defenderName: defenderUnit.name,
+    weaponName: weapon.name,
+    modelCount,
     steps,
     averageDamage,
     averageModelsSlain,

@@ -38,10 +38,16 @@ export interface UnitProfile {
 export type Phase = "shooting" | "melee";
 export type FirstFighter = "attacker" | "defender";
 
+export interface SelectedWeaponInput {
+  weapon: WeaponProfile;
+  modelCount: number;
+}
+
 export interface CombatantInput {
   unit: UnitProfile;
   modelCount: number;
   inCover?: boolean;    // +1 to save roll
+  selectedWeapons: SelectedWeaponInput[];
 }
 
 export interface ShootingCombatInput {
@@ -75,14 +81,23 @@ export interface CombatStep {
   note?: string;
 }
 
+/** Result for a single weapon within a directional combat resolution. */
+export interface WeaponResult {
+  weaponName: string;
+  modelCount: number;
+  steps: CombatStep[];
+  averageDamage: number;
+  averageModelsSlain: number;
+}
+
 export interface DirectionalResult {
   attackerName: string;
   defenderName: string;
-  steps: CombatStep[];
-  /** Expected total damage dealt */
-  averageDamage: number;
-  /** Expected models fully slain */
-  averageModelsSlain: number;
+  weaponResults: WeaponResult[];
+  /** Sum of damage across all weapons */
+  totalAverageDamage: number;
+  /** Sum of models slain across all weapons (approximation — no overkill carryover between weapons) */
+  totalAverageModelsSlain: number;
 }
 
 export interface CombatResult {
@@ -97,13 +112,27 @@ export interface CombatResult {
 
 // ─── Form / LLM types ─────────────────────────────────────────────────────────
 
+/**
+ * A weapon selected for use in combat.
+ * modelCount overrides the unit's total model count (e.g. only 2 models have grenade launchers).
+ * If omitted, defaults to the unit's total model count.
+ */
+export interface SelectedWeapon {
+  weaponName: string;
+  modelCount?: number;
+}
+
 /** The structured form state that drives both UI and calculator */
 export interface CombatFormState {
   phase: Phase;
   attackerUnitId: string;
   attackerCount: number;
+  /** Ordered list of selected weapons for the attacker (shooting weapons in shooting, melee in melee). */
+  attackerWeapons: SelectedWeapon[];
   defenderUnitId: string;
   defenderCount: number;
   defenderInCover: boolean;
+  /** Ordered list of selected melee weapons for the defender (used for melee counterattack). */
+  defenderWeapons: SelectedWeapon[];
   firstFighter: FirstFighter; // only relevant for melee
 }

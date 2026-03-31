@@ -1,7 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { CombatFormState, CombatResult } from "@/lib/calculator/types";
+import {
+  CombatFormState,
+  CombatResult,
+  Phase,
+  SelectedWeapon,
+  SelectedWeaponInput,
+  UnitProfile,
+} from "@/lib/calculator/types";
 import { calculate } from "@/lib/calculator";
 import { UNITS } from "@/data/units";
 import PromptInput from "@/components/PromptInput";
@@ -12,11 +19,29 @@ const DEFAULT_FORM: CombatFormState = {
   phase: "shooting",
   attackerUnitId: "intercessors",
   attackerCount: 10,
+  attackerWeapons: [{ weaponName: "Bolt Rifle" }],
   defenderUnitId: "ork_boyz",
   defenderCount: 20,
   defenderInCover: false,
+  defenderWeapons: [{ weaponName: "Choppa" }],
   firstFighter: "attacker",
 };
+
+/** Resolve form weapon selections to concrete WeaponProfile + modelCount pairs. */
+function resolveWeapons(
+  unit: UnitProfile,
+  phase: Phase,
+  selectedWeapons: SelectedWeapon[],
+  defaultModelCount: number
+): SelectedWeaponInput[] {
+  const pool = phase === "shooting" ? unit.shootingWeapons : unit.meleeWeapons;
+  return selectedWeapons
+    .map((sw) => {
+      const weapon = pool.find((w) => w.name === sw.weaponName);
+      return weapon ? { weapon, modelCount: sw.modelCount ?? defaultModelCount } : null;
+    })
+    .filter((x): x is SelectedWeaponInput => x !== null);
+}
 
 export default function Home() {
   const [form, setForm] = useState<CombatFormState>(DEFAULT_FORM);
@@ -33,18 +58,40 @@ export default function Home() {
       return;
     }
 
+    const attackerWeapons = resolveWeapons(
+      attacker,
+      form.phase,
+      form.attackerWeapons,
+      form.attackerCount
+    );
+    const defenderWeapons = resolveWeapons(
+      defender,
+      "melee",
+      form.defenderWeapons,
+      form.defenderCount
+    );
+
+    if (attackerWeapons.length === 0) {
+      setError("No valid attacker weapons selected.");
+      return;
+    }
+    if (form.phase === "melee" && defenderWeapons.length === 0) {
+      setError("No valid defender weapons selected for melee counterattack.");
+      return;
+    }
+
     try {
       const combatResult = calculate(
         form.phase === "shooting"
           ? {
               phase: "shooting",
-              attacker: { unit: attacker, modelCount: form.attackerCount },
-              defender: { unit: defender, modelCount: form.defenderCount, inCover: form.defenderInCover },
+              attacker: { unit: attacker, modelCount: form.attackerCount, selectedWeapons: attackerWeapons },
+              defender: { unit: defender, modelCount: form.defenderCount, inCover: form.defenderInCover, selectedWeapons: defenderWeapons },
             }
           : {
               phase: "melee",
-              attacker: { unit: attacker, modelCount: form.attackerCount },
-              defender: { unit: defender, modelCount: form.defenderCount, inCover: form.defenderInCover },
+              attacker: { unit: attacker, modelCount: form.attackerCount, selectedWeapons: attackerWeapons },
+              defender: { unit: defender, modelCount: form.defenderCount, inCover: form.defenderInCover, selectedWeapons: defenderWeapons },
               firstFighter: form.firstFighter,
             }
       );

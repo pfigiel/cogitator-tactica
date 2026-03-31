@@ -2,18 +2,40 @@
  * Public API for the combat calculator.
  */
 
-import { CombatInput, CombatResult } from "./types";
-import { resolveCombat } from "./pipeline";
+import { CombatInput, CombatResult, DirectionalResult, SelectedWeaponInput, UnitProfile } from "./types";
+import { resolveWeapon } from "./pipeline";
+
+function resolveDirection(
+  attackerUnit: UnitProfile,
+  attackerModelCount: number,
+  selectedWeapons: SelectedWeaponInput[],
+  defenderUnit: UnitProfile,
+  defenderInCover: boolean
+): DirectionalResult {
+  const weaponResults = selectedWeapons.map(({ weapon, modelCount }) =>
+    resolveWeapon(modelCount, weapon, defenderUnit, defenderInCover)
+  );
+
+  const totalAverageDamage = weaponResults.reduce((sum, r) => sum + r.averageDamage, 0);
+  const totalAverageModelsSlain = weaponResults.reduce((sum, r) => sum + r.averageModelsSlain, 0);
+
+  return {
+    attackerName: `${attackerUnit.name} (${attackerModelCount})`,
+    defenderName: defenderUnit.name,
+    weaponResults,
+    totalAverageDamage,
+    totalAverageModelsSlain,
+  };
+}
 
 export function calculate(input: CombatInput): CombatResult {
   if (input.phase === "shooting") {
     const { attacker, defender } = input;
-    const weapon = attacker.unit.shootingWeapons[0];
 
-    const primary = resolveCombat(
+    const primary = resolveDirection(
       attacker.unit,
       attacker.modelCount,
-      weapon,
+      attacker.selectedWeapons,
       defender.unit,
       defender.inCover ?? false
     );
@@ -24,14 +46,11 @@ export function calculate(input: CombatInput): CombatResult {
   // Melee — both sides fight
   const { attacker, defender, firstFighter } = input;
 
-  const attackerWeapon = attacker.unit.meleeWeapons[0];
-  const defenderWeapon = defender.unit.meleeWeapons[0];
-
   // Primary: attacker → defender
-  const primary = resolveCombat(
+  const primary = resolveDirection(
     attacker.unit,
     attacker.modelCount,
-    attackerWeapon,
+    attacker.selectedWeapons,
     defender.unit,
     defender.inCover ?? false
   );
@@ -39,10 +58,10 @@ export function calculate(input: CombatInput): CombatResult {
   // Counterattack: defender → attacker
   // Note: if the defender fights first, their losses haven't happened yet — and vice versa.
   // For now we calculate at full model counts and surface a note.
-  const counterattack = resolveCombat(
+  const counterattack = resolveDirection(
     defender.unit,
     defender.modelCount,
-    defenderWeapon,
+    defender.selectedWeapons,
     attacker.unit,
     attacker.inCover ?? false
   );
