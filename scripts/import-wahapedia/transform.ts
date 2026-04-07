@@ -35,7 +35,7 @@ function slugify(name: string): string {
   return name
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "_")
-    .replace(/^_|_$/g, "");
+    .replace(/^_+|_+$/g, "");
 }
 
 // ─── Weapon building ──────────────────────────────────────────────────────────
@@ -69,7 +69,12 @@ function buildWeapon(
     warnings.push({ unitName, weaponName: row.name, message: `invalid strength value "${row.S}" — weapon skipped` });
     return null;
   }
-  const ap = -parseInt(row.AP, 10); // Wahapedia stores negative; app uses positive
+  const apRaw = parseInt(row.AP, 10);
+  if (isNaN(apRaw)) {
+    warnings.push({ unitName, weaponName: row.name, message: `invalid AP value "${row.AP}" — weapon skipped` });
+    return null;
+  }
+  const ap = -apRaw; // Wahapedia stores negative; app uses positive
 
   const { abilities, unknownTokens } = parseAbilities(row.description);
   for (const token of unknownTokens) {

@@ -3,6 +3,14 @@ import type { WeaponAbility } from "../../src/lib/calculator/types";
 // ─── Simple ability lookup table ──────────────────────────────────────────────
 // Key: normalized token (uppercase, whitespace-trimmed).
 // Adding a new no-parameter ability: add one line here.
+//
+// Intentionally absent tokens (generate [WARN] on import, by design):
+//   "EXTRA ATTACKS"    — grants a second bonus weapon attack; not a modifier on the
+//                        weapon itself but a rule that adds extra weapon activations.
+//                        No WeaponAbility equivalent; acceptable data loss.
+//   "ONE SHOT"         — weapon may only be fired once per battle; no calculator effect.
+//   "SUSTAINED HITS D3" / "RAPID FIRE D6" — dice-valued parameters not yet supported
+//                        by the parameterized parsers (which only handle integers).
 
 const ABILITY_MAP: Record<string, WeaponAbility> = {
   "ASSAULT":            { type: "ASSAULT" },
