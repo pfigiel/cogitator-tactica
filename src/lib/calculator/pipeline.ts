@@ -10,6 +10,7 @@ import {
   P_CRIT,
   woundThreshold,
   effectiveSaveThreshold,
+  diceAverage,
 } from "./dice";
 import {
   resolveHits,
@@ -28,7 +29,7 @@ export function resolveWeapon(
   const steps: CombatStep[] = [];
 
   // ── Step 1: Attacks ────────────────────────────────────────────────────────
-  const totalAttacks = modelCount * weapon.attacks;
+  const totalAttacks = modelCount * diceAverage(weapon.attacks);
   steps.push({
     label: "Attacks",
     input: modelCount,
@@ -124,7 +125,7 @@ export function resolveWeapon(
   });
 
   // ── Step 5: Damage ─────────────────────────────────────────────────────────
-  const averageDamage = totalUnsaved * weapon.damage;
+  const averageDamage = totalUnsaved * diceAverage(weapon.damage);
 
   steps.push({
     label: "Damage",
