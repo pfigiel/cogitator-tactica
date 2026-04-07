@@ -1,22 +1,109 @@
 // ─── Weapon special abilities ────────────────────────────────────────────────
 
 export type WeaponAbility =
-  | { type: "SUSTAINED_HITS"; value: number } // each crit hit generates N extra hits
-  | { type: "LETHAL_HITS" }                   // crit hits auto-wound (skip wound roll)
-  | { type: "DEVASTATING_WOUNDS" }            // crit wounds deal mortal wounds (skip save)
-  | { type: "TORRENT" };                      // auto-hits (no hit roll needed)
+  | { type: "ANTI"; keyword: string; threshold: number }  // crit wound vs keyword on threshold+
+  | { type: "ASSAULT" }                                   // can shoot after Advancing (no calc effect)
+  | { type: "BLAST" }                                     // +1 attack per 5 defender models
+  | { type: "CONVERSION" }                                // at long range: crit hits on 4+
+  | { type: "DEVASTATING_WOUNDS" }                        // crit wounds deal mortal wounds (skip save)
+  | { type: "HAZARDOUS" }                                 // self-inflicts mortal wounds (no calc effect)
+  | { type: "HEAVY" }                                     // if Remained Stationary: +1 to hit
+  | { type: "IGNORES_COVER" }                             // target does not benefit from cover
+  | { type: "INDIRECT_FIRE" }                             // −1 to hit; target gains cover
+  | { type: "LANCE" }                                     // on the turn you charge: +1 to wound
+  | { type: "LETHAL_HITS" }                               // crit hits auto-wound (skip wound roll)
+  | { type: "LINKED_FIRE" }                               // LoS from friendly unit (no calc effect)
+  | { type: "MELTA"; value: number }                      // at half range: +X damage
+  | { type: "PISTOL" }                                    // can shoot in engagement range (no calc effect)
+  | { type: "PRECISION" }                                 // target Characters directly (no calc effect)
+  | { type: "PSYCHIC" }                                   // psychic weapon keyword (no calc effect)
+  | { type: "RAPID_FIRE"; value: number }                 // at half range: +X attacks
+  | { type: "SUSTAINED_HITS"; value: number }             // each crit hit generates N extra hits
+  | { type: "TORRENT" }                                   // auto-hits (no hit roll needed)
+  | { type: "TWIN_LINKED" };                              // re-roll wound rolls
+
+/**
+ * A fixed number or a dice expression string, e.g. "D6", "2D6", "D3+3".
+ * Valid string pattern: /^(\d+)?D(3|6)([+-]\d+)?$/i
+ * The calculator always works with expected (average) values via diceAverage().
+ */
+export type DiceExpression = number | string;
+
+// ─── Modifiers ────────────────────────────────────────────────────────────────
+
+export type RerollType = "ONES" | "ALL";
+
+/**
+ * An atomic effect produced by a modifier source (weapon ability, cover, aura, stratagem, etc.).
+ *
+ * Aggregation rules:
+ *  - *_THRESHOLD_DELTA : sum all sources, then clamp total to [−1, +1] (applied LAST)
+ *  - CRIT_*_THRESHOLD  : override — take min across sources (best for attacker)
+ *  - EXTRA_ATTACKS / EXTRA_DAMAGE : sum, no cap
+ *  - SUSTAINED_HITS    : take max across sources
+ *  - *_REROLL          : take best (ALL > ONES)
+ *  - Boolean flags     : present if any source provides them
+ */
+export type ModifierEffect =
+  | { type: "HIT_THRESHOLD_DELTA";    value: number }
+  | { type: "WOUND_THRESHOLD_DELTA";  value: number }
+  | { type: "SAVE_THRESHOLD_DELTA";   value: number }
+  | { type: "INVULN_THRESHOLD_DELTA"; value: number }
+  /** Crits on X+ for hit rolls — multiple sources: take lowest. */
+  | { type: "CRIT_HIT_THRESHOLD";   value: number }
+  /** Crits on X+ for wound rolls (e.g. Anti) — multiple sources: take lowest. */
+  | { type: "CRIT_WOUND_THRESHOLD"; value: number }
+  | { type: "HIT_REROLL";   reroll: RerollType }
+  | { type: "WOUND_REROLL"; reroll: RerollType }
+  | { type: "SAVE_REROLL";  reroll: RerollType }
+  | { type: "EXTRA_ATTACKS"; value: number }
+  | { type: "EXTRA_DAMAGE";  value: number }
+  | { type: "AUTO_HIT" }
+  | { type: "LETHAL_HITS" }
+  | { type: "SUSTAINED_HITS"; value: number }
+  | { type: "DEVASTATING_WOUNDS" }
+  | { type: "IGNORE_COVER" };
+
+/** A resolved modifier from any source (weapon ability, cover, aura, stratagem, …). */
+export interface Modifier {
+  /** Human-readable source label, e.g. "Twin-linked", "cover", "Heavy". */
+  source: string;
+  effect: ModifierEffect;
+}
+
+// ─── Attacker context ─────────────────────────────────────────────────────────
+
+/**
+ * Per-unit situational flags set by the user.
+ * Activates context-dependent weapon abilities (Heavy, Lance, Rapid Fire, Melta, Conversion).
+ * All false by default.
+ */
+export interface AttackerContext {
+  remainedStationary: boolean; // Heavy: +1 to hit
+  charged:            boolean; // Lance: +1 to wound
+  atHalfRange:        boolean; // Rapid Fire: +X attacks, Melta: +X damage
+  atLongRange:        boolean; // Conversion: crit hits on 4+
+}
+
+export const DEFAULT_ATTACKER_CONTEXT: AttackerContext = {
+  remainedStationary: false,
+  charged:            false,
+  atHalfRange:        false,
+  atLongRange:        false,
+};
 
 // ─── Weapon profile ──────────────────────────────────────────────────────────
 
 export interface WeaponProfile {
   name: string;
-  /** Number of attacks per model. Can be a fixed number. Future: DiceExpression. */
-  attacks: number;
+  /** Number of attacks per model. Fixed number or dice expression e.g. "D6". */
+  attacks: DiceExpression;
   /** Skill threshold (e.g. 3 means 3+). For BS (shooting) or WS (melee). */
   skill: number;
   strength: number;
   ap: number;
-  damage: number;
+  /** Damage per unsaved wound. Fixed number or dice expression e.g. "D3". */
+  damage: DiceExpression;
   abilities: WeaponAbility[];
 }
 
@@ -26,9 +113,11 @@ export interface UnitProfile {
   id: string;
   name: string;
   toughness: number;
-  save: number;         // e.g. 3 means 3+
-  invuln?: number;      // e.g. 5 means 5+ invulnerable
-  wounds: number;       // wounds per model
+  save: number;    // e.g. 3 means 3+
+  invuln?: number; // e.g. 5 means 5+ invulnerable
+  wounds: number;  // wounds per model
+  /** Unit keywords for Anti ability matching (uppercase, e.g. ["VEHICLE", "WALKER"]). */
+  keywords: string[];
   shootingWeapons: WeaponProfile[];
   meleeWeapons: WeaponProfile[];
 }
@@ -46,7 +135,8 @@ export interface SelectedWeaponInput {
 export interface CombatantInput {
   unit: UnitProfile;
   modelCount: number;
-  inCover?: boolean;    // +1 to save roll
+  inCover?: boolean;
+  attackerContext?: AttackerContext;
   selectedWeapons: SelectedWeaponInput[];
 }
 
@@ -129,10 +219,12 @@ export interface CombatFormState {
   attackerCount: number;
   /** Ordered list of selected weapons for the attacker (shooting weapons in shooting, melee in melee). */
   attackerWeapons: SelectedWeapon[];
+  attackerContext: AttackerContext;
   defenderUnitId: string;
   defenderCount: number;
   defenderInCover: boolean;
   /** Ordered list of selected melee weapons for the defender (used for melee counterattack). */
   defenderWeapons: SelectedWeapon[];
-  firstFighter: FirstFighter; // only relevant for melee
+  defenderContext: AttackerContext; // used for melee counterattack
+  firstFighter: FirstFighter;       // only relevant for melee
 }

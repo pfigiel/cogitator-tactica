@@ -171,6 +171,7 @@ export function resolveWeaponModifiers(
 
       // ── No-op abilities (stored in type system for UI display only) ──────────
       case "ASSAULT":
+      case "HAZARDOUS":
       case "LINKED_FIRE":
       case "PISTOL":
       case "PRECISION":

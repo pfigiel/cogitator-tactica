@@ -8,6 +8,7 @@ import {
   SelectedWeapon,
   SelectedWeaponInput,
   UnitProfile,
+  DEFAULT_ATTACKER_CONTEXT,
 } from "@/lib/calculator/types";
 import { calculate } from "@/lib/calculator";
 import { UNITS } from "@/data/units";
@@ -17,13 +18,15 @@ import ResultsDisplay from "@/components/ResultsDisplay";
 
 const DEFAULT_FORM: CombatFormState = {
   phase: "shooting",
-  attackerUnitId: "intercessors",
+  attackerUnitId: "intercessor_squad",
   attackerCount: 10,
   attackerWeapons: [{ weaponName: "Bolt Rifle" }],
-  defenderUnitId: "ork_boyz",
+  attackerContext: DEFAULT_ATTACKER_CONTEXT,
+  defenderUnitId: "boyz_boy",
   defenderCount: 20,
   defenderInCover: false,
   defenderWeapons: [{ weaponName: "Choppa" }],
+  defenderContext: DEFAULT_ATTACKER_CONTEXT,
   firstFighter: "attacker",
 };
 
@@ -85,13 +88,34 @@ export default function Home() {
         form.phase === "shooting"
           ? {
               phase: "shooting",
-              attacker: { unit: attacker, modelCount: form.attackerCount, selectedWeapons: attackerWeapons },
-              defender: { unit: defender, modelCount: form.defenderCount, inCover: form.defenderInCover, selectedWeapons: defenderWeapons },
+              attacker: {
+                unit: attacker,
+                modelCount: form.attackerCount,
+                attackerContext: form.attackerContext,
+                selectedWeapons: attackerWeapons,
+              },
+              defender: {
+                unit: defender,
+                modelCount: form.defenderCount,
+                inCover: form.defenderInCover,
+                selectedWeapons: defenderWeapons,
+              },
             }
           : {
               phase: "melee",
-              attacker: { unit: attacker, modelCount: form.attackerCount, selectedWeapons: attackerWeapons },
-              defender: { unit: defender, modelCount: form.defenderCount, inCover: form.defenderInCover, selectedWeapons: defenderWeapons },
+              attacker: {
+                unit: attacker,
+                modelCount: form.attackerCount,
+                attackerContext: form.attackerContext,
+                selectedWeapons: attackerWeapons,
+              },
+              defender: {
+                unit: defender,
+                modelCount: form.defenderCount,
+                inCover: form.defenderInCover,
+                attackerContext: form.defenderContext,
+                selectedWeapons: defenderWeapons,
+              },
               firstFighter: form.firstFighter,
             }
       );

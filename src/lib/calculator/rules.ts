@@ -1,37 +1,77 @@
-import { WeaponAbility } from "./types";
-import { P_CRIT } from "./dice";
+import { Modifier } from "./types";
+import { pSuccessWithReroll, pCritWithReroll } from "./dice";
+import {
+  hasModifier,
+  applyAndClampDelta,
+  effectiveCritThreshold,
+  effectiveReroll,
+  effectiveSustainedHits,
+} from "./modifiers";
 
 /**
  * Intermediate state flowing through the combat pipeline.
  * We track normal and critical values separately so each rule can branch on them.
  */
 export interface PipelineState {
-  normalHits: number;  // hits that are NOT crits
-  critHits: number;    // crit (natural 6) hits — may bypass wound roll
+  normalHits: number;   // hits that are NOT crits
+  critHits: number;     // crit (natural 6, or lower with Conversion) hits
   normalWounds: number;
-  critWounds: number;  // crit wounds — may bypass saves (devastating wounds)
+  critWounds: number;   // crit wounds — may bypass saves (Devastating Wounds)
 }
 
 /**
- * Apply all weapon abilities that modify the hit step output before wound roll.
- * Input: raw hits already split into normal/crit.
- * Returns modified pipeline state.
+ * Given a number of attacks and hit threshold, compute the expected hit breakdown.
+ * Accounts for AUTO_HIT (Torrent), hit threshold deltas, crit hit threshold overrides,
+ * and hit rerolls.
+ */
+export function resolveHits(
+  attacks: number,
+  skill: number,
+  modifiers: Modifier[],
+): { normalHits: number; critHits: number; note: string } {
+  if (hasModifier(modifiers, "AUTO_HIT")) {
+    return {
+      normalHits: attacks,
+      critHits: 0,
+      note: "Torrent: auto-hits, no roll required",
+    };
+  }
+
+  const effectiveSkill = applyAndClampDelta(skill, modifiers, "HIT_THRESHOLD_DELTA");
+  const critThreshold  = effectiveCritThreshold(modifiers, "CRIT_HIT_THRESHOLD", 6);
+  const reroll         = effectiveReroll(modifiers, "HIT_REROLL");
+
+  const pHit  = pSuccessWithReroll(effectiveSkill, reroll);
+  const pCrit = pCritWithReroll(critThreshold, effectiveSkill, reroll);
+
+  const critHits   = attacks * pCrit;
+  const normalHits = Math.max(0, attacks * pHit - critHits);
+
+  const notes: string[] = [];
+  if (effectiveSkill !== skill) {
+    notes.push(`Hit on ${effectiveSkill}+ (modified from ${skill}+)`);
+  } else {
+    notes.push(`Hit on ${effectiveSkill}+`);
+  }
+  if (critThreshold < 6) notes.push(`Crits on ${critThreshold}+`);
+  if (reroll) notes.push(`Re-roll ${reroll === "ALL" ? "all misses" : "1s"}`);
+
+  return { normalHits, critHits, note: notes.join("; ") };
+}
+
+/**
+ * Apply all modifiers that affect the hit step output before the wound roll.
+ * Currently: SUSTAINED_HITS (extra hits per crit).
  */
 export function applyHitAbilities(
   state: PipelineState,
-  abilities: WeaponAbility[]
+  modifiers: Modifier[],
 ): PipelineState {
   let { normalHits, critHits } = state;
 
-  for (const ability of abilities) {
-    if (ability.type === "SUSTAINED_HITS") {
-      // Each crit hit generates `value` additional hits (non-crit)
-      normalHits += critHits * ability.value;
-    }
-    if (ability.type === "LETHAL_HITS") {
-      // Crit hits auto-wound — remove them from the hit pool, they'll be injected into wound pool
-      // (handled in the shooting/melee pipeline after this function)
-    }
+  const sustainedValue = effectiveSustainedHits(modifiers);
+  if (sustainedValue > 0) {
+    normalHits += critHits * sustainedValue;
   }
 
   return { ...state, normalHits, critHits };
@@ -40,60 +80,24 @@ export function applyHitAbilities(
 /**
  * How many crit hits become auto-wounds (Lethal Hits).
  */
-export function lethalHitAutoWounds(
-  critHits: number,
-  abilities: WeaponAbility[]
-): number {
-  if (abilities.some((a) => a.type === "LETHAL_HITS")) {
-    return critHits;
-  }
-  return 0;
+export function lethalHitAutoWounds(critHits: number, modifiers: Modifier[]): number {
+  return hasModifier(modifiers, "LETHAL_HITS") ? critHits : 0;
 }
 
 /**
- * Apply all weapon abilities that modify the wound step output before save roll.
+ * Apply all modifiers that affect the wound step output before the save roll.
+ * Extension point for future wound-modifying abilities (e.g. Poison).
  */
 export function applyWoundAbilities(
   state: PipelineState,
-  abilities: WeaponAbility[]
+  _modifiers: Modifier[],
 ): PipelineState {
-  // Nothing modifies wound output currently beyond Devastating Wounds tracking.
-  // This is the extension point (e.g. Poison weapons).
   return state;
 }
 
 /**
  * How many crit wounds bypass saves (Devastating Wounds → mortal wounds).
  */
-export function devastatingWoundMortals(
-  critWounds: number,
-  abilities: WeaponAbility[]
-): number {
-  if (abilities.some((a) => a.type === "DEVASTATING_WOUNDS")) {
-    return critWounds;
-  }
-  return 0;
-}
-
-/**
- * Given a number of attacks and hit threshold, compute the expected hit breakdown.
- * Accounts for TORRENT (auto-hit) and splits output into normal vs crit.
- */
-export function resolveHits(
-  attacks: number,
-  skill: number,
-  abilities: WeaponAbility[]
-): { normalHits: number; critHits: number; note: string } {
-  if (abilities.some((a) => a.type === "TORRENT")) {
-    return {
-      normalHits: attacks,
-      critHits: 0,
-      note: "Torrent: auto-hits, no roll required",
-    };
-  }
-
-  const critHits = attacks * P_CRIT;
-  const normalHits = attacks * ((7 - skill) / 6) - critHits;
-
-  return { normalHits, critHits, note: `Hit on ${skill}+` };
+export function devastatingWoundMortals(critWounds: number, modifiers: Modifier[]): number {
+  return hasModifier(modifiers, "DEVASTATING_WOUNDS") ? critWounds : 0;
 }

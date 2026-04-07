@@ -1,5 +1,5 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { CombatFormState, SelectedWeapon } from "@/lib/calculator/types";
+import { CombatFormState, SelectedWeapon, DEFAULT_ATTACKER_CONTEXT } from "@/lib/calculator/types";
 import { UNIT_LIST, UNITS } from "@/data/units";
 
 const client = new Anthropic(); // reads ANTHROPIC_API_KEY from env
@@ -116,10 +116,12 @@ export async function parsePrompt(prompt: string): Promise<CombatFormState> {
     attackerUnitId,
     attackerCount: Math.max(1, Number(parsed.attackerCount) || 1),
     attackerWeapons,
+    attackerContext: DEFAULT_ATTACKER_CONTEXT,
     defenderUnitId,
     defenderCount: Math.max(1, Number(parsed.defenderCount) || 1),
     defenderInCover: Boolean(parsed.defenderInCover),
     defenderWeapons,
+    defenderContext: DEFAULT_ATTACKER_CONTEXT,
     firstFighter: parsed.firstFighter ?? "attacker",
   };
 }
