@@ -4,6 +4,8 @@
  * This module is the extension point for future probability distributions.
  */
 
+import { DiceExpression } from "./types";
+
 /**
  * Probability of rolling >= threshold on a D6.
  * threshold=3 → rolling 3,4,5,6 → 4/6
@@ -45,4 +47,20 @@ export function effectiveSaveThreshold(
   const armorSave = save + ap - coverBonus;
   const best = invuln !== undefined ? Math.min(armorSave, invuln) : armorSave;
   return Math.max(2, best); // 2+ is the hard cap
+}
+
+/**
+ * Returns the expected (average) value of a DiceExpression.
+ * Numbers pass through unchanged.
+ * Valid string formats: D3, D6, 2D6, D3+3, D6+1, etc.
+ * Throws if the expression is not a valid pattern — validate at import time, not here.
+ */
+export function diceAverage(expr: DiceExpression): number {
+  if (typeof expr === "number") return expr;
+  const match = expr.match(/^(\d+)?D(3|6)([+-]\d+)?$/i);
+  if (!match) throw new Error(`Invalid DiceExpression: "${expr}"`);
+  const multiplier = match[1] ? parseInt(match[1], 10) : 1;
+  const sides = parseInt(match[2], 10);
+  const modifier = match[3] ? parseInt(match[3], 10) : 0;
+  return multiplier * ((1 + sides) / 2) + modifier;
 }
