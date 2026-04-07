@@ -4,7 +4,8 @@
  * This module is the extension point for future probability distributions.
  */
 
-import { DiceExpression } from "./types";
+import { Modifier, RerollType, DiceExpression } from "./types";
+import { applyAndClampDelta } from "./modifiers";
 
 /**
  * Probability of rolling >= threshold on a D6.
@@ -34,19 +35,63 @@ export function woundThreshold(strength: number, toughness: number): number {
 }
 
 /**
- * Effective save threshold after AP, clamped so it can never be better than 2+.
- * Cover adds +1 to the save stat (lower is better), so we subtract 1 from threshold.
+ * Probability of a successful D6 roll, optionally with rerolls.
+ *
+ * - ONES: reroll natural 1s (1s always fail, so P = base + (1/6) × base)
+ * - ALL:  reroll all failures (P = base + (1 − base) × base)
+ */
+export function pSuccessWithReroll(threshold: number, reroll: RerollType | null): number {
+  const base = pSuccess(threshold);
+  if (!reroll) return base;
+  if (reroll === "ONES") return Math.min(1, base + (1 / 6) * base);
+  // ALL: reroll every failed die
+  return Math.min(1, base + (1 - base) * base);
+}
+
+/**
+ * Probability of a critical result on a D6 roll, optionally with rerolls.
+ *
+ * @param critThreshold  - roll must be >= this to count as a crit (default 6; lower with e.g. Conversion/Anti)
+ * @param rollThreshold  - the hit/wound threshold — determines which dice are failures for REROLL_ALL
+ * @param reroll         - optional reroll applied to the overall roll
+ *
+ * - ONES: reroll natural 1s → P(crit) = pSuccess(critThreshold) + (1/6) × pSuccess(critThreshold)
+ * - ALL:  reroll failures   → P(crit) = pSuccess(critThreshold) + (1 − pSuccess(rollThreshold)) × pSuccess(critThreshold)
+ */
+export function pCritWithReroll(
+  critThreshold: number,
+  rollThreshold: number,
+  reroll: RerollType | null,
+): number {
+  const pCritBase = pSuccess(critThreshold);
+  if (!reroll) return pCritBase;
+  if (reroll === "ONES") return Math.min(1, pCritBase + (1 / 6) * pCritBase);
+  // ALL: only failed rolls (didn't meet rollThreshold) get rerolled
+  return Math.min(1, pCritBase + (1 - pSuccess(rollThreshold)) * pCritBase);
+}
+
+/**
+ * Effective save threshold after AP and modifiers (e.g. cover, invuln improvements).
+ *
+ * Accepts Modifier[] instead of a bare inCover boolean so that any source
+ * (cover, Indirect Fire, auras, stratagems, etc.) feeds in uniformly.
+ * Clamped so it can never be better than 2+.
  */
 export function effectiveSaveThreshold(
   save: number,
   ap: number,
-  inCover: boolean,
-  invuln?: number
+  modifiers: Modifier[],
+  invuln?: number,
 ): number {
-  const coverBonus = inCover ? 1 : 0;
-  const armorSave = save + ap - coverBonus;
-  const best = invuln !== undefined ? Math.min(armorSave, invuln) : armorSave;
-  return Math.max(2, best); // 2+ is the hard cap
+  // applyAndClampDelta handles the sum-then-clamp rule for SAVE_THRESHOLD_DELTA
+  const armorSave = applyAndClampDelta(save + ap, modifiers, "SAVE_THRESHOLD_DELTA");
+
+  if (invuln !== undefined) {
+    const effectiveInvuln = applyAndClampDelta(invuln, modifiers, "INVULN_THRESHOLD_DELTA");
+    return Math.max(2, Math.min(armorSave, effectiveInvuln));
+  }
+
+  return Math.max(2, armorSave);
 }
 
 /**
