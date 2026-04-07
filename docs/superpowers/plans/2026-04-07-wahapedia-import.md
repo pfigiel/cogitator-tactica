@@ -839,7 +839,7 @@ Entry point: parses CLI args, runs the pipeline, writes `src/data/units.ts`, pri
     console.log(`Importing factions: ${factions.join(", ")}`);
 
     const data = await parseAll();
-    const { units, warnings, skippedKillTeam } = transform(data, factions);
+    const { units, warnings, skippedKillTeam, countByFaction } = transform(data, factions);
 
     // Print warnings
     for (const w of warnings) {
