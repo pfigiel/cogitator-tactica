@@ -65,6 +65,10 @@ function buildWeapon(
 
   const skill = parseSkill(row.BS_WS);
   const strength = parseInt(row.S, 10);
+  if (isNaN(strength)) {
+    warnings.push({ unitName, weaponName: row.name, message: `invalid strength value "${row.S}" — weapon skipped` });
+    return null;
+  }
   const ap = -parseInt(row.AP, 10); // Wahapedia stores negative; app uses positive
 
   const { abilities, unknownTokens } = parseAbilities(row.description);
