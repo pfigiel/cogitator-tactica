@@ -1,6 +1,13 @@
 "use client";
 
-import { CombatFormState, Phase, FirstFighter, SelectedWeapon, WeaponProfile } from "@/lib/calculator/types";
+import {
+  CombatFormState,
+  Phase,
+  FirstFighter,
+  SelectedWeapon,
+  WeaponProfile,
+  AttackerContext,
+} from "@/lib/calculator/types";
 import { UNIT_LIST, UNITS } from "@/data/units";
 
 interface Props {
@@ -111,6 +118,101 @@ function WeaponSelector({
             </div>
           );
         })}
+      </div>
+    </div>
+  );
+}
+
+/** Determine which context flags are relevant for the given selected weapons. */
+function relevantContextFlags(weapons: WeaponProfile[], selected: SelectedWeapon[]) {
+  const profiles = selected
+    .map((s) => weapons.find((w) => w.name === s.weaponName))
+    .filter((w): w is WeaponProfile => w !== undefined);
+
+  return {
+    showStationary: profiles.some((w) => w.abilities.some((a) => a.type === "HEAVY")),
+    showCharged:    profiles.some((w) => w.abilities.some((a) => a.type === "LANCE")),
+    showHalfRange:  profiles.some((w) => w.abilities.some((a) => a.type === "RAPID_FIRE" || a.type === "MELTA")),
+    showLongRange:  profiles.some((w) => w.abilities.some((a) => a.type === "CONVERSION")),
+  };
+}
+
+function AttackerContextSection({
+  idPrefix,
+  context,
+  flags,
+  accentColor,
+  onChange,
+}: {
+  idPrefix: string;
+  context: AttackerContext;
+  flags: ReturnType<typeof relevantContextFlags>;
+  accentColor: string;
+  onChange: (ctx: AttackerContext) => void;
+}) {
+  const { showStationary, showCharged, showHalfRange, showLongRange } = flags;
+  if (!showStationary && !showCharged && !showHalfRange && !showLongRange) return null;
+
+  return (
+    <div>
+      <label className="block text-xs text-gray-400 mb-2">Conditions</label>
+      <div className="space-y-1">
+        {showStationary && (
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id={`${idPrefix}-stationary`}
+              checked={context.remainedStationary}
+              onChange={(e) => onChange({ ...context, remainedStationary: e.target.checked })}
+              className={`accent-${accentColor}-500`}
+            />
+            <label htmlFor={`${idPrefix}-stationary`} className="text-sm text-gray-300">
+              Remained Stationary <span className="text-xs text-gray-500">(Heavy +1 to hit)</span>
+            </label>
+          </div>
+        )}
+        {showCharged && (
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id={`${idPrefix}-charged`}
+              checked={context.charged}
+              onChange={(e) => onChange({ ...context, charged: e.target.checked })}
+              className={`accent-${accentColor}-500`}
+            />
+            <label htmlFor={`${idPrefix}-charged`} className="text-sm text-gray-300">
+              Charged this turn <span className="text-xs text-gray-500">(Lance +1 to wound)</span>
+            </label>
+          </div>
+        )}
+        {showHalfRange && (
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id={`${idPrefix}-halfrange`}
+              checked={context.atHalfRange}
+              onChange={(e) => onChange({ ...context, atHalfRange: e.target.checked })}
+              className={`accent-${accentColor}-500`}
+            />
+            <label htmlFor={`${idPrefix}-halfrange`} className="text-sm text-gray-300">
+              At half range <span className="text-xs text-gray-500">(Rapid Fire / Melta)</span>
+            </label>
+          </div>
+        )}
+        {showLongRange && (
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id={`${idPrefix}-longrange`}
+              checked={context.atLongRange}
+              onChange={(e) => onChange({ ...context, atLongRange: e.target.checked })}
+              className={`accent-${accentColor}-500`}
+            />
+            <label htmlFor={`${idPrefix}-longrange`} className="text-sm text-gray-300">
+              At long range <span className="text-xs text-gray-500">(Conversion crits on 4+)</span>
+            </label>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -242,6 +344,9 @@ export default function CombatForm({ state, onChange, onCalculate }: Props) {
   const attackerWeaponPool =
     state.phase === "shooting" ? attackerUnit.shootingWeapons : attackerUnit.meleeWeapons;
 
+  const attackerContextFlags = relevantContextFlags(attackerWeaponPool, state.attackerWeapons);
+  const defenderContextFlags = relevantContextFlags(defenderUnit.meleeWeapons, state.defenderWeapons);
+
   return (
     <div className="space-y-6">
       {/* Phase selector */}
@@ -305,6 +410,13 @@ export default function CombatForm({ state, onChange, onCalculate }: Props) {
             onMoveUp={moveAttackerWeaponUp}
             onMoveDown={moveAttackerWeaponDown}
           />
+          <AttackerContextSection
+            idPrefix="attacker"
+            context={state.attackerContext}
+            flags={attackerContextFlags}
+            accentColor="amber"
+            onChange={(ctx) => onChange({ ...state, attackerContext: ctx })}
+          />
         </div>
 
         {/* Defender */}
@@ -345,18 +457,27 @@ export default function CombatForm({ state, onChange, onCalculate }: Props) {
             />
             <label htmlFor="cover" className="text-sm text-gray-300">In Cover (+1 to save)</label>
           </div>
-          {/* Defender weapon selection — only relevant for melee counterattack */}
+          {/* Defender weapon selection and context — only relevant for melee counterattack */}
           {state.phase === "melee" && (
-            <WeaponSelector
-              weapons={defenderUnit.meleeWeapons}
-              selected={state.defenderWeapons}
-              defaultModelCount={state.defenderCount}
-              accentColor="blue"
-              onToggle={toggleDefenderWeapon}
-              onCountChange={setDefenderWeaponCount}
-              onMoveUp={moveDefenderWeaponUp}
-              onMoveDown={moveDefenderWeaponDown}
-            />
+            <>
+              <WeaponSelector
+                weapons={defenderUnit.meleeWeapons}
+                selected={state.defenderWeapons}
+                defaultModelCount={state.defenderCount}
+                accentColor="blue"
+                onToggle={toggleDefenderWeapon}
+                onCountChange={setDefenderWeaponCount}
+                onMoveUp={moveDefenderWeaponUp}
+                onMoveDown={moveDefenderWeaponDown}
+              />
+              <AttackerContextSection
+                idPrefix="defender"
+                context={state.defenderContext}
+                flags={defenderContextFlags}
+                accentColor="blue"
+                onChange={(ctx) => onChange({ ...state, defenderContext: ctx })}
+              />
+            </>
           )}
         </div>
       </div>

@@ -2,18 +2,35 @@
  * Public API for the combat calculator.
  */
 
-import { CombatInput, CombatResult, DirectionalResult, SelectedWeaponInput, UnitProfile } from "./types";
+import {
+  CombatInput,
+  CombatResult,
+  DirectionalResult,
+  SelectedWeaponInput,
+  UnitProfile,
+  AttackerContext,
+  DEFAULT_ATTACKER_CONTEXT,
+} from "./types";
 import { resolveWeapon } from "./pipeline";
 
 function resolveDirection(
   attackerUnit: UnitProfile,
   attackerModelCount: number,
+  attackerContext: AttackerContext,
   selectedWeapons: SelectedWeaponInput[],
   defenderUnit: UnitProfile,
-  defenderInCover: boolean
+  defenderModelCount: number,
+  defenderInCover: boolean,
 ): DirectionalResult {
   const weaponResults = selectedWeapons.map(({ weapon, modelCount }) =>
-    resolveWeapon(modelCount, weapon, defenderUnit, defenderInCover)
+    resolveWeapon(
+      modelCount,
+      weapon,
+      defenderUnit,
+      defenderInCover,
+      attackerContext,
+      defenderModelCount,
+    )
   );
 
   const totalAverageDamage = weaponResults.reduce((sum, r) => sum + r.averageDamage, 0);
@@ -35,9 +52,11 @@ export function calculate(input: CombatInput): CombatResult {
     const primary = resolveDirection(
       attacker.unit,
       attacker.modelCount,
+      attacker.attackerContext ?? DEFAULT_ATTACKER_CONTEXT,
       attacker.selectedWeapons,
       defender.unit,
-      defender.inCover ?? false
+      defender.modelCount,
+      defender.inCover ?? false,
     );
 
     return { phase: "shooting", primary };
@@ -50,9 +69,11 @@ export function calculate(input: CombatInput): CombatResult {
   const primary = resolveDirection(
     attacker.unit,
     attacker.modelCount,
+    attacker.attackerContext ?? DEFAULT_ATTACKER_CONTEXT,
     attacker.selectedWeapons,
     defender.unit,
-    defender.inCover ?? false
+    defender.modelCount,
+    defender.inCover ?? false,
   );
 
   // Counterattack: defender → attacker
@@ -61,9 +82,11 @@ export function calculate(input: CombatInput): CombatResult {
   const counterattack = resolveDirection(
     defender.unit,
     defender.modelCount,
+    defender.attackerContext ?? DEFAULT_ATTACKER_CONTEXT,
     defender.selectedWeapons,
     attacker.unit,
-    attacker.inCover ?? false
+    attacker.modelCount,
+    attacker.inCover ?? false,
   );
 
   const firstFighterNote =
