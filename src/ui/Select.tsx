@@ -1,5 +1,5 @@
-import { Select as MantineSelect, SelectProps } from "@mantine/core";
+import { Select as MantineSelect, SelectProps, ElementProps } from "@mantine/core";
 
-export function Select(props: SelectProps) {
+export function Select(props: SelectProps & ElementProps<"input", keyof SelectProps>) {
   return <MantineSelect {...props} />;
 }
