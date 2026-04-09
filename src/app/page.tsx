@@ -51,7 +51,7 @@ export default function Home() {
   const [result, setResult] = useState<CombatResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  function handleCalculate() {
+  async function handleCalculate() {
     setError(null);
     const attacker = UNITS[form.attackerUnitId];
     const defender = UNITS[form.defenderUnitId];
@@ -84,7 +84,7 @@ export default function Home() {
     }
 
     try {
-      const combatResult = calculate(
+      const combatResult = await calculate(
         form.phase === "shooting"
           ? {
               phase: "shooting",
@@ -97,7 +97,7 @@ export default function Home() {
               defender: {
                 unit: defender,
                 modelCount: form.defenderCount,
-                inCover: form.defenderInCover,
+                defenderContext: { inCover: form.defenderInCover },
                 selectedWeapons: defenderWeapons,
               },
             }
@@ -112,7 +112,7 @@ export default function Home() {
               defender: {
                 unit: defender,
                 modelCount: form.defenderCount,
-                inCover: form.defenderInCover,
+                defenderContext: { inCover: form.defenderInCover },
                 attackerContext: form.defenderContext,
                 selectedWeapons: defenderWeapons,
               },
