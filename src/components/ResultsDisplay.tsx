@@ -1,6 +1,7 @@
 "use client";
 
 import { CombatResult, DirectionalResult, WeaponResult } from "@/lib/calculator/types";
+import { Table, Alert, Stack, Group } from "@/ui";
 
 interface Props {
   result: CombatResult;
@@ -8,113 +9,195 @@ interface Props {
 
 function WeaponTable({ weaponResult }: { weaponResult: WeaponResult }) {
   return (
-    <div className="space-y-1">
-      <div className="flex items-baseline gap-2">
-        <h4 className="font-semibold text-white text-sm">{weaponResult.weaponName}</h4>
-        <span className="text-xs text-gray-500">{weaponResult.modelCount} model(s)</span>
-      </div>
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm border-collapse">
-          <thead>
-            <tr className="border-b border-gray-700">
-              <th className="text-left py-1.5 pr-4 text-gray-500 font-medium text-xs">Step</th>
-              <th className="text-right py-1.5 pr-4 text-gray-500 font-medium text-xs">Input</th>
-              <th className="text-right py-1.5 pr-4 text-gray-500 font-medium text-xs">Average</th>
-            </tr>
-          </thead>
-          <tbody>
-            {weaponResult.steps.map((step, i) => (
-              <tr key={i} className="border-b border-gray-700/50 hover:bg-gray-800 transition-colors">
-                <td className="py-1.5 pr-4 font-medium text-gray-300 text-xs">{step.label}</td>
-                <td className="py-1.5 pr-4 text-right text-gray-400 text-xs">{step.input.toFixed(2)}</td>
-                <td className="py-1.5 pr-4 text-right font-bold text-amber-300 text-xs">{step.average.toFixed(2)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <div className="flex gap-4 pt-1 text-xs text-gray-400">
-        <span>Damage: <span className="text-amber-400 font-bold">{weaponResult.averageDamage.toFixed(2)}</span></span>
-        <span>Models Slain: <span className="text-red-400 font-bold">{weaponResult.averageModelsSlain.toFixed(2)}</span></span>
-      </div>
-    </div>
+    <Stack gap="xs">
+      <Group gap="xs" align="baseline">
+        <h4 style={{ fontWeight: 600, fontSize: "14px", margin: 0 }}>
+          {weaponResult.weaponName}
+        </h4>
+        <span style={{ fontSize: "12px", color: "var(--mantine-color-dimmed)" }}>
+          {weaponResult.modelCount} model(s)
+        </span>
+      </Group>
+      <Table striped highlightOnHover withRowBorders>
+        <Table.Thead>
+          <Table.Tr>
+            <Table.Th style={{ fontSize: "12px" }}>Step</Table.Th>
+            <Table.Th style={{ textAlign: "right", fontSize: "12px" }}>Input</Table.Th>
+            <Table.Th style={{ textAlign: "right", fontSize: "12px" }}>Average</Table.Th>
+          </Table.Tr>
+        </Table.Thead>
+        <Table.Tbody>
+          {weaponResult.steps.map((step, i) => (
+            <Table.Tr key={i}>
+              <Table.Td style={{ fontSize: "12px" }}>{step.label}</Table.Td>
+              <Table.Td
+                style={{
+                  textAlign: "right",
+                  fontSize: "12px",
+                  color: "var(--mantine-color-dimmed)",
+                }}
+              >
+                {step.input.toFixed(2)}
+              </Table.Td>
+              <Table.Td
+                style={{
+                  textAlign: "right",
+                  fontSize: "12px",
+                  fontWeight: 700,
+                  color: "var(--mantine-color-yellow-4)",
+                }}
+              >
+                {step.average.toFixed(2)}
+              </Table.Td>
+            </Table.Tr>
+          ))}
+        </Table.Tbody>
+      </Table>
+      <Group gap="lg" style={{ fontSize: "12px", color: "var(--mantine-color-dimmed)" }}>
+        <span>
+          Damage:{" "}
+          <span style={{ color: "var(--mantine-color-yellow-4)", fontWeight: 700 }}>
+            {weaponResult.averageDamage.toFixed(2)}
+          </span>
+        </span>
+        <span>
+          Models Slain:{" "}
+          <span style={{ color: "var(--mantine-color-red-4)", fontWeight: 700 }}>
+            {weaponResult.averageModelsSlain.toFixed(2)}
+          </span>
+        </span>
+      </Group>
+    </Stack>
   );
 }
 
-function DirectionTable({ result, title, color }: { result: DirectionalResult; title: string; color: string }) {
+function DirectionTable({
+  result,
+  title,
+  color,
+}: {
+  result: DirectionalResult;
+  title: string;
+  color: string;
+}) {
   const multiWeapon = result.weaponResults.length > 1;
 
   return (
-    <div className="space-y-3">
-      <h3 className={`font-bold text-lg ${color}`}>{title}</h3>
-      <p className="text-sm text-gray-400">
+    <Stack gap="sm">
+      <h3 style={{ fontWeight: 700, fontSize: "18px", color, margin: 0 }}>
+        {title}
+      </h3>
+      <p style={{ fontSize: "14px", color: "var(--mantine-color-dimmed)", margin: 0 }}>
         {result.attackerName} → {result.defenderName}
       </p>
-
-      <div className="space-y-4">
+      <Stack gap="lg">
         {result.weaponResults.map((wr) => (
           <WeaponTable key={wr.weaponName} weaponResult={wr} />
         ))}
+      </Stack>
+      <div
+        style={{
+          paddingTop: "8px",
+          borderTop: "1px solid var(--mantine-color-dark-4)",
+        }}
+      >
+        {multiWeapon && (
+          <p
+            style={{
+              fontSize: "12px",
+              color: "var(--mantine-color-dimmed)",
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+              marginBottom: "8px",
+            }}
+          >
+            Combined totals
+          </p>
+        )}
+        <Group gap="xl">
+          <div>
+            <div
+              style={{
+                fontSize: "12px",
+                color: "var(--mantine-color-dimmed)",
+                textTransform: "uppercase",
+              }}
+            >
+              Avg Damage
+            </div>
+            <div
+              style={{
+                fontSize: "24px",
+                fontWeight: 700,
+                color: "var(--mantine-color-yellow-4)",
+              }}
+            >
+              {result.totalAverageDamage.toFixed(2)}
+            </div>
+          </div>
+          <div>
+            <div
+              style={{
+                fontSize: "12px",
+                color: "var(--mantine-color-dimmed)",
+                textTransform: "uppercase",
+              }}
+            >
+              Avg Models Slain
+            </div>
+            <div
+              style={{
+                fontSize: "24px",
+                fontWeight: 700,
+                color: "var(--mantine-color-red-4)",
+              }}
+            >
+              {result.totalAverageModelsSlain.toFixed(2)}
+            </div>
+          </div>
+        </Group>
       </div>
-
-      {multiWeapon && (
-        <div className="pt-2 border-t border-gray-600">
-          <p className="text-xs text-gray-500 mb-1 uppercase tracking-wide">Combined totals</p>
-          <div className="flex gap-6">
-            <div>
-              <span className="text-xs text-gray-400 uppercase">Avg Damage</span>
-              <div className="text-2xl font-bold text-amber-400">{result.totalAverageDamage.toFixed(2)}</div>
-            </div>
-            <div>
-              <span className="text-xs text-gray-400 uppercase">Avg Models Slain</span>
-              <div className="text-2xl font-bold text-red-400">{result.totalAverageModelsSlain.toFixed(2)}</div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {!multiWeapon && (
-        <div className="flex gap-6 pt-2 border-t border-gray-700">
-          <div>
-            <span className="text-xs text-gray-400 uppercase">Avg Damage</span>
-            <div className="text-2xl font-bold text-amber-400">{result.totalAverageDamage.toFixed(2)}</div>
-          </div>
-          <div>
-            <span className="text-xs text-gray-400 uppercase">Avg Models Slain</span>
-            <div className="text-2xl font-bold text-red-400">{result.totalAverageModelsSlain.toFixed(2)}</div>
-          </div>
-        </div>
-      )}
-    </div>
+    </Stack>
   );
 }
 
 export default function ResultsDisplay({ result }: Props) {
   return (
-    <div className="space-y-8">
-      <h2 className="text-xl font-bold text-white uppercase tracking-wide border-b border-gray-600 pb-2">
-        Results — {result.phase === "shooting" ? "Shooting Phase" : "Fight Phase"}
+    <Stack gap="xl">
+      <h2
+        style={{
+          fontSize: "20px",
+          fontWeight: 700,
+          textTransform: "uppercase",
+          letterSpacing: "0.05em",
+          borderBottom: "1px solid var(--mantine-color-dark-4)",
+          paddingBottom: "8px",
+          margin: 0,
+        }}
+      >
+        Results —{" "}
+        {result.phase === "shooting" ? "Shooting Phase" : "Fight Phase"}
       </h2>
 
       {result.firstFighterNote && (
-        <div className="bg-yellow-900/40 border border-yellow-700 rounded p-3 text-yellow-200 text-sm">
+        <Alert color="yellow" variant="light">
           {result.firstFighterNote}
-        </div>
+        </Alert>
       )}
 
       <DirectionTable
         result={result.primary}
         title={result.phase === "melee" ? "Primary Attack" : "Attack"}
-        color="text-amber-400"
+        color="var(--mantine-color-yellow-4)"
       />
 
       {result.counterattack && (
         <DirectionTable
           result={result.counterattack}
           title="Counterattack"
-          color="text-blue-400"
+          color="var(--mantine-color-blue-4)"
         />
       )}
-    </div>
+    </Stack>
   );
 }
