@@ -68,9 +68,9 @@ interface StepCounts {
 }
 
 function simulateWeaponOnce(
-  modelCount: number,
   rng: Rng,
   weapon: WeaponProfile,
+  attackerModelCount: number,
   attackerContext: AttackerContext,
   defenderUnit: UnitProfile,
   defenderModelCount: number,
@@ -97,9 +97,9 @@ Adding a new step = adding a field to `StepCounts` and inserting the step logic 
 const SIMULATION_RUNS = 10_000;
 
 async function runSimulation(
-  modelCount: number,
   rng: Rng,
   weapon: WeaponProfile,
+  attackerModelCount: number,
   attackerContext: AttackerContext,
   defenderUnit: UnitProfile,
   defenderModelCount: number,
