@@ -20,7 +20,6 @@ function WeaponTable({ weaponResult }: { weaponResult: WeaponResult }) {
               <th className="text-left py-1.5 pr-4 text-gray-500 font-medium text-xs">Step</th>
               <th className="text-right py-1.5 pr-4 text-gray-500 font-medium text-xs">Input</th>
               <th className="text-right py-1.5 pr-4 text-gray-500 font-medium text-xs">Average</th>
-              <th className="text-left py-1.5 text-gray-500 font-medium text-xs">Notes</th>
             </tr>
           </thead>
           <tbody>
@@ -29,7 +28,6 @@ function WeaponTable({ weaponResult }: { weaponResult: WeaponResult }) {
                 <td className="py-1.5 pr-4 font-medium text-gray-300 text-xs">{step.label}</td>
                 <td className="py-1.5 pr-4 text-right text-gray-400 text-xs">{step.input.toFixed(2)}</td>
                 <td className="py-1.5 pr-4 text-right font-bold text-amber-300 text-xs">{step.average.toFixed(2)}</td>
-                <td className="py-1.5 text-gray-500 text-xs">{step.note ?? "—"}</td>
               </tr>
             ))}
           </tbody>

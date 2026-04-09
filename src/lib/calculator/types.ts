@@ -181,8 +181,6 @@ export interface CombatStep {
   input: number;
   /** Expected successes / output from this step */
   average: number;
-  /** Human-readable explanation of what happened */
-  note?: string;
 }
 
 /** Result for a single weapon within a directional combat resolution. */
