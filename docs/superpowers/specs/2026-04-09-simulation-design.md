@@ -69,12 +69,12 @@ interface StepCounts {
 
 function simulateWeaponOnce(
   modelCount: number,
-  weapon: WeaponProfile,
-  defenderUnit: UnitProfile,
-  defenderContext: DefenderContext,
-  attackerContext: AttackerContext,
-  defenderModelCount: number,
   rng: Rng,
+  weapon: WeaponProfile,
+  attackerContext: AttackerContext,
+  defenderUnit: UnitProfile,
+  defenderModelCount: number,
+  defenderContext: DefenderContext,
 ): StepCounts
 ```
 
@@ -98,12 +98,12 @@ const SIMULATION_RUNS = 10_000;
 
 async function runSimulation(
   modelCount: number,
-  weapon: WeaponProfile,
-  defenderUnit: UnitProfile,
-  defenderContext: DefenderContext,
-  attackerContext: AttackerContext,
-  defenderModelCount: number,
   rng: Rng,
+  weapon: WeaponProfile,
+  attackerContext: AttackerContext,
+  defenderUnit: UnitProfile,
+  defenderModelCount: number,
+  defenderContext: DefenderContext,
 ): Promise<WeaponResult>
 ```
 
