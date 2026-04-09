@@ -45,6 +45,7 @@ export function Select({ minSearchLength, searchable, data, value, onChange, ...
       onChange={onChange}
       searchValue={minSearchLength !== undefined ? searchValue : undefined}
       onSearchChange={minSearchLength !== undefined ? setSearchValue : undefined}
+      onDropdownClose={minSearchLength !== undefined ? () => setSearchValue("") : undefined}
     />
   );
 }
