@@ -15,6 +15,7 @@ import { UNITS } from "@/data/units";
 import PromptInput from "@/components/PromptInput";
 import CombatForm from "@/components/CombatForm";
 import ResultsDisplay from "@/components/ResultsDisplay";
+import { Paper, Stack } from "@/ui";
 
 const DEFAULT_FORM: CombatFormState = {
   phase: "shooting",
@@ -30,7 +31,6 @@ const DEFAULT_FORM: CombatFormState = {
   firstFighter: "attacker",
 };
 
-/** Resolve form weapon selections to concrete WeaponProfile + modelCount pairs. */
 function resolveWeapons(
   unit: UnitProfile,
   phase: Phase,
@@ -126,38 +126,65 @@ export default function Home() {
   }
 
   return (
-    <main className="max-w-4xl mx-auto px-4 py-10 space-y-10">
-      {/* Header */}
-      <header className="text-center space-y-1">
-        <h1 className="text-4xl font-black uppercase tracking-widest text-amber-500">
-          WH40K Battle Calc
-        </h1>
-        <p className="text-gray-400 text-sm">Statistics calculator for Warhammer 40,000 10th Edition</p>
-      </header>
+    <main style={{ maxWidth: "896px", margin: "0 auto", padding: "40px 16px" }}>
+      <Stack gap="xl">
+        {/* Header */}
+        <header style={{ textAlign: "center" }}>
+          <h1
+            style={{
+              fontSize: "36px",
+              fontWeight: 900,
+              textTransform: "uppercase",
+              letterSpacing: "0.1em",
+              color: "var(--mantine-color-yellow-4)",
+              margin: 0,
+            }}
+          >
+            WH40K Battle Calc
+          </h1>
+          <p
+            style={{
+              color: "var(--mantine-color-dimmed)",
+              fontSize: "14px",
+              margin: 0,
+            }}
+          >
+            Statistics calculator for Warhammer 40,000 10th Edition
+          </p>
+        </header>
 
-      {/* Prompt input */}
-      <section className="bg-gray-800/50 border border-gray-700 rounded-xl p-6">
-        <PromptInput onParsed={(parsed) => setForm(parsed)} />
-      </section>
+        {/* Prompt input */}
+        <Paper>
+          <PromptInput onParsed={(parsed) => setForm(parsed)} />
+        </Paper>
 
-      {/* Form */}
-      <section className="bg-gray-800/50 border border-gray-700 rounded-xl p-6">
-        <CombatForm
-          state={form}
-          onChange={setForm}
-          onCalculate={handleCalculate}
-        />
-        {error && (
-          <p className="mt-3 text-red-400 text-sm">Error: {error}</p>
+        {/* Form */}
+        <Paper>
+          <CombatForm
+            state={form}
+            onChange={setForm}
+            onCalculate={handleCalculate}
+          />
+          {error && (
+            <p
+              style={{
+                marginTop: "12px",
+                color: "var(--mantine-color-red-4)",
+                fontSize: "14px",
+              }}
+            >
+              Error: {error}
+            </p>
+          )}
+        </Paper>
+
+        {/* Results */}
+        {result && (
+          <Paper>
+            <ResultsDisplay result={result} />
+          </Paper>
         )}
-      </section>
-
-      {/* Results */}
-      {result && (
-        <section className="bg-gray-800/50 border border-gray-700 rounded-xl p-6">
-          <ResultsDisplay result={result} />
-        </section>
-      )}
+      </Stack>
     </main>
   );
 }
