@@ -92,6 +92,20 @@ export const DEFAULT_ATTACKER_CONTEXT: AttackerContext = {
   atLongRange:        false,
 };
 
+// ─── Defender context ─────────────────────────────────────────────────────────
+
+/**
+ * Per-unit situational flags for defenders.
+ * Can be extended with additional flags (e.g. in cover, jeneration defensible, etc.).
+ */
+export interface DefenderContext {
+  inCover: boolean;
+}
+
+export const DEFAULT_DEFENDER_CONTEXT: DefenderContext = {
+  inCover: false,
+};
+
 // ─── Weapon profile ──────────────────────────────────────────────────────────
 
 export interface WeaponProfile {
@@ -135,7 +149,7 @@ export interface SelectedWeaponInput {
 export interface CombatantInput {
   unit: UnitProfile;
   modelCount: number;
-  inCover?: boolean;
+  defenderContext?: DefenderContext;
   attackerContext?: AttackerContext;
   selectedWeapons: SelectedWeaponInput[];
 }
