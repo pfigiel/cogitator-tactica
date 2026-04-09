@@ -482,6 +482,8 @@ export default function CombatForm({ state, onChange, onCalculate }: Props) {
             </h3>
             <Select
               label="Unit"
+              searchable
+              minSearchLength={3}
               value={state.attackerUnitId}
               onChange={(value) => value && handleAttackerUnitChange(value)}
               data={UNIT_DATA}
@@ -536,6 +538,8 @@ export default function CombatForm({ state, onChange, onCalculate }: Props) {
             </h3>
             <Select
               label="Unit"
+              searchable
+              minSearchLength={3}
               value={state.defenderUnitId}
               onChange={(value) => value && handleDefenderUnitChange(value)}
               data={UNIT_DATA}
