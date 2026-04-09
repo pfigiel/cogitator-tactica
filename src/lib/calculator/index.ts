@@ -9,27 +9,33 @@ import {
   SelectedWeaponInput,
   UnitProfile,
   AttackerContext,
+  DefenderContext,
   DEFAULT_ATTACKER_CONTEXT,
+  DEFAULT_DEFENDER_CONTEXT,
 } from "./types";
-import { resolveWeapon } from "./pipeline";
+import { standardRng } from "./simulation/rng";
+import { runSimulation } from "./simulation/runner";
 
-function resolveDirection(
+async function resolveDirection(
   attackerUnit: UnitProfile,
   attackerModelCount: number,
   attackerContext: AttackerContext,
   selectedWeapons: SelectedWeaponInput[],
   defenderUnit: UnitProfile,
   defenderModelCount: number,
-  defenderInCover: boolean,
-): DirectionalResult {
-  const weaponResults = selectedWeapons.map(({ weapon, modelCount }) =>
-    resolveWeapon(
-      modelCount,
-      weapon,
-      defenderUnit,
-      defenderInCover,
-      attackerContext,
-      defenderModelCount,
+  defenderContext: DefenderContext,
+): Promise<DirectionalResult> {
+  const weaponResults = await Promise.all(
+    selectedWeapons.map(({ weapon, modelCount }) =>
+      runSimulation(
+        standardRng,
+        weapon,
+        modelCount,
+        attackerContext,
+        defenderUnit,
+        defenderModelCount,
+        defenderContext,
+      )
     )
   );
 
@@ -45,49 +51,45 @@ function resolveDirection(
   };
 }
 
-export function calculate(input: CombatInput): CombatResult {
+export async function calculate(input: CombatInput): Promise<CombatResult> {
   if (input.phase === "shooting") {
     const { attacker, defender } = input;
 
-    const primary = resolveDirection(
+    const primary = await resolveDirection(
       attacker.unit,
       attacker.modelCount,
       attacker.attackerContext ?? DEFAULT_ATTACKER_CONTEXT,
       attacker.selectedWeapons,
       defender.unit,
       defender.modelCount,
-      defender.inCover ?? false,
+      defender.defenderContext ?? DEFAULT_DEFENDER_CONTEXT,
     );
 
     return { phase: "shooting", primary };
   }
 
-  // Melee — both sides fight
   const { attacker, defender, firstFighter } = input;
 
-  // Primary: attacker → defender
-  const primary = resolveDirection(
-    attacker.unit,
-    attacker.modelCount,
-    attacker.attackerContext ?? DEFAULT_ATTACKER_CONTEXT,
-    attacker.selectedWeapons,
-    defender.unit,
-    defender.modelCount,
-    defender.inCover ?? false,
-  );
-
-  // Counterattack: defender → attacker
-  // Note: if the defender fights first, their losses haven't happened yet — and vice versa.
-  // For now we calculate at full model counts and surface a note.
-  const counterattack = resolveDirection(
-    defender.unit,
-    defender.modelCount,
-    defender.attackerContext ?? DEFAULT_ATTACKER_CONTEXT,
-    defender.selectedWeapons,
-    attacker.unit,
-    attacker.modelCount,
-    attacker.inCover ?? false,
-  );
+  const [primary, counterattack] = await Promise.all([
+    resolveDirection(
+      attacker.unit,
+      attacker.modelCount,
+      attacker.attackerContext ?? DEFAULT_ATTACKER_CONTEXT,
+      attacker.selectedWeapons,
+      defender.unit,
+      defender.modelCount,
+      defender.defenderContext ?? DEFAULT_DEFENDER_CONTEXT,
+    ),
+    resolveDirection(
+      defender.unit,
+      defender.modelCount,
+      defender.attackerContext ?? DEFAULT_ATTACKER_CONTEXT,
+      defender.selectedWeapons,
+      attacker.unit,
+      attacker.modelCount,
+      attacker.defenderContext ?? DEFAULT_DEFENDER_CONTEXT,
+    ),
+  ]);
 
   const firstFighterNote =
     firstFighter === "defender"
