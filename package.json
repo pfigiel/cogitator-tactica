@@ -15,16 +15,15 @@
   "private": true,
   "dependencies": {
     "@anthropic-ai/sdk": "^0.80.0",
-    "@tailwindcss/postcss": "^4.2.2",
+    "@mantine/core": "^9.0.1",
+    "@mantine/hooks": "^9.0.1",
     "@types/node": "^25.5.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
-    "autoprefixer": "^10.4.27",
     "next": "^16.2.1",
     "postcss": "^8.5.8",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
-    "tailwindcss": "^4.2.2",
     "typescript": "^6.0.2"
   },
   "devDependencies": {
