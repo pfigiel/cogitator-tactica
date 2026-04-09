@@ -1,6 +1,6 @@
-import { Table as MantineTable, TableProps } from "@mantine/core";
+import { Table as MantineTable, TableProps, ElementProps } from "@mantine/core";
 
-export function Table(props: TableProps) {
+export function Table(props: TableProps & ElementProps<"table", keyof TableProps>) {
   return <MantineTable {...props} />;
 }
 
