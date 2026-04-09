@@ -8,6 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "import-units": "tsx scripts/import-wahapedia/index.ts --factions SM,ORK"
   },
   "private": true,
@@ -26,6 +28,7 @@
     "typescript": "^6.0.2"
   },
   "devDependencies": {
-    "tsx": "^4.21.0"
+    "tsx": "^4.21.0",
+    "vitest": "^4.1.4"
   }
 }
