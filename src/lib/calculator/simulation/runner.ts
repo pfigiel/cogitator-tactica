@@ -13,6 +13,13 @@ import { StepCounts, simulateWeaponOnce } from "./pipeline";
 
 export const SIMULATION_RUNS = 10_000;
 
+/**
+ * Aggregates SIMULATION_RUNS trials into a WeaponResult with averaged outcomes per step.
+ *
+ * Declared async to keep the API future-proof: callers use Promise.all() for multi-weapon
+ * parallelisation, and the function can later be migrated to a Worker thread or yield
+ * the event loop between batches without changing its signature.
+ */
 export async function runSimulation(
   rng: Rng,
   weapon: WeaponProfile,
