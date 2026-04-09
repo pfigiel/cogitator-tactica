@@ -41,12 +41,17 @@ function rollWithReroll(
   reroll: "ONES" | "ALL" | null,
   threshold: number,
 ): number {
-  let roll = rng.d6();
+  const roll = rng.d6();
   if (reroll === "ALL" && roll < threshold) return rng.d6();
   if (reroll === "ONES" && roll === 1) return rng.d6();
   return roll;
 }
 
+/**
+ * Simulate one trial of a weapon attack against a defender.
+ * @param defenderModelCount - Full model count of the defending unit at the start of this trial.
+ *   Used by BLAST ability (extra attacks per 5 models). Do not pass a running casualty count.
+ */
 export function simulateWeaponOnce(
   rng: Rng,
   weapon: WeaponProfile,
