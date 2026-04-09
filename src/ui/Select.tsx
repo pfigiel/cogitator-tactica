@@ -9,11 +9,15 @@ export function filterDataBySearchLength(
   minSearchLength: number | undefined,
   selectedValue: string | null
 ): SelectDataItem[] {
-  if (minSearchLength === undefined || searchValue.length >= minSearchLength) {
-    return data;
+  if (minSearchLength === undefined) return data;
+  if (searchValue.length < minSearchLength) {
+    if (selectedValue === null) return [];
+    return data.filter((item) => item.value === selectedValue);
   }
-  if (selectedValue === null) return [];
-  return data.filter((item) => item.value === selectedValue);
+  // Threshold met: filter by content (Mantine won't filter in controlled-search mode)
+  return data.filter((item) =>
+    item.label.toLowerCase().includes(searchValue.toLowerCase())
+  );
 }
 
 type SearchProps =

@@ -18,12 +18,16 @@ describe("filterDataBySearchLength", () => {
     ]);
   });
 
-  it("returns full data when query meets threshold", () => {
-    expect(filterDataBySearchLength(DATA, "alp", 3, null)).toEqual(DATA);
+  it("filters by label when query meets threshold", () => {
+    expect(filterDataBySearchLength(DATA, "alp", 3, null)).toEqual([
+      { value: "a", label: "Alpha" },
+    ]);
   });
 
-  it("returns full data when query exceeds threshold", () => {
-    expect(filterDataBySearchLength(DATA, "alpha", 3, "a")).toEqual(DATA);
+  it("filters by label when query exceeds threshold", () => {
+    expect(filterDataBySearchLength(DATA, "alpha", 3, "a")).toEqual([
+      { value: "a", label: "Alpha" },
+    ]);
   });
 
   it("returns full data when minSearchLength is not set (undefined)", () => {
