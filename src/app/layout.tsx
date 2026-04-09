@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
-import "./globals.css";
+import "@mantine/core/styles.css";
+import { ColorSchemeScript, MantineProvider } from "@mantine/core";
+import { theme } from "@/ui/theme";
 
 export const metadata: Metadata = {
   title: "WH40K Battle Calculator",
@@ -13,8 +15,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="bg-gray-900 text-white min-h-screen">
-        {children}
+      <head>
+        <ColorSchemeScript defaultColorScheme="dark" />
+      </head>
+      <body>
+        <MantineProvider theme={theme} defaultColorScheme="dark">
+          {children}
+        </MantineProvider>
       </body>
     </html>
   );
