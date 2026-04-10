@@ -257,6 +257,7 @@ const CombatForm = ({ state, onChange, onCalculate }: Props) => {
               selected={state.attackerWeapons}
               defaultModelCount={state.attackerCount}
               color="yellow"
+              weaponType={state.phase}
               onToggle={toggleAttackerWeapon}
               onCountChange={setAttackerWeaponCount}
               onMoveUp={moveAttackerWeaponUp}
@@ -337,6 +338,7 @@ const CombatForm = ({ state, onChange, onCalculate }: Props) => {
                   selected={state.defenderWeapons}
                   defaultModelCount={state.defenderCount}
                   color="blue"
+                  weaponType="melee"
                   onToggle={toggleDefenderWeapon}
                   onCountChange={setDefenderWeaponCount}
                   onMoveUp={moveDefenderWeaponUp}
