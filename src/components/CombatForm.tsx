@@ -45,99 +45,114 @@ function WeaponSelector({
   const selectedWeapons = selected
     .map((s) => weapons.find((w) => w.name === s.weaponName))
     .filter((w): w is WeaponProfile => w !== undefined);
-  const unselectedWeapons = weapons.filter(
+
+  const availableWeapons = weapons.filter(
     (w) => !selected.some((s) => s.weaponName === w.name)
   );
-  const orderedWeapons = [...selectedWeapons, ...unselectedWeapons];
+
+  const dimmed = { fontSize: "12px", color: "var(--mantine-color-dimmed)" };
 
   return (
     <Stack gap="xs">
-      <label style={{ fontSize: "12px", color: "var(--mantine-color-dimmed)" }}>
-        Weapons
-      </label>
+      {/* Selected weapons */}
       <Stack gap="xs">
-        {orderedWeapons.map((w) => {
-          const selIdx = selected.findIndex((s) => s.weaponName === w.name);
-          const isChecked = selIdx !== -1;
-          const count = isChecked
-            ? (selected[selIdx].modelCount ?? defaultModelCount)
-            : defaultModelCount;
-          const isFirst = selIdx === 0;
-          const isLast = selIdx === selected.length - 1;
+        <label style={dimmed}>Selected weapons</label>
+        {selectedWeapons.length === 0 ? (
+          <span style={dimmed}>No weapons selected</span>
+        ) : (
+          selectedWeapons.map((w) => {
+            const selIdx = selected.findIndex((s) => s.weaponName === w.name);
+            const count = selected[selIdx].modelCount ?? defaultModelCount;
+            const isFirst = selIdx === 0;
+            const isLast = selIdx === selected.length - 1;
 
-          return (
-            <Group key={w.name} gap="xs" wrap="wrap">
-              <Checkbox
+            return (
+              <Group key={w.name} gap="xs" wrap="wrap">
+                <span>
+                  {w.name}
+                  <span style={{ marginLeft: "8px", ...dimmed }}>
+                    {weaponStats(w)}
+                  </span>
+                </span>
+                <Group gap="xs" align="center">
+                  <span style={dimmed}>models:</span>
+                  <NumberInput
+                    size="xs"
+                    w={70}
+                    min={1}
+                    max={500}
+                    value={count}
+                    onChange={(val) =>
+                      onCountChange(
+                        w.name,
+                        typeof val === "number" ? Math.max(1, val) : 1
+                      )
+                    }
+                  />
+                </Group>
+                {selected.length > 1 && (
+                  <Stack gap="2px">
+                    <Button
+                      size="compact-xs"
+                      variant="subtle"
+                      onClick={() => onMoveUp(w.name)}
+                      disabled={isFirst}
+                      aria-label={`Move ${w.name} up`}
+                    >
+                      ▲
+                    </Button>
+                    <Button
+                      size="compact-xs"
+                      variant="subtle"
+                      onClick={() => onMoveDown(w.name)}
+                      disabled={isLast}
+                      aria-label={`Move ${w.name} down`}
+                    >
+                      ▼
+                    </Button>
+                  </Stack>
+                )}
+                <Button
+                  size="compact-xs"
+                  variant="subtle"
+                  color={color}
+                  onClick={() => onToggle(w.name)}
+                  aria-label={`Remove ${w.name}`}
+                >
+                  −
+                </Button>
+              </Group>
+            );
+          })
+        )}
+      </Stack>
+
+      {/* Available weapons */}
+      <Stack gap="xs">
+        <label style={dimmed}>Available weapons</label>
+        {availableWeapons.length === 0 ? (
+          <span style={dimmed}>No weapons available</span>
+        ) : (
+          availableWeapons.map((w) => (
+            <Group key={w.name} gap="xs">
+              <span>
+                {w.name}
+                <span style={{ marginLeft: "8px", ...dimmed }}>
+                  {weaponStats(w)}
+                </span>
+              </span>
+              <Button
+                size="compact-xs"
+                variant="subtle"
                 color={color}
-                checked={isChecked}
-                onChange={() => onToggle(w.name)}
-                label={
-                  <>
-                    {w.name}
-                    <span
-                      style={{
-                        marginLeft: "8px",
-                        fontSize: "12px",
-                        color: "var(--mantine-color-dimmed)",
-                      }}
-                    >
-                      {weaponStats(w)}
-                    </span>
-                  </>
-                }
-              />
-              {isChecked && (
-                <>
-                  <Group gap="xs" align="center">
-                    <span
-                      style={{
-                        fontSize: "12px",
-                        color: "var(--mantine-color-dimmed)",
-                      }}
-                    >
-                      models:
-                    </span>
-                    <NumberInput
-                      size="xs"
-                      w={70}
-                      min={1}
-                      max={500}
-                      value={count}
-                      onChange={(val) =>
-                        onCountChange(
-                          w.name,
-                          typeof val === "number" ? Math.max(1, val) : 1
-                        )
-                      }
-                    />
-                  </Group>
-                  {selected.length > 1 && (
-                    <Stack gap="2px">
-                      <Button
-                        size="compact-xs"
-                        variant="subtle"
-                        onClick={() => onMoveUp(w.name)}
-                        disabled={isFirst}
-                        aria-label={`Move ${w.name} up`}
-                      >
-                        ▲
-                      </Button>
-                      <Button
-                        size="compact-xs"
-                        variant="subtle"
-                        onClick={() => onMoveDown(w.name)}
-                        disabled={isLast}
-                        aria-label={`Move ${w.name} down`}
-                      >
-                        ▼
-                      </Button>
-                    </Stack>
-                  )}
-                </>
-              )}
+                onClick={() => onToggle(w.name)}
+                aria-label={`Add ${w.name}`}
+              >
+                +
+              </Button>
             </Group>
-          );
-        })}
+          ))
+        )}
       </Stack>
     </Stack>
   );
