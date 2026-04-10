@@ -12,9 +12,9 @@ import {
 } from "@/lib/calculator/types";
 import { calculate } from "@/lib/calculator";
 import { UNITS } from "@/data/units";
-import PromptInput from "@/components/PromptInput";
-import CombatForm from "@/components/CombatForm";
-import ResultsDisplay from "@/components/ResultsDisplay";
+import PromptInput from "@/features/calculator/components/PromptInput/PromptInput";
+import CombatForm from "@/features/calculator/components/CombatForm/CombatForm";
+import ResultsDisplay from "@/features/calculator/components/ResultsDisplay/ResultsDisplay";
 import { Paper, Stack } from "@/ui";
 
 const DEFAULT_FORM: CombatFormState = {
@@ -41,7 +41,9 @@ function resolveWeapons(
   return selectedWeapons
     .map((sw) => {
       const weapon = pool.find((w) => w.name === sw.weaponName);
-      return weapon ? { weapon, modelCount: sw.modelCount ?? defaultModelCount } : null;
+      return weapon
+        ? { weapon, modelCount: sw.modelCount ?? defaultModelCount }
+        : null;
     })
     .filter((x): x is SelectedWeaponInput => x !== null);
 }

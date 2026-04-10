@@ -54,7 +54,13 @@ export default function PromptInput({ onParsed }: Props) {
           Parse
         </Button>
       </Group>
-      <p style={{ color: "var(--mantine-color-dimmed)", fontSize: "12px", margin: 0 }}>
+      <p
+        style={{
+          color: "var(--mantine-color-dimmed)",
+          fontSize: "12px",
+          margin: 0,
+        }}
+      >
         Powered by Claude Haiku — fills in the form below automatically.
       </p>
     </Stack>
