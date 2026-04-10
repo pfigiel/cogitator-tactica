@@ -16,11 +16,12 @@ Current weapon rows in `WeaponSelector` use `Group` with `wrap="wrap"`, causing 
 ```
 src/features/calculator/components/CombatForm/components/WeaponSelector/
   components/
-    WeaponRecord.tsx       ← new
+    WeaponRecord/
+      WeaponRecord.tsx     ← new
   WeaponSelector.tsx       ← updated
 ```
 
-`WeaponRecord` is domain-specific and only used within `WeaponSelector`, so it does not live in `src/ui/`.
+Each component is wrapped in a folder of the same name. `WeaponRecord` is domain-specific and only used within `WeaponSelector`, so it does not live in `src/ui/`.
 
 ---
 
@@ -56,8 +57,8 @@ Each record is a `Paper` with `withBorder`, rendered as a `Group` with `wrap="no
 | Column | Width | Content |
 |--------|-------|---------|
 | Toggle | fixed narrow | `−` or `+` button, vertically centered |
-| Name + stats | `flex: 1, minWidth: 0` | Name (ellipsis on overflow) on top; stats line below in smaller text |
-| Count | fixed ~70px | `NumberInput` (min 1, max 500); no label; only rendered when `selectionProps` present |
+| Name + stats | `flex: 1, minWidth: 0` | Name (ellipsis on overflow) on top; stats line below in smaller text; abilities line below stats in smaller dimmed text |
+| Count | fixed ~70px | `NumberInput` (min 1, max 100); no label; only rendered when `selectionProps` present |
 | Arrows | fixed narrow | `▲` / `▼` stacked buttons; only rendered when `selectionProps` present |
 
 The `minWidth: 0` on the name+stats column is required for CSS ellipsis to work inside a flex container. Name uses `overflow: hidden; text-overflow: ellipsis; white-space: nowrap`.
@@ -74,6 +75,39 @@ Order: `BS`/`WS` → `A` → `S` → `AP-` → `D`
 - Labels rendered in dimmed color; values rendered in primary yellow (`var(--mantine-color-yellow-filled)`)
 
 Example: `BS3+ A2 S4 AP-1 D1` with dimmed labels and yellow values.
+
+---
+
+## Abilities Formatting
+
+Displayed as a third line in the name+stats column, below the stats line. Rendered in smaller dimmed text.
+
+Format: comma-separated human-readable ability names derived from `weapon.abilities`. Each `WeaponAbility` type maps to a display string:
+
+| Type | Display |
+|------|---------|
+| `ANTI` | `Anti-{keyword} {threshold}+` |
+| `ASSAULT` | `Assault` |
+| `BLAST` | `Blast` |
+| `CONVERSION` | `Conversion` |
+| `DEVASTATING_WOUNDS` | `Devastating Wounds` |
+| `HAZARDOUS` | `Hazardous` |
+| `HEAVY` | `Heavy` |
+| `IGNORES_COVER` | `Ignores Cover` |
+| `INDIRECT_FIRE` | `Indirect Fire` |
+| `LANCE` | `Lance` |
+| `LETHAL_HITS` | `Lethal Hits` |
+| `LINKED_FIRE` | `Linked Fire` |
+| `MELTA` | `Melta {value}` |
+| `PISTOL` | `Pistol` |
+| `PRECISION` | `Precision` |
+| `PSYCHIC` | `Psychic` |
+| `RAPID_FIRE` | `Rapid Fire {value}` |
+| `SUSTAINED_HITS` | `Sustained Hits {value}` |
+| `TORRENT` | `Torrent` |
+| `TWIN_LINKED` | `Twin-linked` |
+
+If `weapon.abilities` is empty, the abilities line is not rendered.
 
 ---
 
@@ -100,6 +134,5 @@ Example: `BS3+ A2 S4 AP-1 D1` with dimmed labels and yellow values.
 
 ## Out of Scope
 
-- Displaying weapon abilities (e.g. Lethal Hits, Twin-linked)
 - Drag-and-drop reordering
 - Any changes to calculator logic or types
