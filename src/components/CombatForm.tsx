@@ -318,7 +318,6 @@ export default function CombatForm({ state, onChange, onCalculate }: Props) {
       (w) => w.weaponName === weaponName
     );
     if (isSelected) {
-      if (state.attackerWeapons.length <= 1) return;
       onChange({
         ...state,
         attackerWeapons: state.attackerWeapons.filter(
@@ -367,7 +366,6 @@ export default function CombatForm({ state, onChange, onCalculate }: Props) {
       (w) => w.weaponName === weaponName
     );
     if (isSelected) {
-      if (state.defenderWeapons.length <= 1) return;
       onChange({
         ...state,
         defenderWeapons: state.defenderWeapons.filter(
