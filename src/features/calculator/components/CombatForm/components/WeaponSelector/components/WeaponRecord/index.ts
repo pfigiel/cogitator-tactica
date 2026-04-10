@@ -1,0 +1,1 @@
+export { WeaponRecord } from "./WeaponRecord";

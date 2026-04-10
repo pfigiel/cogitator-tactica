@@ -1,4 +1,5 @@
 import type { WeaponProfile } from "@/lib/calculator/types";
+import type { MantineColor } from "@mantine/core";
 import { Paper, Group, Stack, Button, NumberInput } from "@/ui";
 import { formatStats, formatAbilities } from "./weaponFormatters";
 
@@ -14,7 +15,7 @@ interface SelectionProps {
 interface WeaponRecordProps {
   weapon: WeaponProfile;
   weaponType: "shooting" | "melee";
-  color: string;
+  color: MantineColor;
   isSelected: boolean;
   onToggle: () => void;
   selectionProps?: SelectionProps;
@@ -71,42 +72,41 @@ export const WeaponRecord = ({
         </div>
 
         {selectionProps && (
-          <NumberInput
-            size="xs"
-            w={70}
-            min={1}
-            max={100}
-            value={selectionProps.modelCount}
-            onChange={(val) =>
-              selectionProps.onCountChange(typeof val === "number" ? Math.max(1, val) : 1)
-            }
-            style={{ flexShrink: 0 }}
-          />
-        )}
-
-        {selectionProps && (
-          <Stack gap="2px" style={{ flexShrink: 0 }}>
-            <Button
-              size="compact-xs"
-              variant="subtle"
-              color={color}
-              onClick={selectionProps.onMoveUp}
-              disabled={selectionProps.isFirst}
-              aria-label={`Move ${weapon.name} up`}
-            >
-              ▲
-            </Button>
-            <Button
-              size="compact-xs"
-              variant="subtle"
-              color={color}
-              onClick={selectionProps.onMoveDown}
-              disabled={selectionProps.isLast}
-              aria-label={`Move ${weapon.name} down`}
-            >
-              ▼
-            </Button>
-          </Stack>
+          <>
+            <NumberInput
+              size="xs"
+              w={70}
+              min={1}
+              max={100}
+              value={selectionProps.modelCount}
+              onChange={(val) =>
+                selectionProps.onCountChange(typeof val === "number" ? Math.max(1, val) : 1)
+              }
+              style={{ flexShrink: 0 }}
+            />
+            <Stack gap="2px" style={{ flexShrink: 0 }}>
+              <Button
+                size="compact-xs"
+                variant="subtle"
+                color={color}
+                onClick={selectionProps.onMoveUp}
+                disabled={selectionProps.isFirst}
+                aria-label={`Move ${weapon.name} up`}
+              >
+                ▲
+              </Button>
+              <Button
+                size="compact-xs"
+                variant="subtle"
+                color={color}
+                onClick={selectionProps.onMoveDown}
+                disabled={selectionProps.isLast}
+                aria-label={`Move ${weapon.name} down`}
+              >
+                ▼
+              </Button>
+            </Stack>
+          </>
         )}
       </Group>
     </Paper>
