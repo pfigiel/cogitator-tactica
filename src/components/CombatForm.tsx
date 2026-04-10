@@ -56,7 +56,7 @@ function WeaponSelector({
     <Stack gap="xs">
       {/* Selected weapons */}
       <Stack gap="xs">
-        <label style={dimmed}>Selected weapons</label>
+        <span style={dimmed}>Selected weapons</span>
         {selectedWeapons.length === 0 ? (
           <span style={dimmed}>No weapons selected</span>
         ) : (
@@ -95,6 +95,7 @@ function WeaponSelector({
                     <Button
                       size="compact-xs"
                       variant="subtle"
+                      color={color}
                       onClick={() => onMoveUp(w.name)}
                       disabled={isFirst}
                       aria-label={`Move ${w.name} up`}
@@ -104,6 +105,7 @@ function WeaponSelector({
                     <Button
                       size="compact-xs"
                       variant="subtle"
+                      color={color}
                       onClick={() => onMoveDown(w.name)}
                       disabled={isLast}
                       aria-label={`Move ${w.name} down`}
@@ -129,7 +131,7 @@ function WeaponSelector({
 
       {/* Available weapons */}
       <Stack gap="xs">
-        <label style={dimmed}>Available weapons</label>
+        <span style={dimmed}>Available weapons</span>
         {availableWeapons.length === 0 ? (
           <span style={dimmed}>No weapons available</span>
         ) : (
