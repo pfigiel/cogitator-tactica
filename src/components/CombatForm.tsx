@@ -9,7 +9,15 @@ import {
   AttackerContext,
 } from "@/lib/calculator/types";
 import { UNIT_LIST, UNITS } from "@/data/units";
-import { Button, Select, NumberInput, Checkbox, Paper, Stack, Group } from "@/ui";
+import {
+  Button,
+  Select,
+  NumberInput,
+  Checkbox,
+  Paper,
+  Stack,
+  Group,
+} from "@/ui";
 
 interface Props {
   state: CombatFormState;
@@ -68,6 +76,15 @@ function WeaponSelector({
 
             return (
               <Group key={w.name} gap="xs" wrap="wrap">
+                <Button
+                  size="compact-xs"
+                  variant="subtle"
+                  color={color}
+                  onClick={() => onToggle(w.name)}
+                  aria-label={`Remove ${w.name}`}
+                >
+                  −
+                </Button>
                 <span>
                   {w.name}
                   <span style={{ marginLeft: "8px", ...dimmed }}>
@@ -89,40 +106,31 @@ function WeaponSelector({
                       )
                     }
                   />
+                  {selected.length > 1 && (
+                    <Stack gap="2px">
+                      <Button
+                        size="compact-xs"
+                        variant="subtle"
+                        color={color}
+                        onClick={() => onMoveUp(w.name)}
+                        disabled={isFirst}
+                        aria-label={`Move ${w.name} up`}
+                      >
+                        ▲
+                      </Button>
+                      <Button
+                        size="compact-xs"
+                        variant="subtle"
+                        color={color}
+                        onClick={() => onMoveDown(w.name)}
+                        disabled={isLast}
+                        aria-label={`Move ${w.name} down`}
+                      >
+                        ▼
+                      </Button>
+                    </Stack>
+                  )}
                 </Group>
-                {selected.length > 1 && (
-                  <Stack gap="2px">
-                    <Button
-                      size="compact-xs"
-                      variant="subtle"
-                      color={color}
-                      onClick={() => onMoveUp(w.name)}
-                      disabled={isFirst}
-                      aria-label={`Move ${w.name} up`}
-                    >
-                      ▲
-                    </Button>
-                    <Button
-                      size="compact-xs"
-                      variant="subtle"
-                      color={color}
-                      onClick={() => onMoveDown(w.name)}
-                      disabled={isLast}
-                      aria-label={`Move ${w.name} down`}
-                    >
-                      ▼
-                    </Button>
-                  </Stack>
-                )}
-                <Button
-                  size="compact-xs"
-                  variant="subtle"
-                  color={color}
-                  onClick={() => onToggle(w.name)}
-                  aria-label={`Remove ${w.name}`}
-                >
-                  −
-                </Button>
               </Group>
             );
           })
@@ -137,12 +145,6 @@ function WeaponSelector({
         ) : (
           availableWeapons.map((w) => (
             <Group key={w.name} gap="xs">
-              <span>
-                {w.name}
-                <span style={{ marginLeft: "8px", ...dimmed }}>
-                  {weaponStats(w)}
-                </span>
-              </span>
               <Button
                 size="compact-xs"
                 variant="subtle"
@@ -152,6 +154,12 @@ function WeaponSelector({
               >
                 +
               </Button>
+              <span>
+                {w.name}
+                <span style={{ marginLeft: "8px", ...dimmed }}>
+                  {weaponStats(w)}
+                </span>
+              </span>
             </Group>
           ))
         )}
@@ -176,9 +184,7 @@ function relevantContextFlags(
       w.abilities.some((a) => a.type === "LANCE")
     ),
     showHalfRange: profiles.some((w) =>
-      w.abilities.some(
-        (a) => a.type === "RAPID_FIRE" || a.type === "MELTA"
-      )
+      w.abilities.some((a) => a.type === "RAPID_FIRE" || a.type === "MELTA")
     ),
     showLongRange: profiles.some((w) =>
       w.abilities.some((a) => a.type === "CONVERSION")
@@ -215,12 +221,20 @@ function AttackerContextSection({
             id={`${idPrefix}-stationary`}
             checked={context.remainedStationary}
             onChange={(e) =>
-              onChange({ ...context, remainedStationary: e.currentTarget.checked })
+              onChange({
+                ...context,
+                remainedStationary: e.currentTarget.checked,
+              })
             }
             label={
               <>
                 Remained Stationary{" "}
-                <span style={{ fontSize: "12px", color: "var(--mantine-color-dimmed)" }}>
+                <span
+                  style={{
+                    fontSize: "12px",
+                    color: "var(--mantine-color-dimmed)",
+                  }}
+                >
                   (Heavy +1 to hit)
                 </span>
               </>
@@ -238,7 +252,12 @@ function AttackerContextSection({
             label={
               <>
                 Charged this turn{" "}
-                <span style={{ fontSize: "12px", color: "var(--mantine-color-dimmed)" }}>
+                <span
+                  style={{
+                    fontSize: "12px",
+                    color: "var(--mantine-color-dimmed)",
+                  }}
+                >
                   (Lance +1 to wound)
                 </span>
               </>
@@ -256,7 +275,12 @@ function AttackerContextSection({
             label={
               <>
                 At half range{" "}
-                <span style={{ fontSize: "12px", color: "var(--mantine-color-dimmed)" }}>
+                <span
+                  style={{
+                    fontSize: "12px",
+                    color: "var(--mantine-color-dimmed)",
+                  }}
+                >
                   (Rapid Fire / Melta)
                 </span>
               </>
@@ -274,7 +298,12 @@ function AttackerContextSection({
             label={
               <>
                 At long range{" "}
-                <span style={{ fontSize: "12px", color: "var(--mantine-color-dimmed)" }}>
+                <span
+                  style={{
+                    fontSize: "12px",
+                    color: "var(--mantine-color-dimmed)",
+                  }}
+                >
                   (Conversion crits on 4+)
                 </span>
               </>
@@ -511,8 +540,7 @@ export default function CombatForm({ state, onChange, onCalculate }: Props) {
               onChange={(val) =>
                 onChange({
                   ...state,
-                  attackerCount:
-                    typeof val === "number" ? Math.max(1, val) : 1,
+                  attackerCount: typeof val === "number" ? Math.max(1, val) : 1,
                 })
               }
             />
@@ -567,8 +595,7 @@ export default function CombatForm({ state, onChange, onCalculate }: Props) {
               onChange={(val) =>
                 onChange({
                   ...state,
-                  defenderCount:
-                    typeof val === "number" ? Math.max(1, val) : 1,
+                  defenderCount: typeof val === "number" ? Math.max(1, val) : 1,
                 })
               }
             />
