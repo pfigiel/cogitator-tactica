@@ -60,17 +60,20 @@ export const WeaponRecord = ({
           </div>
           <div style={{ fontSize: "11px" }}>
             {stats.map(({ label, value }) => (
-              <span key={label}>
-                <span style={{ color: "var(--mantine-color-dimmed)" }}>{label}</span>
-                <span style={{ color: "var(--mantine-color-yellow-filled)" }}>{value}</span>{" "}
+              <span
+                style={{ color: "var(--mantine-color-dimmed)" }}
+                key={label}
+              >
+                <span>{label}</span>
+                <span style={{ fontWeight: "bold" }}>{value}</span>{" "}
               </span>
             ))}
           </div>
-          {abilities && (
-            <div style={{ fontSize: "11px", color: "var(--mantine-color-dimmed)" }}>
-              {abilities}
-            </div>
-          )}
+          <div
+            style={{ fontSize: "11px", color: "var(--mantine-color-dimmed)" }}
+          >
+            {abilities.length ? abilities : "-"}
+          </div>
         </div>
 
         {selectionProps && (
