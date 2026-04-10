@@ -1,6 +1,6 @@
 import type { SelectedWeapon, WeaponProfile } from "@/lib/calculator/types";
 import { Stack } from "@/ui";
-import { WeaponRecord } from "./components/WeaponRecord/WeaponRecord";
+import { WeaponRecord } from "./components/WeaponRecord";
 
 export const WeaponSelector = ({
   weapons,
@@ -26,8 +26,13 @@ export const WeaponSelector = ({
   if (weapons.length === 0) return null;
 
   const selectedWeapons = selected
-    .map((s) => weapons.find((w) => w.name === s.weaponName))
-    .filter((w): w is WeaponProfile => w !== undefined);
+    .map((s) => ({
+      profile: weapons.find((w) => w.name === s.weaponName),
+      entry: s,
+    }))
+    .filter((x): x is { profile: WeaponProfile; entry: SelectedWeapon } =>
+      x.profile !== undefined
+    );
 
   const availableWeapons = weapons.filter(
     (w) => !selected.some((s) => s.weaponName === w.name)
@@ -42,19 +47,19 @@ export const WeaponSelector = ({
         {selectedWeapons.length === 0 ? (
           <span style={dimmed}>No weapons selected</span>
         ) : (
-          selectedWeapons.map((w, idx) => (
+          selectedWeapons.map((sw, idx) => (
             <WeaponRecord
-              key={w.name}
-              weapon={w}
+              key={sw.profile.name}
+              weapon={sw.profile}
               weaponType={weaponType}
               color={color}
               isSelected={true}
-              onToggle={() => onToggle(w.name)}
+              onToggle={() => onToggle(sw.profile.name)}
               selectionProps={{
-                modelCount: selected[idx].modelCount ?? defaultModelCount,
-                onCountChange: (val) => onCountChange(w.name, val),
-                onMoveUp: () => onMoveUp(w.name),
-                onMoveDown: () => onMoveDown(w.name),
+                modelCount: sw.entry.modelCount ?? defaultModelCount,
+                onCountChange: (val) => onCountChange(sw.profile.name, val),
+                onMoveUp: () => onMoveUp(sw.profile.name),
+                onMoveDown: () => onMoveDown(sw.profile.name),
                 isFirst: idx === 0,
                 isLast: idx === selectedWeapons.length - 1,
               }}
