@@ -40,7 +40,9 @@ export const WeaponRecord = ({
           variant="subtle"
           color={color}
           onClick={onToggle}
-          aria-label={isSelected ? `Remove ${weapon.name}` : `Add ${weapon.name}`}
+          aria-label={
+            isSelected ? `Remove ${weapon.name}` : `Add ${weapon.name}`
+          }
           style={{ flexShrink: 0 }}
         >
           {isSelected ? "−" : "+"}
@@ -80,7 +82,9 @@ export const WeaponRecord = ({
               max={100}
               value={selectionProps.modelCount}
               onChange={(val) =>
-                selectionProps.onCountChange(typeof val === "number" ? Math.max(1, val) : 1)
+                selectionProps.onCountChange(
+                  typeof val === "number" ? Math.max(1, val) : 1,
+                )
               }
               style={{ flexShrink: 0 }}
             />
