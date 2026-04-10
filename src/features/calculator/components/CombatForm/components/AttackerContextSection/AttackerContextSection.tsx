@@ -1,10 +1,10 @@
 import { AttackerContext, SelectedWeapon, WeaponProfile } from "@/lib/calculator/types";
 import { Checkbox, Stack } from "@/ui";
 
-export function relevantContextFlags(
+export const relevantContextFlags = (
   weapons: WeaponProfile[],
   selected: SelectedWeapon[]
-) {
+) => {
   const profiles = selected
     .map((s) => weapons.find((w) => w.name === s.weaponName))
     .filter((w): w is WeaponProfile => w !== undefined);
@@ -23,9 +23,9 @@ export function relevantContextFlags(
       w.abilities.some((a) => a.type === "CONVERSION")
     ),
   };
-}
+};
 
-export function AttackerContextSection({
+export const AttackerContextSection = ({
   idPrefix,
   context,
   flags,
@@ -37,7 +37,7 @@ export function AttackerContextSection({
   flags: ReturnType<typeof relevantContextFlags>;
   color: string;
   onChange: (ctx: AttackerContext) => void;
-}) {
+}) => {
   const { showStationary, showCharged, showHalfRange, showLongRange } = flags;
   if (!showStationary && !showCharged && !showHalfRange && !showLongRange)
     return null;
@@ -146,4 +146,4 @@ export function AttackerContextSection({
       </Stack>
     </Stack>
   );
-}
+};

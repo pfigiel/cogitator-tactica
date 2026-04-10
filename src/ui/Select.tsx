@@ -3,12 +3,12 @@ import { Select as MantineSelect, SelectProps, ElementProps } from "@mantine/cor
 
 export type SelectDataItem = { value: string; label: string };
 
-export function filterDataBySearchLength(
+export const filterDataBySearchLength = (
   data: SelectDataItem[],
   searchValue: string,
   minSearchLength: number | undefined,
   selectedValue: string | null
-): SelectDataItem[] {
+): SelectDataItem[] => {
   if (minSearchLength === undefined) return data;
   if (searchValue.length < minSearchLength) {
     if (selectedValue === null) return [];
@@ -18,7 +18,7 @@ export function filterDataBySearchLength(
   return data.filter((item) =>
     item.label.toLowerCase().includes(searchValue.toLowerCase())
   );
-}
+};
 
 type SearchProps =
   | { searchable: true; minSearchLength?: number }
@@ -27,7 +27,7 @@ type SearchProps =
 type Props = Omit<SelectProps & ElementProps<"input", keyof SelectProps>, "searchable"> &
   SearchProps;
 
-export function Select({ minSearchLength, searchable, data, value, onChange, ...rest }: Props) {
+export const Select = ({ minSearchLength, searchable, data, value, onChange, ...rest }: Props) => {
   const [searchValue, setSearchValue] = useState("");
 
   const filteredData =
@@ -52,4 +52,4 @@ export function Select({ minSearchLength, searchable, data, value, onChange, ...
       onDropdownClose={minSearchLength !== undefined ? () => setSearchValue("") : undefined}
     />
   );
-}
+};

@@ -28,31 +28,31 @@ export interface StepCounts {
 }
 
 /** S vs T wound threshold per 10th edition core rules. */
-function woundThreshold(strength: number, toughness: number): number {
+const woundThreshold = (strength: number, toughness: number): number => {
   if (strength >= toughness * 2) return 2;
   if (strength > toughness) return 3;
   if (strength === toughness) return 4;
   if (strength * 2 > toughness) return 5;
   return 6;
-}
+};
 
-function rollWithReroll(
+const rollWithReroll = (
   rng: Rng,
   reroll: "ONES" | "ALL" | null,
   threshold: number,
-): number {
+): number => {
   const roll = rng.d6();
   if (reroll === "ALL" && roll < threshold) return rng.d6();
   if (reroll === "ONES" && roll === 1) return rng.d6();
   return roll;
-}
+};
 
 /**
  * Simulate one trial of a weapon attack against a defender.
  * @param defenderModelCount - Full model count of the defending unit at the start of this trial.
  *   Used by BLAST ability (extra attacks per 5 models). Do not pass a running casualty count.
  */
-export function simulateWeaponOnce(
+export const simulateWeaponOnce = (
   rng: Rng,
   weapon: WeaponProfile,
   attackerModelCount: number,
@@ -60,7 +60,7 @@ export function simulateWeaponOnce(
   defenderUnit: UnitProfile,
   defenderModelCount: number,
   defenderContext: DefenderContext = DEFAULT_DEFENDER_CONTEXT,
-): StepCounts {
+): StepCounts => {
   const modifiers = resolveWeaponModifiers(
     weapon,
     attackerContext,
@@ -189,4 +189,4 @@ export function simulateWeaponOnce(
   }
 
   return { attacks: totalAttacks, hits: totalHits, wounds: totalWounds, unsavedWounds: totalUnsaved, damage: totalDamage, modelsSlain };
-}
+};

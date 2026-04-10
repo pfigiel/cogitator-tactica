@@ -47,7 +47,7 @@ Rules:
 - If a unit name is ambiguous, pick the closest match from the available list
 - attackerCount and defenderCount must be positive integers`;
 
-export async function parsePrompt(prompt: string): Promise<CombatFormState> {
+export const parsePrompt = async (prompt: string): Promise<CombatFormState> => {
   const message = await client.messages.create({
     model: "claude-haiku-4-5-20251001",
     max_tokens: 512,
@@ -89,10 +89,10 @@ export async function parsePrompt(prompt: string): Promise<CombatFormState> {
       : [];
   const defaultDefenderPool = defenderUnit ? defenderUnit.meleeWeapons : [];
 
-  function parseWeaponList(
+  const parseWeaponList = (
     raw: unknown,
     fallbackPool: typeof defaultAttackerPool
-  ): SelectedWeapon[] {
+  ): SelectedWeapon[] => {
     if (Array.isArray(raw) && raw.length > 0) {
       const result: SelectedWeapon[] = raw
         .filter((item) => item && typeof item.weaponName === "string")
@@ -106,7 +106,7 @@ export async function parsePrompt(prompt: string): Promise<CombatFormState> {
       if (result.length > 0) return result;
     }
     return fallbackPool.length > 0 ? [{ weaponName: fallbackPool[0].name }] : [];
-  }
+  };
 
   const attackerWeapons = parseWeaponList(parsed.attackerWeapons, defaultAttackerPool);
   const defenderWeapons = parseWeaponList(parsed.defenderWeapons, defaultDefenderPool);
@@ -124,4 +124,4 @@ export async function parsePrompt(prompt: string): Promise<CombatFormState> {
     defenderContext: DEFAULT_ATTACKER_CONTEXT,
     firstFighter: parsed.firstFighter ?? "attacker",
   };
-}
+};

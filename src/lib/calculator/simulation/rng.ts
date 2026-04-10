@@ -6,11 +6,11 @@ export interface Rng {
 }
 
 export const standardRng: Rng = {
-  d6(): number {
+  d6: (): number => {
     return Math.floor(Math.random() * 6) + 1;
   },
 
-  dice(expr: DiceExpression): number {
+  dice: (expr: DiceExpression): number => {
     if (typeof expr === "number") return expr;
     const match = expr.match(/^(\d+)?D(3|6)([+-]\d+)?$/i);
     if (!match) throw new Error(`Invalid DiceExpression: "${expr}"`);

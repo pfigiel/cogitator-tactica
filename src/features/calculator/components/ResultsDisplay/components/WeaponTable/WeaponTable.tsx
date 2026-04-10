@@ -1,7 +1,7 @@
 import { WeaponResult } from "@/lib/calculator/types";
 import { Table, Stack, Group } from "@/ui";
 
-export function WeaponTable({ weaponResult }: { weaponResult: WeaponResult }) {
+export const WeaponTable = ({ weaponResult }: { weaponResult: WeaponResult }) => {
   return (
     <Stack gap="xs">
       <Group gap="xs" align="baseline">
@@ -63,4 +63,4 @@ export function WeaponTable({ weaponResult }: { weaponResult: WeaponResult }) {
       </Group>
     </Stack>
   );
-}
+};

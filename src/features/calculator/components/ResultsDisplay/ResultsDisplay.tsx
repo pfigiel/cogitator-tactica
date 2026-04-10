@@ -8,7 +8,7 @@ interface Props {
   result: CombatResult;
 }
 
-export default function ResultsDisplay({ result }: Props) {
+const ResultsDisplay = ({ result }: Props) => {
   return (
     <Stack gap="xl">
       <h2
@@ -47,4 +47,6 @@ export default function ResultsDisplay({ result }: Props) {
       )}
     </Stack>
   );
-}
+};
+
+export default ResultsDisplay;

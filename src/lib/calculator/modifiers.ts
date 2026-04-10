@@ -25,13 +25,13 @@ import {
  * Sources outside this function (auras, stratagems, etc.) push additional
  * Modifier objects into the same list before the pipeline runs.
  */
-export function resolveWeaponModifiers(
+export const resolveWeaponModifiers = (
   weapon: WeaponProfile,
   context: AttackerContext = DEFAULT_ATTACKER_CONTEXT,
   defenderUnit: UnitProfile,
   defenderInCover: boolean,
   defenderModelCount: number,
-): Modifier[] {
+): Modifier[] => {
   const modifiers: Modifier[] = [];
 
   const hasIgnoresCover = weapon.abilities.some((a) => a.type === "IGNORES_COVER");
@@ -181,17 +181,17 @@ export function resolveWeaponModifiers(
   }
 
   return modifiers;
-}
+};
 
 // ─── Aggregation helpers ──────────────────────────────────────────────────────
 
 /** Returns true if any modifier carries the given effect type. */
-export function hasModifier(
+export const hasModifier = (
   modifiers: Modifier[],
   type: ModifierEffect["type"],
-): boolean {
+): boolean => {
   return modifiers.some((m) => m.effect.type === type);
-}
+};
 
 /**
  * Sum all threshold-delta modifiers of the given type, clamp the total to [−1, +1],
@@ -199,7 +199,7 @@ export function hasModifier(
  *
  * Clamping is applied AFTER summing (so +1 +1 −1 → +1, not +1 −1 = 0 then +1).
  */
-export function applyAndClampDelta(
+export const applyAndClampDelta = (
   base: number,
   modifiers: Modifier[],
   type:
@@ -207,65 +207,65 @@ export function applyAndClampDelta(
     | "WOUND_THRESHOLD_DELTA"
     | "SAVE_THRESHOLD_DELTA"
     | "INVULN_THRESHOLD_DELTA",
-): number {
+): number => {
   const rawTotal = modifiers
     .filter((m) => m.effect.type === type)
     .reduce((sum, m) => sum + (m.effect as { type: string; value: number }).value, 0);
   return base + Math.max(-1, Math.min(1, rawTotal));
-}
+};
 
 /**
  * Returns the effective crit threshold: minimum across all sources
  * (lower = easier to crit = better for attacker).
  */
-export function effectiveCritThreshold(
+export const effectiveCritThreshold = (
   modifiers: Modifier[],
   type: "CRIT_HIT_THRESHOLD" | "CRIT_WOUND_THRESHOLD",
   defaultValue = 6,
-): number {
+): number => {
   const values = modifiers
     .filter((m) => m.effect.type === type)
     .map((m) => (m.effect as { type: string; value: number }).value);
   return values.length > 0 ? Math.min(...values) : defaultValue;
-}
+};
 
 /**
  * Returns the best reroll level across sources.
  * Priority: ALL > ONES > none.
  */
-export function effectiveReroll(
+export const effectiveReroll = (
   modifiers: Modifier[],
   type: "HIT_REROLL" | "WOUND_REROLL" | "SAVE_REROLL",
-): RerollType | null {
+): RerollType | null => {
   const rerolls = modifiers
     .filter((m) => m.effect.type === type)
     .map((m) => (m.effect as { type: string; reroll: RerollType }).reroll);
   if (rerolls.includes("ALL")) return "ALL";
   if (rerolls.includes("ONES")) return "ONES";
   return null;
-}
+};
 
 /** Sum all EXTRA_ATTACKS values. No cap (not a roll modifier). */
-export function totalExtraAttacks(modifiers: Modifier[]): number {
+export const totalExtraAttacks = (modifiers: Modifier[]): number => {
   return modifiers
     .filter((m) => m.effect.type === "EXTRA_ATTACKS")
     .reduce((sum, m) => sum + (m.effect as { type: string; value: number }).value, 0);
-}
+};
 
 /** Sum all EXTRA_DAMAGE values. No cap (not a roll modifier). */
-export function totalExtraDamage(modifiers: Modifier[]): number {
+export const totalExtraDamage = (modifiers: Modifier[]): number => {
   return modifiers
     .filter((m) => m.effect.type === "EXTRA_DAMAGE")
     .reduce((sum, m) => sum + (m.effect as { type: string; value: number }).value, 0);
-}
+};
 
 /**
  * Returns the maximum SUSTAINED_HITS value across sources.
  * Multiple sources of Sustained Hits don't stack — use the best.
  */
-export function effectiveSustainedHits(modifiers: Modifier[]): number {
+export const effectiveSustainedHits = (modifiers: Modifier[]): number => {
   const values = modifiers
     .filter((m) => m.effect.type === "SUSTAINED_HITS")
     .map((m) => (m.effect as { type: string; value: number }).value);
   return values.length > 0 ? Math.max(...values) : 0;
-}
+};

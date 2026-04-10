@@ -20,7 +20,7 @@ export const SIMULATION_RUNS = 10_000;
  * parallelisation, and the function can later be migrated to a Worker thread or yield
  * the event loop between batches without changing its signature.
  */
-export async function runSimulation(
+export const runSimulation = async (
   rng: Rng,
   weapon: WeaponProfile,
   attackerModelCount: number,
@@ -28,7 +28,7 @@ export async function runSimulation(
   defenderUnit: UnitProfile,
   defenderModelCount: number,
   defenderContext: DefenderContext = DEFAULT_DEFENDER_CONTEXT,
-): Promise<WeaponResult> {
+): Promise<WeaponResult> => {
   const accumulated: StepCounts = {
     attacks: 0, hits: 0, wounds: 0,
     unsavedWounds: 0, damage: 0, modelsSlain: 0,
@@ -72,4 +72,4 @@ export async function runSimulation(
     averageDamage: avgDamage,
     averageModelsSlain: avgModelsSlain,
   };
-}
+};

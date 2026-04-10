@@ -1,9 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { DefenderContext, DEFAULT_DEFENDER_CONTEXT, DEFAULT_ATTACKER_CONTEXT, UnitProfile, WeaponProfile } from "@/lib/calculator/types";
+import { DEFAULT_DEFENDER_CONTEXT, DEFAULT_ATTACKER_CONTEXT, UnitProfile, WeaponProfile } from "@/lib/calculator/types";
 import { simulateWeaponOnce } from "@/lib/calculator/simulation/pipeline";
 import { Rng } from "@/lib/calculator/simulation/rng";
 
-function alwaysRoll(value: number): Rng {
+const alwaysRoll = (value: number): Rng => {
   return {
     d6: () => value,
     dice: (expr) => {
@@ -14,7 +14,7 @@ function alwaysRoll(value: number): Rng {
       return count * value + modifier;
     },
   };
-}
+};
 
 const infantry: UnitProfile = {
   id: "infantry", name: "Infantry",

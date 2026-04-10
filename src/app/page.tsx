@@ -31,12 +31,12 @@ const DEFAULT_FORM: CombatFormState = {
   firstFighter: "attacker",
 };
 
-function resolveWeapons(
+const resolveWeapons = (
   unit: UnitProfile,
   phase: Phase,
   selectedWeapons: SelectedWeapon[],
   defaultModelCount: number
-): SelectedWeaponInput[] {
+): SelectedWeaponInput[] => {
   const pool = phase === "shooting" ? unit.shootingWeapons : unit.meleeWeapons;
   return selectedWeapons
     .map((sw) => {
@@ -46,14 +46,14 @@ function resolveWeapons(
         : null;
     })
     .filter((x): x is SelectedWeaponInput => x !== null);
-}
+};
 
-export default function Home() {
+const Home = () => {
   const [form, setForm] = useState<CombatFormState>(DEFAULT_FORM);
   const [result, setResult] = useState<CombatResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  async function handleCalculate() {
+  const handleCalculate = async () => {
     setError(null);
     const attacker = UNITS[form.attackerUnitId];
     const defender = UNITS[form.defenderUnitId];
@@ -125,7 +125,7 @@ export default function Home() {
     } catch (err) {
       setError(err instanceof Error ? err.message : "Calculation failed");
     }
-  }
+  };
 
   return (
     <main style={{ maxWidth: "896px", margin: "0 auto", padding: "40px 16px" }}>
@@ -189,4 +189,6 @@ export default function Home() {
       </Stack>
     </main>
   );
-}
+};
+
+export default Home;

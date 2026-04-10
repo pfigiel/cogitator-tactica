@@ -4,7 +4,7 @@ import { Rng } from "@/lib/calculator/simulation/rng";
 import { DEFAULT_ATTACKER_CONTEXT, DEFAULT_DEFENDER_CONTEXT, UnitProfile, WeaponProfile } from "@/lib/calculator/types";
 
 // Deterministic RNG: always returns `value`
-function alwaysRoll(value: number): Rng {
+const alwaysRoll = (value: number): Rng => {
   return {
     d6: () => value,
     dice: (expr) => {
@@ -15,7 +15,7 @@ function alwaysRoll(value: number): Rng {
       return count * value + modifier;
     },
   };
-}
+};
 
 const infantry: UnitProfile = {
   id: "infantry", name: "Infantry",

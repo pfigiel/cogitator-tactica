@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { parsePrompt } from "@/lib/llm/parser";
 
-export async function POST(req: NextRequest) {
+export const POST = async (req: NextRequest) => {
   const { prompt } = await req.json();
 
   if (!prompt || typeof prompt !== "string") {
@@ -15,4 +15,4 @@ export async function POST(req: NextRequest) {
     const message = err instanceof Error ? err.message : "Unknown error";
     return NextResponse.json({ error: message }, { status: 500 });
   }
-}
+};

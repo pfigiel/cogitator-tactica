@@ -16,7 +16,7 @@ import {
 import { standardRng } from "./simulation/rng";
 import { runSimulation } from "./simulation/runner";
 
-async function resolveDirection(
+const resolveDirection = async (
   attackerUnit: UnitProfile,
   attackerModelCount: number,
   attackerContext: AttackerContext,
@@ -24,7 +24,7 @@ async function resolveDirection(
   defenderUnit: UnitProfile,
   defenderModelCount: number,
   defenderContext: DefenderContext,
-): Promise<DirectionalResult> {
+): Promise<DirectionalResult> => {
   const weaponResults = await Promise.all(
     selectedWeapons.map(({ weapon, modelCount }) =>
       runSimulation(
@@ -49,9 +49,9 @@ async function resolveDirection(
     totalAverageDamage,
     totalAverageModelsSlain,
   };
-}
+};
 
-export async function calculate(input: CombatInput): Promise<CombatResult> {
+export const calculate = async (input: CombatInput): Promise<CombatResult> => {
   if (input.phase === "shooting") {
     const { attacker, defender } = input;
 
@@ -97,6 +97,6 @@ export async function calculate(input: CombatInput): Promise<CombatResult> {
       : `${attacker.unit.name} fights first. Casualties from the primary attack are not yet reflected in the counterattack counts.`;
 
   return { phase: "melee", primary, counterattack, firstFighterNote };
-}
+};
 
 export * from "./types";

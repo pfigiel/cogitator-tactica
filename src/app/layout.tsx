@@ -8,11 +8,11 @@ export const metadata: Metadata = {
   description: "Warhammer 40,000 statistics battle calculator",
 };
 
-export default function RootLayout({
+const RootLayout = ({
   children,
 }: {
   children: React.ReactNode;
-}) {
+}) => {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -25,4 +25,6 @@ export default function RootLayout({
       </body>
     </html>
   );
-}
+};
+
+export default RootLayout;

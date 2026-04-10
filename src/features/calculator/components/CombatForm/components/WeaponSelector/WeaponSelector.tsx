@@ -1,11 +1,11 @@
 import { SelectedWeapon, WeaponProfile } from "@/lib/calculator/types";
 import { Button, NumberInput, Stack, Group } from "@/ui";
 
-function weaponStats(w: WeaponProfile): string {
+const weaponStats = (w: WeaponProfile): string => {
   return `A${w.attacks} S${w.strength} AP-${w.ap} D${w.damage}`;
-}
+};
 
-export function WeaponSelector({
+export const WeaponSelector = ({
   weapons,
   selected,
   defaultModelCount,
@@ -23,7 +23,7 @@ export function WeaponSelector({
   onCountChange: (weaponName: string, count: number) => void;
   onMoveUp: (weaponName: string) => void;
   onMoveDown: (weaponName: string) => void;
-}) {
+}) => {
   if (weapons.length === 0) return null;
 
   const selectedWeapons = selected
@@ -142,4 +142,4 @@ export function WeaponSelector({
       </Stack>
     </Stack>
   );
-}
+};

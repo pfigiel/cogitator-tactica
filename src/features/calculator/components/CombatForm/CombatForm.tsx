@@ -25,8 +25,8 @@ interface Props {
 
 const UNIT_DATA = UNIT_LIST.map((u) => ({ value: u.id, label: u.name }));
 
-export default function CombatForm({ state, onChange, onCalculate }: Props) {
-  function handlePhaseChange(phase: Phase) {
+const CombatForm = ({ state, onChange, onCalculate }: Props) => {
+  const handlePhaseChange = (phase: Phase) => {
     const attackerUnit = UNITS[state.attackerUnitId];
     const defenderUnit = UNITS[state.defenderUnitId];
     const attackerPool =
@@ -42,9 +42,9 @@ export default function CombatForm({ state, onChange, onCalculate }: Props) {
       defenderWeapons:
         defenderPool.length > 0 ? [{ weaponName: defenderPool[0].name }] : [],
     });
-  }
+  };
 
-  function handleAttackerUnitChange(unitId: string) {
+  const handleAttackerUnitChange = (unitId: string) => {
     const unit = UNITS[unitId];
     const pool =
       state.phase === "shooting" ? unit.shootingWeapons : unit.meleeWeapons;
@@ -53,9 +53,9 @@ export default function CombatForm({ state, onChange, onCalculate }: Props) {
       attackerUnitId: unitId,
       attackerWeapons: pool.length > 0 ? [{ weaponName: pool[0].name }] : [],
     });
-  }
+  };
 
-  function handleDefenderUnitChange(unitId: string) {
+  const handleDefenderUnitChange = (unitId: string) => {
     const unit = UNITS[unitId];
     onChange({
       ...state,
@@ -65,9 +65,9 @@ export default function CombatForm({ state, onChange, onCalculate }: Props) {
           ? [{ weaponName: unit.meleeWeapons[0].name }]
           : [],
     });
-  }
+  };
 
-  function toggleAttackerWeapon(weaponName: string) {
+  const toggleAttackerWeapon = (weaponName: string) => {
     const isSelected = state.attackerWeapons.some(
       (w) => w.weaponName === weaponName
     );
@@ -84,18 +84,18 @@ export default function CombatForm({ state, onChange, onCalculate }: Props) {
         attackerWeapons: [...state.attackerWeapons, { weaponName }],
       });
     }
-  }
+  };
 
-  function setAttackerWeaponCount(weaponName: string, count: number) {
+  const setAttackerWeaponCount = (weaponName: string, count: number) => {
     onChange({
       ...state,
       attackerWeapons: state.attackerWeapons.map((w) =>
         w.weaponName === weaponName ? { ...w, modelCount: count } : w
       ),
     });
-  }
+  };
 
-  function moveAttackerWeaponUp(weaponName: string) {
+  const moveAttackerWeaponUp = (weaponName: string) => {
     const idx = state.attackerWeapons.findIndex(
       (w) => w.weaponName === weaponName
     );
@@ -103,9 +103,9 @@ export default function CombatForm({ state, onChange, onCalculate }: Props) {
     const next = [...state.attackerWeapons];
     [next[idx - 1], next[idx]] = [next[idx], next[idx - 1]];
     onChange({ ...state, attackerWeapons: next });
-  }
+  };
 
-  function moveAttackerWeaponDown(weaponName: string) {
+  const moveAttackerWeaponDown = (weaponName: string) => {
     const idx = state.attackerWeapons.findIndex(
       (w) => w.weaponName === weaponName
     );
@@ -113,9 +113,9 @@ export default function CombatForm({ state, onChange, onCalculate }: Props) {
     const next = [...state.attackerWeapons];
     [next[idx], next[idx + 1]] = [next[idx + 1], next[idx]];
     onChange({ ...state, attackerWeapons: next });
-  }
+  };
 
-  function toggleDefenderWeapon(weaponName: string) {
+  const toggleDefenderWeapon = (weaponName: string) => {
     const isSelected = state.defenderWeapons.some(
       (w) => w.weaponName === weaponName
     );
@@ -132,18 +132,18 @@ export default function CombatForm({ state, onChange, onCalculate }: Props) {
         defenderWeapons: [...state.defenderWeapons, { weaponName }],
       });
     }
-  }
+  };
 
-  function setDefenderWeaponCount(weaponName: string, count: number) {
+  const setDefenderWeaponCount = (weaponName: string, count: number) => {
     onChange({
       ...state,
       defenderWeapons: state.defenderWeapons.map((w) =>
         w.weaponName === weaponName ? { ...w, modelCount: count } : w
       ),
     });
-  }
+  };
 
-  function moveDefenderWeaponUp(weaponName: string) {
+  const moveDefenderWeaponUp = (weaponName: string) => {
     const idx = state.defenderWeapons.findIndex(
       (w) => w.weaponName === weaponName
     );
@@ -151,9 +151,9 @@ export default function CombatForm({ state, onChange, onCalculate }: Props) {
     const next = [...state.defenderWeapons];
     [next[idx - 1], next[idx]] = [next[idx], next[idx - 1]];
     onChange({ ...state, defenderWeapons: next });
-  }
+  };
 
-  function moveDefenderWeaponDown(weaponName: string) {
+  const moveDefenderWeaponDown = (weaponName: string) => {
     const idx = state.defenderWeapons.findIndex(
       (w) => w.weaponName === weaponName
     );
@@ -161,7 +161,7 @@ export default function CombatForm({ state, onChange, onCalculate }: Props) {
     const next = [...state.defenderWeapons];
     [next[idx], next[idx + 1]] = [next[idx + 1], next[idx]];
     onChange({ ...state, defenderWeapons: next });
-  }
+  };
 
   const attackerUnit = UNITS[state.attackerUnitId];
   const defenderUnit = UNITS[state.defenderUnitId];
@@ -399,4 +399,6 @@ export default function CombatForm({ state, onChange, onCalculate }: Props) {
       </Button>
     </Stack>
   );
-}
+};
+
+export default CombatForm;

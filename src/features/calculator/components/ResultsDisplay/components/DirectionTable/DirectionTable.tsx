@@ -2,7 +2,7 @@ import { DirectionalResult } from "@/lib/calculator/types";
 import { Stack, Group } from "@/ui";
 import { WeaponTable } from "../WeaponTable/WeaponTable";
 
-export function DirectionTable({
+export const DirectionTable = ({
   result,
   title,
   color,
@@ -10,7 +10,7 @@ export function DirectionTable({
   result: DirectionalResult;
   title: string;
   color: string;
-}) {
+}) => {
   const multiWeapon = result.weaponResults.length > 1;
 
   return (
@@ -90,4 +90,4 @@ export function DirectionTable({
       </div>
     </Stack>
   );
-}
+};

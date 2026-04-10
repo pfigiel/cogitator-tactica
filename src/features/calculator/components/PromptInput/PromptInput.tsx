@@ -8,12 +8,12 @@ interface Props {
   onParsed: (state: CombatFormState) => void;
 }
 
-export default function PromptInput({ onParsed }: Props) {
+const PromptInput = ({ onParsed }: Props) => {
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function handleParse() {
+  const handleParse = async () => {
     if (!prompt.trim()) return;
     setLoading(true);
     setError(null);
@@ -32,7 +32,7 @@ export default function PromptInput({ onParsed }: Props) {
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   return (
     <Stack gap="xs">
@@ -65,4 +65,6 @@ export default function PromptInput({ onParsed }: Props) {
       </p>
     </Stack>
   );
-}
+};
+
+export default PromptInput;
