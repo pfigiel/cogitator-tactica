@@ -16,6 +16,7 @@ import {
   AttackerContextSection,
   relevantContextFlags,
 } from "./components/AttackerContextSection/AttackerContextSection";
+import styles from "./CombatForm.module.css";
 
 interface Props {
   state: CombatFormState;
@@ -183,26 +184,14 @@ const CombatForm = ({ state, onChange, onCalculate }: Props) => {
     <Stack gap="md">
       {/* Phase selector */}
       <div>
-        <label
-          style={{
-            display: "block",
-            fontSize: "14px",
-            fontWeight: 600,
-            textTransform: "uppercase",
-            letterSpacing: "0.05em",
-            marginBottom: "8px",
-            color: "var(--mantine-color-gray-3)",
-          }}
-        >
-          Phase
-        </label>
+        <label className={styles.sectionLabel}>Phase</label>
         <Group gap="xs">
           {(["shooting", "melee"] as Phase[]).map((p) => (
             <Button
               key={p}
               variant={state.phase === p ? "filled" : "default"}
               onClick={() => handlePhaseChange(p)}
-              style={{ textTransform: "capitalize" }}
+              className={styles.capitalizeButton}
             >
               {p}
             </Button>
@@ -210,28 +199,11 @@ const CombatForm = ({ state, onChange, onCalculate }: Props) => {
         </Group>
       </div>
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-          gap: "24px",
-        }}
-      >
+      <div className={styles.grid}>
         {/* Attacker */}
         <Paper>
           <Stack gap="sm">
-            <h3
-              style={{
-                fontWeight: 700,
-                color: "var(--mantine-color-yellow-4)",
-                textTransform: "uppercase",
-                fontSize: "14px",
-                letterSpacing: "0.05em",
-                margin: 0,
-              }}
-            >
-              Attacker
-            </h3>
+            <h3 className={styles.attackerHeading}>Attacker</h3>
             <Select
               label="Unit"
               searchable
@@ -256,7 +228,6 @@ const CombatForm = ({ state, onChange, onCalculate }: Props) => {
               weapons={attackerWeaponPool}
               selected={state.attackerWeapons}
               defaultModelCount={state.attackerCount}
-              color="yellow"
               weaponType={state.phase}
               onToggle={toggleAttackerWeapon}
               onCountChange={setAttackerWeaponCount}
@@ -275,18 +246,7 @@ const CombatForm = ({ state, onChange, onCalculate }: Props) => {
         {/* Defender */}
         <Paper>
           <Stack gap="sm">
-            <h3
-              style={{
-                fontWeight: 700,
-                color: "var(--mantine-color-blue-4)",
-                textTransform: "uppercase",
-                fontSize: "14px",
-                letterSpacing: "0.05em",
-                margin: 0,
-              }}
-            >
-              Defender
-            </h3>
+            <h3 className={styles.defenderHeading}>Defender</h3>
             <Select
               label="Unit"
               searchable
@@ -319,14 +279,7 @@ const CombatForm = ({ state, onChange, onCalculate }: Props) => {
               label={
                 <>
                   In Cover{" "}
-                  <span
-                    style={{
-                      fontSize: "12px",
-                      color: "var(--mantine-color-dimmed)",
-                    }}
-                  >
-                    (+1 to save)
-                  </span>
+                  <span className={styles.inCoverHint}>(+1 to save)</span>
                 </>
               }
             />
@@ -336,7 +289,6 @@ const CombatForm = ({ state, onChange, onCalculate }: Props) => {
                   weapons={defenderUnit.meleeWeapons}
                   selected={state.defenderWeapons}
                   defaultModelCount={state.defenderCount}
-                  color="blue"
                   weaponType="melee"
                   onToggle={toggleDefenderWeapon}
                   onCountChange={setDefenderWeaponCount}
@@ -360,26 +312,14 @@ const CombatForm = ({ state, onChange, onCalculate }: Props) => {
       {/* First fighter (melee only) */}
       {state.phase === "melee" && (
         <div>
-          <label
-            style={{
-              display: "block",
-              fontSize: "14px",
-              fontWeight: 600,
-              textTransform: "uppercase",
-              letterSpacing: "0.05em",
-              marginBottom: "8px",
-              color: "var(--mantine-color-gray-3)",
-            }}
-          >
-            Who Fights First?
-          </label>
+          <label className={styles.sectionLabel}>Who Fights First?</label>
           <Group gap="xs">
             {(["attacker", "defender"] as FirstFighter[]).map((f) => (
               <Button
                 key={f}
                 variant={state.firstFighter === f ? "filled" : "default"}
                 onClick={() => onChange({ ...state, firstFighter: f })}
-                style={{ textTransform: "capitalize" }}
+                className={styles.capitalizeButton}
               >
                 {f}
               </Button>
@@ -393,7 +333,7 @@ const CombatForm = ({ state, onChange, onCalculate }: Props) => {
         size="lg"
         color="green"
         onClick={onCalculate}
-        style={{ textTransform: "uppercase", letterSpacing: "0.05em" }}
+        className={styles.calculateButton}
       >
         Calculate
       </Button>
