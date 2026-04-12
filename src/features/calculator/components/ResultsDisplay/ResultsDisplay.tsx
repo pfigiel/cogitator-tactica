@@ -3,6 +3,7 @@
 import { CombatResult } from "@/lib/calculator/types";
 import { Alert, Stack } from "@/ui";
 import { DirectionTable } from "./components/DirectionTable/DirectionTable";
+import styles from "./ResultsDisplay.module.css";
 
 interface Props {
   result: CombatResult;
@@ -11,17 +12,7 @@ interface Props {
 const ResultsDisplay = ({ result }: Props) => {
   return (
     <Stack gap="xl">
-      <h2
-        style={{
-          fontSize: "20px",
-          fontWeight: 700,
-          textTransform: "uppercase",
-          letterSpacing: "0.05em",
-          borderBottom: "1px solid var(--mantine-color-dark-4)",
-          paddingBottom: "8px",
-          margin: 0,
-        }}
-      >
+      <h2 className={styles.heading}>
         Results —{" "}
         {result.phase === "shooting" ? "Shooting Phase" : "Fight Phase"}
       </h2>
