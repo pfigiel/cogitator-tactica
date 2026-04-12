@@ -1,5 +1,6 @@
 import { AttackerContext, SelectedWeapon, WeaponProfile } from "@/lib/calculator/types";
 import { Checkbox, Stack } from "@/ui";
+import styles from "./AttackerContextSection.module.css";
 
 export const relevantContextFlags = (
   weapons: WeaponProfile[],
@@ -29,13 +30,11 @@ export const AttackerContextSection = ({
   idPrefix,
   context,
   flags,
-  color,
   onChange,
 }: {
   idPrefix: string;
   context: AttackerContext;
   flags: ReturnType<typeof relevantContextFlags>;
-  color: string;
   onChange: (ctx: AttackerContext) => void;
 }) => {
   const { showStationary, showCharged, showHalfRange, showLongRange } = flags;
@@ -44,13 +43,11 @@ export const AttackerContextSection = ({
 
   return (
     <Stack gap="xs">
-      <label style={{ fontSize: "12px", color: "var(--mantine-color-dimmed)" }}>
-        Conditions
-      </label>
+      <label className={styles.conditionsLabel}>Conditions</label>
       <Stack gap="4px">
         {showStationary && (
           <Checkbox
-            color={color}
+            color="yellow"
             id={`${idPrefix}-stationary`}
             checked={context.remainedStationary}
             onChange={(e) =>
@@ -62,21 +59,14 @@ export const AttackerContextSection = ({
             label={
               <>
                 Remained Stationary{" "}
-                <span
-                  style={{
-                    fontSize: "12px",
-                    color: "var(--mantine-color-dimmed)",
-                  }}
-                >
-                  (Heavy +1 to hit)
-                </span>
+                <span className={styles.hint}>(Heavy +1 to hit)</span>
               </>
             }
           />
         )}
         {showCharged && (
           <Checkbox
-            color={color}
+            color="yellow"
             id={`${idPrefix}-charged`}
             checked={context.charged}
             onChange={(e) =>
@@ -85,21 +75,14 @@ export const AttackerContextSection = ({
             label={
               <>
                 Charged this turn{" "}
-                <span
-                  style={{
-                    fontSize: "12px",
-                    color: "var(--mantine-color-dimmed)",
-                  }}
-                >
-                  (Lance +1 to wound)
-                </span>
+                <span className={styles.hint}>(Lance +1 to wound)</span>
               </>
             }
           />
         )}
         {showHalfRange && (
           <Checkbox
-            color={color}
+            color="yellow"
             id={`${idPrefix}-halfrange`}
             checked={context.atHalfRange}
             onChange={(e) =>
@@ -108,21 +91,14 @@ export const AttackerContextSection = ({
             label={
               <>
                 At half range{" "}
-                <span
-                  style={{
-                    fontSize: "12px",
-                    color: "var(--mantine-color-dimmed)",
-                  }}
-                >
-                  (Rapid Fire / Melta)
-                </span>
+                <span className={styles.hint}>(Rapid Fire / Melta)</span>
               </>
             }
           />
         )}
         {showLongRange && (
           <Checkbox
-            color={color}
+            color="yellow"
             id={`${idPrefix}-longrange`}
             checked={context.atLongRange}
             onChange={(e) =>
@@ -131,14 +107,7 @@ export const AttackerContextSection = ({
             label={
               <>
                 At long range{" "}
-                <span
-                  style={{
-                    fontSize: "12px",
-                    color: "var(--mantine-color-dimmed)",
-                  }}
-                >
-                  (Conversion crits on 4+)
-                </span>
+                <span className={styles.hint}>(Conversion crits on 4+)</span>
               </>
             }
           />

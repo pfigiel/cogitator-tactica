@@ -1,0 +1,9 @@
+.conditionsLabel {
+  font-size: 12px;
+  color: var(--mantine-color-dimmed);
+}
+
+.hint {
+  font-size: 12px;
+  color: var(--mantine-color-dimmed);
+}
