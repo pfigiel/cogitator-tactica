@@ -1,12 +1,12 @@
 import type { SelectedWeapon, WeaponProfile } from "@/lib/calculator/types";
 import { Stack } from "@/ui";
 import { WeaponRecord } from "./components/WeaponRecord";
+import styles from "./WeaponSelector.module.css";
 
 export const WeaponSelector = ({
   weapons,
   selected,
   defaultModelCount,
-  color,
   weaponType,
   onToggle,
   onCountChange,
@@ -16,7 +16,6 @@ export const WeaponSelector = ({
   weapons: WeaponProfile[];
   selected: SelectedWeapon[];
   defaultModelCount: number;
-  color: string;
   weaponType: "shooting" | "melee";
   onToggle: (weaponName: string) => void;
   onCountChange: (weaponName: string, count: number) => void;
@@ -38,14 +37,12 @@ export const WeaponSelector = ({
     (w) => !selected.some((s) => s.weaponName === w.name)
   );
 
-  const dimmed = { fontSize: "12px", color: "var(--mantine-color-dimmed)" };
-
   return (
     <Stack gap="xs">
       <Stack gap="xs">
-        <span style={dimmed}>Selected weapons</span>
+        <span className={styles.dimmed}>Selected weapons</span>
         {selectedWeapons.length === 0 ? (
-          <span style={dimmed}>No weapons selected</span>
+          <span className={styles.dimmed}>No weapons selected</span>
         ) : (
           selectedWeapons.map((sw, idx) => (
             <WeaponRecord
@@ -67,9 +64,9 @@ export const WeaponSelector = ({
         )}
       </Stack>
       <Stack gap="xs">
-        <span style={dimmed}>Available weapons</span>
+        <span className={styles.dimmed}>Available weapons</span>
         {availableWeapons.length === 0 ? (
-          <span style={dimmed}>No weapons available</span>
+          <span className={styles.dimmed}>No weapons available</span>
         ) : (
           availableWeapons.map((w) => (
             <WeaponRecord
