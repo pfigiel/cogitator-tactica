@@ -1,0 +1,43 @@
+.heading {
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--mantine-color-yellow-4);
+  margin: 0;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: var(--mantine-color-dimmed);
+  margin: 0;
+}
+
+.totalsSection {
+  padding-top: 8px;
+  border-top: 1px solid var(--mantine-color-dark-4);
+}
+
+.combinedLabel {
+  font-size: 12px;
+  color: var(--mantine-color-dimmed);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+.statLabel {
+  font-size: 12px;
+  color: var(--mantine-color-dimmed);
+  text-transform: uppercase;
+}
+
+.damageValue {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--mantine-color-yellow-4);
+}
+
+.modelsSlainValue {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--mantine-color-red-4);
+}

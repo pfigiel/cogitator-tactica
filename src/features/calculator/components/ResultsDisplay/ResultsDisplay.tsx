@@ -35,14 +35,12 @@ const ResultsDisplay = ({ result }: Props) => {
       <DirectionTable
         result={result.primary}
         title={result.phase === "melee" ? "Primary Attack" : "Attack"}
-        color="var(--mantine-color-yellow-4)"
       />
 
       {result.counterattack && (
         <DirectionTable
           result={result.counterattack}
           title="Counterattack"
-          color="var(--mantine-color-blue-4)"
         />
       )}
     </Stack>

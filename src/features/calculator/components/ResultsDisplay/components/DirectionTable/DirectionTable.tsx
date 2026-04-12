@@ -1,24 +1,21 @@
 import { DirectionalResult } from "@/lib/calculator/types";
 import { Stack, Group } from "@/ui";
 import { WeaponTable } from "../WeaponTable/WeaponTable";
+import styles from "./DirectionTable.module.css";
 
 export const DirectionTable = ({
   result,
   title,
-  color,
 }: {
   result: DirectionalResult;
   title: string;
-  color: string;
 }) => {
   const multiWeapon = result.weaponResults.length > 1;
 
   return (
     <Stack gap="sm">
-      <h3 style={{ fontWeight: 700, fontSize: "18px", color, margin: 0 }}>
-        {title}
-      </h3>
-      <p style={{ fontSize: "14px", color: "var(--mantine-color-dimmed)", margin: 0 }}>
+      <h3 className={styles.heading}>{title}</h3>
+      <p className={styles.subtitle}>
         {result.attackerName} → {result.defenderName}
       </p>
       <Stack gap="lg">
@@ -26,63 +23,20 @@ export const DirectionTable = ({
           <WeaponTable key={wr.weaponName} weaponResult={wr} />
         ))}
       </Stack>
-      <div
-        style={{
-          paddingTop: "8px",
-          borderTop: "1px solid var(--mantine-color-dark-4)",
-        }}
-      >
+      <div className={styles.totalsSection}>
         {multiWeapon && (
-          <p
-            style={{
-              fontSize: "12px",
-              color: "var(--mantine-color-dimmed)",
-              textTransform: "uppercase",
-              letterSpacing: "0.05em",
-              marginBottom: "8px",
-            }}
-          >
-            Combined totals
-          </p>
+          <p className={styles.combinedLabel}>Combined totals</p>
         )}
         <Group gap="xl">
           <div>
-            <div
-              style={{
-                fontSize: "12px",
-                color: "var(--mantine-color-dimmed)",
-                textTransform: "uppercase",
-              }}
-            >
-              Avg Damage
-            </div>
-            <div
-              style={{
-                fontSize: "24px",
-                fontWeight: 700,
-                color: "var(--mantine-color-yellow-4)",
-              }}
-            >
+            <div className={styles.statLabel}>Avg Damage</div>
+            <div className={styles.damageValue}>
               {result.totalAverageDamage.toFixed(2)}
             </div>
           </div>
           <div>
-            <div
-              style={{
-                fontSize: "12px",
-                color: "var(--mantine-color-dimmed)",
-                textTransform: "uppercase",
-              }}
-            >
-              Avg Models Slain
-            </div>
-            <div
-              style={{
-                fontSize: "24px",
-                fontWeight: 700,
-                color: "var(--mantine-color-red-4)",
-              }}
-            >
+            <div className={styles.statLabel}>Avg Models Slain</div>
+            <div className={styles.modelsSlainValue}>
               {result.totalAverageModelsSlain.toFixed(2)}
             </div>
           </div>
