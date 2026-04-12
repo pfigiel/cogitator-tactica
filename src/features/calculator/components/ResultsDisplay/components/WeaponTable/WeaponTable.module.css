@@ -1,0 +1,51 @@
+.weaponName {
+  font-weight: 600;
+  font-size: 14px;
+  margin: 0;
+}
+
+.modelCount {
+  font-size: 12px;
+  color: var(--mantine-color-dimmed);
+}
+
+.th {
+  font-size: 12px;
+}
+
+.thRight {
+  font-size: 12px;
+  text-align: right;
+}
+
+.td {
+  font-size: 12px;
+}
+
+.tdInput {
+  font-size: 12px;
+  text-align: right;
+  color: var(--mantine-color-dimmed);
+}
+
+.tdAverage {
+  font-size: 12px;
+  text-align: right;
+  font-weight: 700;
+  color: var(--mantine-color-yellow-4);
+}
+
+.summary {
+  font-size: 12px;
+  color: var(--mantine-color-dimmed);
+}
+
+.damageValue {
+  color: var(--mantine-color-yellow-4);
+  font-weight: 700;
+}
+
+.modelsSlainValue {
+  color: var(--mantine-color-red-4);
+  font-weight: 700;
+}
