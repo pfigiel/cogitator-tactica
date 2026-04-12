@@ -1,24 +1,32 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { CombatFormState, SelectedWeapon, DEFAULT_ATTACKER_CONTEXT } from "@/lib/calculator/types";
+import {
+  CombatFormState,
+  SelectedWeapon,
+  DEFAULT_ATTACKER_CONTEXT,
+} from "@/lib/calculator/types";
 import { UNIT_LIST, UNITS } from "@/data/units";
 
 const client = new Anthropic(); // reads ANTHROPIC_API_KEY from env
 
-const UNIT_DESCRIPTIONS = UNIT_LIST
-  .map((u) => {
-    const shooting = u.shootingWeapons
-      .map((w) => `      - "${w.name}" (A${w.attacks} S${w.strength} AP-${w.ap} D${w.damage})`)
-      .join("\n");
-    const melee = u.meleeWeapons
-      .map((w) => `      - "${w.name}" (A${w.attacks} S${w.strength} AP-${w.ap} D${w.damage})`)
-      .join("\n");
-    return [
-      `  - id: "${u.id}", name: "${u.name}"`,
-      `    Shooting weapons:\n${shooting || "      (none)"}`,
-      `    Melee weapons:\n${melee || "      (none)"}`,
-    ].join("\n");
-  })
-  .join("\n");
+const UNIT_DESCRIPTIONS = UNIT_LIST.map((u) => {
+  const shooting = u.shootingWeapons
+    .map(
+      (w) =>
+        `      - "${w.name}" (A${w.attacks} S${w.strength} AP-${w.ap} D${w.damage})`,
+    )
+    .join("\n");
+  const melee = u.meleeWeapons
+    .map(
+      (w) =>
+        `      - "${w.name}" (A${w.attacks} S${w.strength} AP-${w.ap} D${w.damage})`,
+    )
+    .join("\n");
+  return [
+    `  - id: "${u.id}", name: "${u.name}"`,
+    `    Shooting weapons:\n${shooting || "      (none)"}`,
+    `    Melee weapons:\n${melee || "      (none)"}`,
+  ].join("\n");
+}).join("\n");
 
 const SYSTEM_PROMPT = `You are a Warhammer 40,000 combat assistant. Parse a natural language combat description into structured JSON.
 
@@ -57,7 +65,9 @@ export const parsePrompt = async (prompt: string): Promise<CombatFormState> => {
 
   const text = message.content
     .filter((block) => block.type === "text")
-    .map((block) => (block as { type: "text"; text: string }).text)
+    .map((block) => (block as { type: "text"; text: string }).text)[0]
+    .split("\n")
+    .slice(1, -1)
     .join("");
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -81,17 +91,16 @@ export const parsePrompt = async (prompt: string): Promise<CombatFormState> => {
   const defenderUnit = UNITS[defenderUnitId];
 
   // Build default weapons as fallback
-  const defaultAttackerPool =
-    attackerUnit
-      ? phase === "shooting"
-        ? attackerUnit.shootingWeapons
-        : attackerUnit.meleeWeapons
-      : [];
+  const defaultAttackerPool = attackerUnit
+    ? phase === "shooting"
+      ? attackerUnit.shootingWeapons
+      : attackerUnit.meleeWeapons
+    : [];
   const defaultDefenderPool = defenderUnit ? defenderUnit.meleeWeapons : [];
 
   const parseWeaponList = (
     raw: unknown,
-    fallbackPool: typeof defaultAttackerPool
+    fallbackPool: typeof defaultAttackerPool,
   ): SelectedWeapon[] => {
     if (Array.isArray(raw) && raw.length > 0) {
       const result: SelectedWeapon[] = raw
@@ -105,11 +114,19 @@ export const parsePrompt = async (prompt: string): Promise<CombatFormState> => {
         }));
       if (result.length > 0) return result;
     }
-    return fallbackPool.length > 0 ? [{ weaponName: fallbackPool[0].name }] : [];
+    return fallbackPool.length > 0
+      ? [{ weaponName: fallbackPool[0].name }]
+      : [];
   };
 
-  const attackerWeapons = parseWeaponList(parsed.attackerWeapons, defaultAttackerPool);
-  const defenderWeapons = parseWeaponList(parsed.defenderWeapons, defaultDefenderPool);
+  const attackerWeapons = parseWeaponList(
+    parsed.attackerWeapons,
+    defaultAttackerPool,
+  );
+  const defenderWeapons = parseWeaponList(
+    parsed.defenderWeapons,
+    defaultDefenderPool,
+  );
 
   return {
     phase,

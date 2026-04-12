@@ -2,23 +2,20 @@ import type { Metadata } from "next";
 import "@mantine/core/styles.css";
 import { ColorSchemeScript, MantineProvider } from "@mantine/core";
 import { theme } from "@/ui/theme";
+import styles from "./layout.module.css";
 
 export const metadata: Metadata = {
   title: "WH40K Battle Calculator",
   description: "Warhammer 40,000 statistics battle calculator",
 };
 
-const RootLayout = ({
-  children,
-}: {
-  children: React.ReactNode;
-}) => {
+const RootLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
         <ColorSchemeScript defaultColorScheme="dark" />
       </head>
-      <body>
+      <body className={styles.body}>
         <MantineProvider theme={theme} defaultColorScheme="dark">
           {children}
         </MantineProvider>
