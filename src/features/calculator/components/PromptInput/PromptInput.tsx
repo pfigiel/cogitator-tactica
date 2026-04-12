@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { CombatFormState } from "@/lib/calculator/types";
 import { TextInput, Button, Stack, Group } from "@/ui";
+import styles from "./PromptInput.module.css";
 
 interface Props {
   onParsed: (state: CombatFormState) => void;
@@ -38,7 +39,7 @@ const PromptInput = ({ onParsed }: Props) => {
     <Stack gap="xs">
       <Group gap="xs" align="flex-end">
         <TextInput
-          style={{ flex: 1 }}
+          className={styles.input}
           label="Describe the combat situation"
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
@@ -54,13 +55,7 @@ const PromptInput = ({ onParsed }: Props) => {
           Parse
         </Button>
       </Group>
-      <p
-        style={{
-          color: "var(--mantine-color-dimmed)",
-          fontSize: "12px",
-          margin: 0,
-        }}
-      >
+      <p className={styles.hint}>
         Powered by Claude Haiku — fills in the form below automatically.
       </p>
     </Stack>

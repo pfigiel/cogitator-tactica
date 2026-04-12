@@ -16,6 +16,7 @@ import PromptInput from "@/features/calculator/components/PromptInput/PromptInpu
 import CombatForm from "@/features/calculator/components/CombatForm/CombatForm";
 import ResultsDisplay from "@/features/calculator/components/ResultsDisplay/ResultsDisplay";
 import { Paper, Stack } from "@/ui";
+import styles from "./page.module.css";
 
 const DEFAULT_FORM: CombatFormState = {
   phase: "shooting",
@@ -35,7 +36,7 @@ const resolveWeapons = (
   unit: UnitProfile,
   phase: Phase,
   selectedWeapons: SelectedWeapon[],
-  defaultModelCount: number
+  defaultModelCount: number,
 ): SelectedWeaponInput[] => {
   const pool = phase === "shooting" ? unit.shootingWeapons : unit.meleeWeapons;
   return selectedWeapons
@@ -67,13 +68,13 @@ const Home = () => {
       attacker,
       form.phase,
       form.attackerWeapons,
-      form.attackerCount
+      form.attackerCount,
     );
     const defenderWeapons = resolveWeapons(
       defender,
       "melee",
       form.defenderWeapons,
-      form.defenderCount
+      form.defenderCount,
     );
 
     if (attackerWeapons.length === 0) {
@@ -119,7 +120,7 @@ const Home = () => {
                 selectedWeapons: defenderWeapons,
               },
               firstFighter: form.firstFighter,
-            }
+            },
       );
       setResult(combatResult);
     } catch (err) {
@@ -128,29 +129,12 @@ const Home = () => {
   };
 
   return (
-    <main style={{ maxWidth: "896px", margin: "0 auto", padding: "40px 16px" }}>
+    <main className={styles.main}>
       <Stack gap="xl">
         {/* Header */}
-        <header style={{ textAlign: "center" }}>
-          <h1
-            style={{
-              fontSize: "36px",
-              fontWeight: 900,
-              textTransform: "uppercase",
-              letterSpacing: "0.1em",
-              color: "var(--mantine-color-yellow-4)",
-              margin: 0,
-            }}
-          >
-            WH40K Battle Calc
-          </h1>
-          <p
-            style={{
-              color: "var(--mantine-color-dimmed)",
-              fontSize: "14px",
-              margin: 0,
-            }}
-          >
+        <header className={styles.header}>
+          <h1 className={styles.title}>WH40K Battle Calc</h1>
+          <p className={styles.subtitle}>
             Statistics calculator for Warhammer 40,000 10th Edition
           </p>
         </header>
@@ -168,15 +152,7 @@ const Home = () => {
             onCalculate={handleCalculate}
           />
           {error && (
-            <p
-              style={{
-                marginTop: "12px",
-                color: "var(--mantine-color-red-4)",
-                fontSize: "14px",
-              }}
-            >
-              Error: {error}
-            </p>
+            <p className={styles.error}>Error: {error}</p>
           )}
         </Paper>
 

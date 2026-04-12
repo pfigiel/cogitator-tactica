@@ -1,0 +1,30 @@
+.main {
+  max-width: 896px;
+  margin: 0 auto;
+  padding: 40px 16px;
+}
+
+.header {
+  text-align: center;
+}
+
+.title {
+  font-size: 36px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--mantine-color-yellow-4);
+  margin: 0;
+}
+
+.subtitle {
+  color: var(--mantine-color-dimmed);
+  font-size: 14px;
+  margin: 0;
+}
+
+.error {
+  margin-top: 12px;
+  color: var(--mantine-color-red-4);
+  font-size: 14px;
+}

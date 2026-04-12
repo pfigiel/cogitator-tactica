@@ -1,0 +1,9 @@
+.input {
+  flex: 1;
+}
+
+.hint {
+  color: var(--mantine-color-dimmed);
+  font-size: 12px;
+  margin: 0;
+}
