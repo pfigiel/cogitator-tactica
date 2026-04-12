@@ -52,7 +52,6 @@ export const WeaponSelector = ({
               key={sw.profile.name}
               weapon={sw.profile}
               weaponType={weaponType}
-              color={color}
               isSelected={true}
               onToggle={() => onToggle(sw.profile.name)}
               selectionProps={{
@@ -77,7 +76,6 @@ export const WeaponSelector = ({
               key={w.name}
               weapon={w}
               weaponType={weaponType}
-              color={color}
               isSelected={false}
               onToggle={() => onToggle(w.name)}
             />

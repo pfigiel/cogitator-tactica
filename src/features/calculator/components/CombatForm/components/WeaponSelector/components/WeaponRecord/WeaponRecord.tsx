@@ -1,7 +1,7 @@
 import type { WeaponProfile } from "@/lib/calculator/types";
-import type { MantineColor } from "@mantine/core";
 import { Paper, Group, Stack, Button, NumberInput } from "@/ui";
 import { formatStats, formatAbilities } from "./weaponFormatters";
+import styles from "./WeaponRecord.module.css";
 
 interface SelectionProps {
   modelCount: number;
@@ -15,7 +15,6 @@ interface SelectionProps {
 interface WeaponRecordProps {
   weapon: WeaponProfile;
   weaponType: "shooting" | "melee";
-  color: MantineColor;
   isSelected: boolean;
   onToggle: () => void;
   selectionProps?: SelectionProps;
@@ -24,7 +23,6 @@ interface WeaponRecordProps {
 export const WeaponRecord = ({
   weapon,
   weaponType,
-  color,
   isSelected,
   onToggle,
   selectionProps,
@@ -38,40 +36,27 @@ export const WeaponRecord = ({
         <Button
           size="compact-xs"
           variant="subtle"
-          color={color}
+          color="yellow"
           onClick={onToggle}
           aria-label={
             isSelected ? `Remove ${weapon.name}` : `Add ${weapon.name}`
           }
-          style={{ flexShrink: 0 }}
+          className={styles.toggleButton}
         >
           {isSelected ? "−" : "+"}
         </Button>
 
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div
-            style={{
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-            }}
-          >
-            {weapon.name}
-          </div>
-          <div style={{ fontSize: "11px" }}>
+        <div className={styles.content}>
+          <div className={styles.name}>{weapon.name}</div>
+          <div className={styles.stats}>
             {stats.map(({ label, value }) => (
-              <span
-                style={{ color: "var(--mantine-color-dimmed)" }}
-                key={label}
-              >
+              <span className={styles.statLabel} key={label}>
                 <span>{label}</span>
-                <span style={{ fontWeight: "bold" }}>{value}</span>{" "}
+                <span className={styles.statValue}>{value}</span>{" "}
               </span>
             ))}
           </div>
-          <div
-            style={{ fontSize: "11px", color: "var(--mantine-color-dimmed)" }}
-          >
+          <div className={styles.abilities}>
             {abilities.length ? abilities : "-"}
           </div>
         </div>
@@ -89,13 +74,13 @@ export const WeaponRecord = ({
                   typeof val === "number" ? Math.max(1, val) : 1,
                 )
               }
-              style={{ flexShrink: 0 }}
+              className={styles.countInput}
             />
-            <Stack gap="2px" style={{ flexShrink: 0 }}>
+            <Stack gap="2px" className={styles.orderButtons}>
               <Button
                 size="compact-xs"
                 variant="subtle"
-                color={color}
+                color="yellow"
                 onClick={selectionProps.onMoveUp}
                 disabled={selectionProps.isFirst}
                 aria-label={`Move ${weapon.name} up`}
@@ -105,7 +90,7 @@ export const WeaponRecord = ({
               <Button
                 size="compact-xs"
                 variant="subtle"
-                color={color}
+                color="yellow"
                 onClick={selectionProps.onMoveDown}
                 disabled={selectionProps.isLast}
                 aria-label={`Move ${weapon.name} down`}

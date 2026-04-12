@@ -1,0 +1,39 @@
+.toggleButton {
+  flex-shrink: 0;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+.name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stats {
+  font-size: 11px;
+}
+
+.statLabel {
+  color: var(--mantine-color-dimmed);
+}
+
+.statValue {
+  font-weight: bold;
+}
+
+.abilities {
+  font-size: 11px;
+  color: var(--mantine-color-dimmed);
+}
+
+.countInput {
+  flex-shrink: 0;
+}
+
+.orderButtons {
+  flex-shrink: 0;
+}
