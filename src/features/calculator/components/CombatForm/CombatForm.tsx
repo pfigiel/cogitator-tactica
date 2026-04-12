@@ -267,7 +267,6 @@ const CombatForm = ({ state, onChange, onCalculate }: Props) => {
               idPrefix="attacker"
               context={state.attackerContext}
               flags={attackerContextFlags}
-              color="yellow"
               onChange={(ctx) => onChange({ ...state, attackerContext: ctx })}
             />
           </Stack>
@@ -348,7 +347,6 @@ const CombatForm = ({ state, onChange, onCalculate }: Props) => {
                   idPrefix="defender"
                   context={state.defenderContext}
                   flags={defenderContextFlags}
-                  color="blue"
                   onChange={(ctx) =>
                     onChange({ ...state, defenderContext: ctx })
                   }
