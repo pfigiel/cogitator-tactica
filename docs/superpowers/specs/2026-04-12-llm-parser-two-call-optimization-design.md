@@ -25,7 +25,7 @@ When no weapons are mentioned (the common case), a single LLM call suffices and 
 | Case | Current | Optimized | Reduction |
 |------|---------|-----------|-----------|
 | No weapons mentioned | ~25,000 | ~3,000 | ~88% |
-| Weapons mentioned | ~25,000 | ~3,500 | ~86% |
+| Weapons mentioned | ~25,000 | ~3,200 | ~87% |
 
 ## Code Structure
 
@@ -84,14 +84,14 @@ Available units:
 
 Only fires when `weaponsExplicit === true`.
 
-**System prompt context:** Only the resolved attacker unit's weapons + (if melee phase) the defender's melee weapons, with full stats.
+**System prompt context:** Only the resolved attacker unit's weapon names + (if melee phase) the defender's melee weapon names. No stats — the LLM only needs to identify which weapons the user mentioned; full profiles are looked up from `UNITS` in code after the call.
 
 ```
 Attacker weapons:
-  - "Power klaw" (A3 S8 AP-2 D2)
+  - "Power klaw"
   ...
 Defender melee weapons:   ← omitted in shooting phase
-  - "Chainsword" (A2 S4 AP-1 D1)
+  - "Chainsword"
   ...
 ```
 
