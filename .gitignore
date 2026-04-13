@@ -33,3 +33,6 @@ npm-debug.log*
 
 # Secrets
 secrets.md
+
+# Backups
+backups/
