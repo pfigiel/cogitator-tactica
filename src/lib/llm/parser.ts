@@ -51,10 +51,14 @@ interface UnitResolution {
   weaponsExplicit: boolean;
 }
 
-const resolveUnitsAndContext = async (prompt: string): Promise<UnitResolution> => {
+const resolveUnitsAndContext = async (
+  prompt: string,
+): Promise<UnitResolution> => {
+  console.log("[parser] call1 input:", prompt);
   const message = await client.messages.create({
     model: "claude-haiku-4-5-20251001",
     max_tokens: 256,
+    cache_control: { type: "ephemeral" },
     system: SYSTEM_PROMPT_UNITS,
     messages: [{ role: "user", content: prompt }],
   });
@@ -63,8 +67,11 @@ const resolveUnitsAndContext = async (prompt: string): Promise<UnitResolution> =
     .filter((block) => block.type === "text")
     .map((block) => (block as { type: "text"; text: string }).text)[0];
 
+  console.log("[parser] call1 raw output:", rawText);
+
   const jsonMatch = rawText.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) throw new Error(`No JSON object found in LLM response: ${rawText}`);
+  if (!jsonMatch)
+    throw new Error(`No JSON object found in LLM response: ${rawText}`);
   const text = jsonMatch[0];
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -79,7 +86,7 @@ const resolveUnitsAndContext = async (prompt: string): Promise<UnitResolution> =
     throw new Error(`LLM response missing required fields: ${text}`);
   }
 
-  return {
+  const result = {
     phase: parsed.phase,
     attackerUnitId: parsed.attackerUnitId,
     attackerCount: Math.max(1, Number(parsed.attackerCount) || 1),
@@ -89,6 +96,8 @@ const resolveUnitsAndContext = async (prompt: string): Promise<UnitResolution> =
     firstFighter: parsed.firstFighter ?? "attacker",
     weaponsExplicit: Boolean(parsed.weaponsExplicit),
   };
+  console.log("[parser] call1 parsed:", result);
+  return result;
 };
 
 // ─── Call 2: Weapon resolution (conditional) ─────────────────────────────────
@@ -99,7 +108,9 @@ const buildWeaponSystemPrompt = (
   phase: "shooting" | "melee",
 ): string => {
   const attackerPool =
-    phase === "shooting" ? attackerUnit.shootingWeapons : attackerUnit.meleeWeapons;
+    phase === "shooting"
+      ? attackerUnit.shootingWeapons
+      : attackerUnit.meleeWeapons;
   const attackerNames = attackerPool.map((w) => `  - "${w.name}"`).join("\n");
 
   const schemaFields =
@@ -169,9 +180,11 @@ const resolveWeapons = async (
   defenderUnit: UnitProfile | undefined,
   phase: "shooting" | "melee",
 ): Promise<WeaponResolution> => {
+  console.log("[parser] call2 input:", prompt);
   const message = await client.messages.create({
     model: "claude-haiku-4-5-20251001",
     max_tokens: 256,
+    cache_control: { type: "ephemeral" },
     system: buildWeaponSystemPrompt(attackerUnit, defenderUnit, phase),
     messages: [{ role: "user", content: prompt }],
   });
@@ -180,8 +193,11 @@ const resolveWeapons = async (
     .filter((block) => block.type === "text")
     .map((block) => (block as { type: "text"; text: string }).text)[0];
 
+  console.log("[parser] call2 raw output:", rawText);
+
   const jsonMatch = rawText.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) throw new Error(`No JSON object found in LLM response: ${rawText}`);
+  if (!jsonMatch)
+    throw new Error(`No JSON object found in LLM response: ${rawText}`);
   const text = jsonMatch[0];
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -193,11 +209,16 @@ const resolveWeapons = async (
   }
 
   const attackerPool =
-    phase === "shooting" ? attackerUnit.shootingWeapons : attackerUnit.meleeWeapons;
+    phase === "shooting"
+      ? attackerUnit.shootingWeapons
+      : attackerUnit.meleeWeapons;
   const defenderPool = defenderUnit?.meleeWeapons ?? [];
 
-  return {
-    attackerWeapons: parseWeaponList(parsed.attackerWeapons, attackerPool[0]?.name),
+  const weaponResult = {
+    attackerWeapons: parseWeaponList(
+      parsed.attackerWeapons,
+      attackerPool[0]?.name,
+    ),
     defenderWeapons:
       phase === "melee"
         ? parseWeaponList(parsed.defenderWeapons, defenderPool[0]?.name)
@@ -205,6 +226,8 @@ const resolveWeapons = async (
           ? [{ weaponName: defenderPool[0].name }]
           : [],
   };
+  console.log("[parser] call2 parsed:", weaponResult);
+  return weaponResult;
 };
 
 export const parsePrompt = async (prompt: string): Promise<CombatFormState> => {
@@ -244,7 +267,7 @@ export const parsePrompt = async (prompt: string): Promise<CombatFormState> => {
         : [];
   }
 
-  return {
+  const combatFormState = {
     phase,
     attackerUnitId,
     attackerCount: unitResolution.attackerCount,
@@ -257,4 +280,6 @@ export const parsePrompt = async (prompt: string): Promise<CombatFormState> => {
     defenderContext: DEFAULT_ATTACKER_CONTEXT,
     firstFighter: unitResolution.firstFighter,
   };
+  console.log("[parser] parsePrompt result:", combatFormState);
+  return combatFormState;
 };
