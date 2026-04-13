@@ -31,12 +31,12 @@ const CombatForm = ({ state, onChange, onCalculate, units, unitList }: Props) =>
   const handlePhaseChange = (phase: Phase) => {
     const attackerUnit = units[state.attackerUnitId];
     const defenderUnit = units[state.defenderUnitId];
-    if (!attackerUnit || !defenderUnit) return;
-    const attackerPool =
-      phase === "shooting"
+    const attackerPool = attackerUnit
+      ? phase === "shooting"
         ? attackerUnit.shootingWeapons
-        : attackerUnit.meleeWeapons;
-    const defenderPool = defenderUnit.meleeWeapons;
+        : attackerUnit.meleeWeapons
+      : [];
+    const defenderPool = defenderUnit ? defenderUnit.meleeWeapons : [];
     onChange({
       ...state,
       phase,
@@ -49,9 +49,11 @@ const CombatForm = ({ state, onChange, onCalculate, units, unitList }: Props) =>
 
   const handleAttackerUnitChange = (unitId: string) => {
     const unit = units[unitId];
-    if (!unit) return;
-    const pool =
-      state.phase === "shooting" ? unit.shootingWeapons : unit.meleeWeapons;
+    const pool = unit
+      ? state.phase === "shooting"
+        ? unit.shootingWeapons
+        : unit.meleeWeapons
+      : [];
     onChange({
       ...state,
       attackerUnitId: unitId,
@@ -61,13 +63,13 @@ const CombatForm = ({ state, onChange, onCalculate, units, unitList }: Props) =>
 
   const handleDefenderUnitChange = (unitId: string) => {
     const unit = units[unitId];
-    if (!unit) return;
+    const meleeWeapons = unit ? unit.meleeWeapons : [];
     onChange({
       ...state,
       defenderUnitId: unitId,
       defenderWeapons:
-        unit.meleeWeapons.length > 0
-          ? [{ weaponName: unit.meleeWeapons[0].name }]
+        meleeWeapons.length > 0
+          ? [{ weaponName: meleeWeapons[0].name }]
           : [],
     });
   };

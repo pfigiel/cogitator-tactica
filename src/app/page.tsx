@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   CombatFormState,
   CombatResult,
@@ -53,7 +53,16 @@ const Home = () => {
   const [result, setResult] = useState<CombatResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [unitList, setUnitList] = useState<Array<{ id: string; name: string }>>([]);
+  const unitsRef = useRef<Record<string, UnitProfile>>({});
   const [units, setUnits] = useState<Record<string, UnitProfile>>({});
+
+  const setUnitsAndRef = (updater: (prev: Record<string, UnitProfile>) => Record<string, UnitProfile>) => {
+    setUnits((prev) => {
+      const next = updater(prev);
+      unitsRef.current = next;
+      return next;
+    });
+  };
 
   useEffect(() => {
     fetch("/api/units")
@@ -64,18 +73,18 @@ const Home = () => {
 
   const ensureUnit = useCallback(
     async (id: string): Promise<UnitProfile | null> => {
-      if (units[id]) return units[id];
+      if (unitsRef.current[id]) return unitsRef.current[id];
       try {
         const res = await fetch(`/api/units/${id}`);
         if (!res.ok) return null;
         const unit: UnitProfile = await res.json();
-        setUnits((prev) => ({ ...prev, [id]: unit }));
+        setUnitsAndRef((prev) => ({ ...prev, [id]: unit }));
         return unit;
       } catch {
         return null;
       }
     },
-    [units],
+    [],
   );
 
   // Pre-fetch the default units on mount so the form has weapon pools immediately
