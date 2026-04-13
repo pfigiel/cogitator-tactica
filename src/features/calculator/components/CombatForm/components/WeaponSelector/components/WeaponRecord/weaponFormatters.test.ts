@@ -57,6 +57,7 @@ describe("formatAbilities", () => {
 
 describe("formatStats", () => {
   const weapon: WeaponProfile = {
+    id: "bolter",
     name: "Bolter",
     attacks: 2,
     skill: 3,
