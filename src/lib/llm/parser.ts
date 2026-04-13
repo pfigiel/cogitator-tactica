@@ -59,12 +59,13 @@ const resolveUnitsAndContext = async (prompt: string): Promise<UnitResolution> =
     messages: [{ role: "user", content: prompt }],
   });
 
-  const text = message.content
+  const rawText = message.content
     .filter((block) => block.type === "text")
-    .map((block) => (block as { type: "text"; text: string }).text)[0]
-    .split("\n")
-    .slice(1, -1)
-    .join("");
+    .map((block) => (block as { type: "text"; text: string }).text)[0];
+
+  const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) throw new Error(`No JSON object found in LLM response: ${rawText}`);
+  const text = jsonMatch[0];
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let parsed: any;
@@ -131,11 +132,18 @@ Rules:
 - If attacker weapons are not clearly specified, default to the first weapon in the list`;
 };
 
+/**
+ * Resolved weapon selections from call 2.
+ * defenderWeapons is always populated: from the LLM in melee phase,
+ * or from a hardcoded default (first melee weapon) in shooting phase.
+ */
 interface WeaponResolution {
   attackerWeapons: SelectedWeapon[];
   defenderWeapons: SelectedWeapon[];
 }
 
+// Fallback is resolved to a name by the caller (not a pool), decoupling
+// this function from phase-specific pool selection logic.
 const parseWeaponList = (
   raw: unknown,
   fallbackName: string | undefined,
@@ -168,12 +176,13 @@ const resolveWeapons = async (
     messages: [{ role: "user", content: prompt }],
   });
 
-  const text = message.content
+  const rawText = message.content
     .filter((block) => block.type === "text")
-    .map((block) => (block as { type: "text"; text: string }).text)[0]
-    .split("\n")
-    .slice(1, -1)
-    .join("");
+    .map((block) => (block as { type: "text"; text: string }).text)[0];
+
+  const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) throw new Error(`No JSON object found in LLM response: ${rawText}`);
+  const text = jsonMatch[0];
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let parsed: any;
