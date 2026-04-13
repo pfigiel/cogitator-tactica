@@ -1,9 +1,10 @@
 import { parseArgs } from "node:util";
-import { writeFile } from "node:fs/promises";
+import { execSync } from "node:child_process";
+import { mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { parseAll } from "./parse";
 import { transform } from "./transform";
-import { generateUnitsFile } from "./generate";
+import { upsertAll } from "./db";
 
 const main = async () => {
   const { values } = parseArgs({
@@ -19,30 +20,35 @@ const main = async () => {
 
   console.log(`Importing factions: ${factions.join(", ")}`);
 
-  const data = await parseAll();
-  const { units, warnings, skippedKillTeam, countByFaction } = transform(
-    data,
-    factions,
-  );
+  // Backup current DB before making changes
+  const databaseUrl = process.env.DATABASE_URL;
+  if (!databaseUrl) throw new Error("DATABASE_URL is not set");
 
-  // Print warnings
+  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+  const backupDir = join(process.cwd(), "backups");
+  const backupPath = join(backupDir, `${timestamp}.dump`);
+  mkdirSync(backupDir, { recursive: true });
+
+  console.log(`Backing up database to backups/${timestamp}.dump ...`);
+  execSync(`pg_dump "${databaseUrl}" -Fc -f "${backupPath}"`, { stdio: "inherit" });
+  console.log("Backup complete.");
+
+  const data = await parseAll();
+  const { units, warnings, skippedKillTeam, countByFaction } = transform(data, factions);
+
   for (const w of warnings) {
     console.warn(`[WARN] ${w.unitName} / ${w.weaponName}: ${w.message}`);
   }
 
-  // Print summary
   const byFaction = factions
     .map((f) => `${f}: ${countByFaction.get(f) ?? 0}`)
     .join(", ");
   console.log(
-    `Imported ${units.length} units (${byFaction}). Skipped ${skippedKillTeam} (Kill Team).`,
+    `Importing ${units.length} units (${byFaction}). Skipped ${skippedKillTeam} (Kill Team).`,
   );
 
-  // Write output
-  const outputPath = join(process.cwd(), "src/data/units.ts");
-  const content = generateUnitsFile(units);
-  await writeFile(outputPath, content, "utf-8");
-  console.log(`Written to ${outputPath}`);
+  await upsertAll(units);
+  console.log("Done.");
 };
 
 main().catch((err) => {
