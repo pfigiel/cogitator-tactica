@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   CombatFormState,
   CombatResult,
@@ -11,7 +11,6 @@ import {
   DEFAULT_ATTACKER_CONTEXT,
 } from "@/lib/calculator/types";
 import { calculate } from "@/lib/calculator";
-import { UNITS } from "@/data/units";
 import PromptInput from "@/features/calculator/components/PromptInput/PromptInput";
 import CombatForm from "@/features/calculator/components/CombatForm/CombatForm";
 import ResultsDisplay from "@/features/calculator/components/ResultsDisplay/ResultsDisplay";
@@ -53,11 +52,45 @@ const Home = () => {
   const [form, setForm] = useState<CombatFormState>(DEFAULT_FORM);
   const [result, setResult] = useState<CombatResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [unitList, setUnitList] = useState<Array<{ id: string; name: string }>>([]);
+  const [units, setUnits] = useState<Record<string, UnitProfile>>({});
+
+  useEffect(() => {
+    fetch("/api/units")
+      .then((r) => r.json())
+      .then((list: Array<{ id: string; name: string }>) => setUnitList(list))
+      .catch(() => {/* non-fatal: dropdown stays empty */});
+  }, []);
+
+  const ensureUnit = useCallback(
+    async (id: string): Promise<UnitProfile | null> => {
+      if (units[id]) return units[id];
+      try {
+        const res = await fetch(`/api/units/${id}`);
+        if (!res.ok) return null;
+        const unit: UnitProfile = await res.json();
+        setUnits((prev) => ({ ...prev, [id]: unit }));
+        return unit;
+      } catch {
+        return null;
+      }
+    },
+    [units],
+  );
+
+  // Pre-fetch the default units on mount so the form has weapon pools immediately
+  useEffect(() => {
+    ensureUnit(DEFAULT_FORM.attackerUnitId);
+    ensureUnit(DEFAULT_FORM.defenderUnitId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleCalculate = async () => {
     setError(null);
-    const attacker = UNITS[form.attackerUnitId];
-    const defender = UNITS[form.defenderUnitId];
+    const [attacker, defender] = await Promise.all([
+      ensureUnit(form.attackerUnitId),
+      ensureUnit(form.defenderUnitId),
+    ]);
 
     if (!attacker || !defender) {
       setError("Unknown unit selected.");
@@ -128,6 +161,20 @@ const Home = () => {
     }
   };
 
+  const handleFormChange = useCallback(
+    async (next: CombatFormState) => {
+      // Pre-fetch any newly selected unit so weapon pools are ready
+      if (next.attackerUnitId !== form.attackerUnitId) {
+        ensureUnit(next.attackerUnitId);
+      }
+      if (next.defenderUnitId !== form.defenderUnitId) {
+        ensureUnit(next.defenderUnitId);
+      }
+      setForm(next);
+    },
+    [form.attackerUnitId, form.defenderUnitId, ensureUnit],
+  );
+
   return (
     <main className={styles.main}>
       <Stack gap="xl">
@@ -148,8 +195,10 @@ const Home = () => {
         <Paper>
           <CombatForm
             state={form}
-            onChange={setForm}
+            onChange={handleFormChange}
             onCalculate={handleCalculate}
+            units={units}
+            unitList={unitList}
           />
           {error && (
             <p className={styles.error}>Error: {error}</p>

@@ -1,7 +1,6 @@
 "use client";
 
-import { CombatFormState, Phase, FirstFighter } from "@/lib/calculator/types";
-import { UNIT_LIST, UNITS } from "@/data/units";
+import { CombatFormState, Phase, FirstFighter, UnitProfile } from "@/lib/calculator/types";
 import {
   Button,
   Select,
@@ -22,14 +21,17 @@ type Props = {
   state: CombatFormState;
   onChange: (state: CombatFormState) => void;
   onCalculate: () => void;
+  units: Record<string, UnitProfile>;
+  unitList: Array<{ id: string; name: string }>;
 };
 
-const UNIT_DATA = UNIT_LIST.map((u) => ({ value: u.id, label: u.name }));
+const CombatForm = ({ state, onChange, onCalculate, units, unitList }: Props) => {
+  const UNIT_DATA = unitList.map((u) => ({ value: u.id, label: u.name }));
 
-const CombatForm = ({ state, onChange, onCalculate }: Props) => {
   const handlePhaseChange = (phase: Phase) => {
-    const attackerUnit = UNITS[state.attackerUnitId];
-    const defenderUnit = UNITS[state.defenderUnitId];
+    const attackerUnit = units[state.attackerUnitId];
+    const defenderUnit = units[state.defenderUnitId];
+    if (!attackerUnit || !defenderUnit) return;
     const attackerPool =
       phase === "shooting"
         ? attackerUnit.shootingWeapons
@@ -46,7 +48,8 @@ const CombatForm = ({ state, onChange, onCalculate }: Props) => {
   };
 
   const handleAttackerUnitChange = (unitId: string) => {
-    const unit = UNITS[unitId];
+    const unit = units[unitId];
+    if (!unit) return;
     const pool =
       state.phase === "shooting" ? unit.shootingWeapons : unit.meleeWeapons;
     onChange({
@@ -57,7 +60,8 @@ const CombatForm = ({ state, onChange, onCalculate }: Props) => {
   };
 
   const handleDefenderUnitChange = (unitId: string) => {
-    const unit = UNITS[unitId];
+    const unit = units[unitId];
+    if (!unit) return;
     onChange({
       ...state,
       defenderUnitId: unitId,
@@ -164,19 +168,20 @@ const CombatForm = ({ state, onChange, onCalculate }: Props) => {
     onChange({ ...state, defenderWeapons: next });
   };
 
-  const attackerUnit = UNITS[state.attackerUnitId];
-  const defenderUnit = UNITS[state.defenderUnitId];
-  const attackerWeaponPool =
-    state.phase === "shooting"
+  const attackerUnit = units[state.attackerUnitId];
+  const defenderUnit = units[state.defenderUnitId];
+  const attackerWeaponPool = attackerUnit
+    ? state.phase === "shooting"
       ? attackerUnit.shootingWeapons
-      : attackerUnit.meleeWeapons;
+      : attackerUnit.meleeWeapons
+    : [];
 
   const attackerContextFlags = relevantContextFlags(
     attackerWeaponPool,
     state.attackerWeapons
   );
   const defenderContextFlags = relevantContextFlags(
-    defenderUnit.meleeWeapons,
+    defenderUnit?.meleeWeapons ?? [],
     state.defenderWeapons
   );
 
@@ -286,7 +291,7 @@ const CombatForm = ({ state, onChange, onCalculate }: Props) => {
             {state.phase === "melee" && (
               <>
                 <WeaponSelector
-                  weapons={defenderUnit.meleeWeapons}
+                  weapons={defenderUnit?.meleeWeapons ?? []}
                   selected={state.defenderWeapons}
                   defaultModelCount={state.defenderCount}
                   weaponType="melee"
