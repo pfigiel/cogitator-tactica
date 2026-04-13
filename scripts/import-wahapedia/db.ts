@@ -3,6 +3,13 @@ import type { UnitWithFaction } from "./transform";
 
 const prisma = new PrismaClient();
 
+const validFactions = new Set<string>(Object.values(Faction));
+
+const toFaction = (id: string): Faction => {
+  if (!validFactions.has(id)) throw new Error(`Unknown faction "${id}" — add it to the Faction enum in schema.prisma`);
+  return id as Faction;
+};
+
 export const upsertAll = async (units: UnitWithFaction[]): Promise<void> => {
   // Collect all unique weapons across all units (deduplicated by id)
   const weaponMap = new Map<
@@ -53,7 +60,7 @@ export const upsertAll = async (units: UnitWithFaction[]): Promise<void> => {
         where: { id: unit.id },
         update: {
           name: unit.name,
-          factionId: unit.factionId as Faction,
+          factionId: toFaction(unit.factionId),
           toughness: unit.toughness,
           save: unit.save,
           invuln: unit.invuln ?? null,
@@ -63,7 +70,7 @@ export const upsertAll = async (units: UnitWithFaction[]): Promise<void> => {
         create: {
           id: unit.id,
           name: unit.name,
-          factionId: unit.factionId as Faction,
+          factionId: toFaction(unit.factionId),
           toughness: unit.toughness,
           save: unit.save,
           invuln: unit.invuln ?? null,
