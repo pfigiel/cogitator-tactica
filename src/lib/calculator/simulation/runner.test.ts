@@ -22,7 +22,7 @@ const infantry: UnitProfile = {
 };
 
 const bolter: WeaponProfile = {
-  name: "Bolter", attacks: 1, skill: 3, strength: 4, ap: 3, damage: 1, abilities: [],
+  id: "bolter", name: "Bolter", attacks: 1, skill: 3, strength: 4, ap: 3, damage: 1, abilities: [],
 };
 
 describe("runSimulation", () => {

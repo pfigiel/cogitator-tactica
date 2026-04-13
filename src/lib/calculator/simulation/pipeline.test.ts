@@ -27,7 +27,7 @@ const tankProfile: UnitProfile = {
 };
 
 const basicWeapon: WeaponProfile = {
-  name: "Bolter", attacks: 1, skill: 3, strength: 4, ap: 0, damage: 1, abilities: [],
+  id: "bolter", name: "Bolter", attacks: 1, skill: 3, strength: 4, ap: 0, damage: 1, abilities: [],
 };
 
 describe("simulateWeaponOnce", () => {

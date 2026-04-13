@@ -109,6 +109,7 @@ export const DEFAULT_DEFENDER_CONTEXT: DefenderContext = {
 // ─── Weapon profile ──────────────────────────────────────────────────────────
 
 export type WeaponProfile = {
+  id: string;
   name: string;
   /** Number of attacks per model. Fixed number or dice expression e.g. "D6". */
   attacks: DiceExpression;
