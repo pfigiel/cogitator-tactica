@@ -47,6 +47,9 @@ model Weapon {
 
   unitWeapons UnitWeapon[]
 
+  // abilities is excluded from the unique constraint because Postgres cannot index Json columns.
+  // Two weapons with identical stats but different abilities will share a row; the last upsert wins.
+  // The import pipeline's deriveWeaponId uses the same stat fingerprint, so this is intentional.
   @@unique([name, type, attacks, skill, strength, ap, damage])
   @@map("weapons")
 }
