@@ -1,0 +1,63 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [vector]
+}
+
+enum Faction {
+  SM
+  ORK
+}
+
+enum WeaponType {
+  shooting
+  melee
+}
+
+model Unit {
+  id          String     @id
+  name        String
+  factionId   Faction    @map("faction_id")
+  toughness   Int
+  save        Int
+  invuln      Int?
+  wounds      Int
+  keywords    String[]
+  embedding   Unsupported("vector(1536)")?
+  unitWeapons UnitWeapon[]
+
+  @@map("units")
+}
+
+model Weapon {
+  id          String     @id
+  name        String
+  type        WeaponType
+  attacks     String
+  skill       Int
+  strength    Int
+  ap          Int
+  damage      String
+  abilities   Json
+
+  unitWeapons UnitWeapon[]
+
+  @@unique([name, type, attacks, skill, strength, ap, damage])
+  @@map("weapons")
+}
+
+model UnitWeapon {
+  unitId   String @map("unit_id")
+  weaponId String @map("weapon_id")
+
+  unit   Unit   @relation(fields: [unitId], references: [id])
+  weapon Weapon @relation(fields: [weaponId], references: [id])
+
+  @@id([unitId, weaponId])
+  @@map("unit_weapons")
+}
