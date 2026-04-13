@@ -5,20 +5,36 @@ import {
   SelectedWeapon,
   DEFAULT_ATTACKER_CONTEXT,
 } from "@/lib/calculator/types";
-import { UNIT_LIST, UNITS } from "@/data/units";
+import { listUnits, getUnit } from "@/lib/db/units";
 
 const client = new Anthropic(); // reads ANTHROPIC_API_KEY from env
 
 // ─── Call 1: Unit and context resolution ─────────────────────────────────────
 
-const UNIT_NAME_LIST = UNIT_LIST.map(
-  (u) => `  - id: "${u.id}", name: "${u.name}"`,
-).join("\n");
 
-const SYSTEM_PROMPT_UNITS = `You are a Warhammer 40,000 combat assistant. Parse a natural language combat description into structured JSON.
+type UnitResolution = {
+  phase: "shooting" | "melee";
+  attackerUnitId: string;
+  attackerCount: number;
+  defenderUnitId: string;
+  defenderCount: number;
+  defenderInCover: boolean;
+  firstFighter: "attacker" | "defender";
+  weaponsExplicit: boolean;
+};
+
+const resolveUnitsAndContext = async (
+  prompt: string,
+): Promise<UnitResolution> => {
+  console.log("[parser] call1 input:", prompt);
+  const unitList = await listUnits();
+  const unitNameList = unitList
+    .map((u) => `  - id: "${u.id}", name: "${u.name}"`)
+    .join("\n");
+  const systemPromptUnits = `You are a Warhammer 40,000 combat assistant. Parse a natural language combat description into structured JSON.
 
 Available units:
-${UNIT_NAME_LIST}
+${unitNameList}
 
 Return ONLY valid JSON matching this exact schema (no markdown, no explanation):
 {
@@ -39,27 +55,11 @@ Rules:
 - "weaponsExplicit" is true only if the user's prompt explicitly names specific weapon(s)
 - attackerCount and defenderCount must be positive integers
 - If a unit name is ambiguous, pick the closest match from the available list`;
-
-type UnitResolution = {
-  phase: "shooting" | "melee";
-  attackerUnitId: string;
-  attackerCount: number;
-  defenderUnitId: string;
-  defenderCount: number;
-  defenderInCover: boolean;
-  firstFighter: "attacker" | "defender";
-  weaponsExplicit: boolean;
-};
-
-const resolveUnitsAndContext = async (
-  prompt: string,
-): Promise<UnitResolution> => {
-  console.log("[parser] call1 input:", prompt);
   const message = await client.messages.create({
     model: "claude-haiku-4-5-20251001",
     max_tokens: 256,
     cache_control: { type: "ephemeral" },
-    system: SYSTEM_PROMPT_UNITS,
+    system: systemPromptUnits,
     messages: [{ role: "user", content: prompt }],
   });
 
@@ -234,8 +234,10 @@ export const parsePrompt = async (prompt: string): Promise<CombatFormState> => {
   const unitResolution = await resolveUnitsAndContext(prompt);
 
   const { phase, attackerUnitId, defenderUnitId } = unitResolution;
-  const attackerUnit = UNITS[attackerUnitId];
-  const defenderUnit = UNITS[defenderUnitId];
+  const [attackerUnit, defenderUnit] = await Promise.all([
+    getUnit(attackerUnitId),
+    getUnit(defenderUnitId),
+  ]).then(([a, d]) => [a ?? undefined, d ?? undefined]);
 
   const defaultAttackerPool = attackerUnit
     ? phase === "shooting"
