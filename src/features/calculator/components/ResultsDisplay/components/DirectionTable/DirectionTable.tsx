@@ -3,13 +3,15 @@ import { Stack, Group } from "@/ui";
 import { WeaponTable } from "../WeaponTable/WeaponTable";
 import styles from "./DirectionTable.module.css";
 
+type Props = {
+  result: DirectionalResult;
+  title: string;
+};
+
 export const DirectionTable = ({
   result,
   title,
-}: {
-  result: DirectionalResult;
-  title: string;
-}) => {
+}: Props) => {
   const multiWeapon = result.weaponResults.length > 1;
 
   return (

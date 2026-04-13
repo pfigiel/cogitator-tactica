@@ -1,5 +1,7 @@
 import { Group as MantineGroup, GroupProps, ElementProps } from "@mantine/core";
 
-export const Group = (props: GroupProps & ElementProps<"div", keyof GroupProps>) => {
+type Props = GroupProps & ElementProps<"div", keyof GroupProps>;
+
+export const Group = (props: Props) => {
   return <MantineGroup {...props} />;
 };

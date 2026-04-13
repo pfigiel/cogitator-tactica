@@ -1,5 +1,7 @@
 import { NumberInput as MantineNumberInput, NumberInputProps, ElementProps } from "@mantine/core";
 
-export const NumberInput = (props: NumberInputProps & ElementProps<"input", keyof NumberInputProps>) => {
+type Props = NumberInputProps & ElementProps<"input", keyof NumberInputProps>;
+
+export const NumberInput = (props: Props) => {
   return <MantineNumberInput {...props} />;
 };

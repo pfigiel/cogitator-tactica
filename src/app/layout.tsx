@@ -9,7 +9,11 @@ export const metadata: Metadata = {
   description: "Warhammer 40,000 statistics battle calculator",
 };
 
-const RootLayout = ({ children }: { children: React.ReactNode }) => {
+type Props = {
+  children: React.ReactNode;
+};
+
+const RootLayout = ({ children }: Props) => {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>

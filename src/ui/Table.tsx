@@ -1,6 +1,8 @@
 import { Table as MantineTable, TableProps, ElementProps } from "@mantine/core";
 
-export const Table = (props: TableProps & ElementProps<"table", keyof TableProps>) => {
+type Props = TableProps & ElementProps<"table", keyof TableProps>;
+
+export const Table = (props: Props) => {
   return <MantineTable {...props} />;
 };
 

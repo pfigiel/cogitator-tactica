@@ -3,6 +3,17 @@ import { Stack } from "@/ui";
 import { WeaponRecord } from "./components/WeaponRecord";
 import styles from "./WeaponSelector.module.css";
 
+type Props = {
+  weapons: WeaponProfile[];
+  selected: SelectedWeapon[];
+  defaultModelCount: number;
+  weaponType: "shooting" | "melee";
+  onToggle: (weaponName: string) => void;
+  onCountChange: (weaponName: string, count: number) => void;
+  onMoveUp: (weaponName: string) => void;
+  onMoveDown: (weaponName: string) => void;
+};
+
 export const WeaponSelector = ({
   weapons,
   selected,
@@ -12,16 +23,7 @@ export const WeaponSelector = ({
   onCountChange,
   onMoveUp,
   onMoveDown,
-}: {
-  weapons: WeaponProfile[];
-  selected: SelectedWeapon[];
-  defaultModelCount: number;
-  weaponType: "shooting" | "melee";
-  onToggle: (weaponName: string) => void;
-  onCountChange: (weaponName: string, count: number) => void;
-  onMoveUp: (weaponName: string) => void;
-  onMoveDown: (weaponName: string) => void;
-}) => {
+}: Props) => {
   if (weapons.length === 0) return null;
 
   const selectedWeapons = selected

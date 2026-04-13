@@ -26,17 +26,19 @@ export const relevantContextFlags = (
   };
 };
 
+type Props = {
+  idPrefix: string;
+  context: AttackerContext;
+  flags: ReturnType<typeof relevantContextFlags>;
+  onChange: (ctx: AttackerContext) => void;
+};
+
 export const AttackerContextSection = ({
   idPrefix,
   context,
   flags,
   onChange,
-}: {
-  idPrefix: string;
-  context: AttackerContext;
-  flags: ReturnType<typeof relevantContextFlags>;
-  onChange: (ctx: AttackerContext) => void;
-}) => {
+}: Props) => {
   const { showStationary, showCharged, showHalfRange, showLongRange } = flags;
   if (!showStationary && !showCharged && !showHalfRange && !showLongRange)
     return null;

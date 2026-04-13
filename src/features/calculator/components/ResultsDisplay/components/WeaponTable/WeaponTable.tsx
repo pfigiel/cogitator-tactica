@@ -2,7 +2,11 @@ import { WeaponResult } from "@/lib/calculator/types";
 import { Table, Stack, Group } from "@/ui";
 import styles from "./WeaponTable.module.css";
 
-export const WeaponTable = ({ weaponResult }: { weaponResult: WeaponResult }) => {
+type Props = {
+  weaponResult: WeaponResult;
+};
+
+export const WeaponTable = ({ weaponResult }: Props) => {
   return (
     <Stack gap="xs">
       <Group gap="xs" align="baseline">

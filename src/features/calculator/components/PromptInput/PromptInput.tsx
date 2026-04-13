@@ -55,9 +55,6 @@ const PromptInput = ({ onParsed }: Props) => {
           Parse
         </Button>
       </Group>
-      <p className={styles.hint}>
-        Powered by Claude Haiku — fills in the form below automatically.
-      </p>
     </Stack>
   );
 };
