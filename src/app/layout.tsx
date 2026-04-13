@@ -13,8 +13,7 @@ type Props = {
   children: React.ReactNode;
 };
 
-const RootLayout = ({ children }: Props) => {
-  return (
+const RootLayout = ({ children }: Props) => (
     <html lang="en" suppressHydrationWarning>
       <head>
         <ColorSchemeScript defaultColorScheme="dark" />
@@ -26,6 +25,5 @@ const RootLayout = ({ children }: Props) => {
       </body>
     </html>
   );
-};
 
 export default RootLayout;

@@ -3,8 +3,7 @@ import { DEFAULT_DEFENDER_CONTEXT, DEFAULT_ATTACKER_CONTEXT, UnitProfile, Weapon
 import { simulateWeaponOnce } from "@/lib/calculator/simulation/pipeline";
 import { Rng } from "@/lib/calculator/simulation/rng";
 
-const alwaysRoll = (value: number): Rng => {
-  return {
+const alwaysRoll = (value: number): Rng => ({
     d6: () => value,
     dice: (expr) => {
       if (typeof expr === "number") return expr;
@@ -13,8 +12,7 @@ const alwaysRoll = (value: number): Rng => {
       const modifier = match[3] ? parseInt(match[3], 10) : 0;
       return count * value + modifier;
     },
-  };
-};
+  });
 
 const infantry: UnitProfile = {
   id: "infantry", name: "Infantry",

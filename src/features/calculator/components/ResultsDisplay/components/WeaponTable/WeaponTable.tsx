@@ -6,8 +6,7 @@ type Props = {
   weaponResult: WeaponResult;
 };
 
-export const WeaponTable = ({ weaponResult }: Props) => {
-  return (
+export const WeaponTable = ({ weaponResult }: Props) => (
     <Stack gap="xs">
       <Group gap="xs" align="baseline">
         <h4 className={styles.weaponName}>{weaponResult.weaponName}</h4>
@@ -47,4 +46,3 @@ export const WeaponTable = ({ weaponResult }: Props) => {
       </Group>
     </Stack>
   );
-};

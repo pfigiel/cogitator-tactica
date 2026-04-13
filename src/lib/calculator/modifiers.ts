@@ -189,9 +189,7 @@ export const resolveWeaponModifiers = (
 export const hasModifier = (
   modifiers: Modifier[],
   type: ModifierEffect["type"],
-): boolean => {
-  return modifiers.some((m) => m.effect.type === type);
-};
+): boolean => modifiers.some((m) => m.effect.type === type);
 
 /**
  * Sum all threshold-delta modifiers of the given type, clamp the total to [−1, +1],
@@ -246,18 +244,14 @@ export const effectiveReroll = (
 };
 
 /** Sum all EXTRA_ATTACKS values. No cap (not a roll modifier). */
-export const totalExtraAttacks = (modifiers: Modifier[]): number => {
-  return modifiers
+export const totalExtraAttacks = (modifiers: Modifier[]): number => modifiers
     .filter((m) => m.effect.type === "EXTRA_ATTACKS")
     .reduce((sum, m) => sum + (m.effect as { type: string; value: number }).value, 0);
-};
 
 /** Sum all EXTRA_DAMAGE values. No cap (not a roll modifier). */
-export const totalExtraDamage = (modifiers: Modifier[]): number => {
-  return modifiers
+export const totalExtraDamage = (modifiers: Modifier[]): number => modifiers
     .filter((m) => m.effect.type === "EXTRA_DAMAGE")
     .reduce((sum, m) => sum + (m.effect as { type: string; value: number }).value, 0);
-};
 
 /**
  * Returns the maximum SUSTAINED_HITS value across sources.

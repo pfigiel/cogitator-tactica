@@ -9,8 +9,7 @@ type Props = {
   result: CombatResult;
 };
 
-const ResultsDisplay = ({ result }: Props) => {
-  return (
+const ResultsDisplay = ({ result }: Props) => (
     <Stack gap="xl">
       <h2 className={styles.heading}>
         Results —{" "}
@@ -36,6 +35,5 @@ const ResultsDisplay = ({ result }: Props) => {
       )}
     </Stack>
   );
-};
 
 export default ResultsDisplay;

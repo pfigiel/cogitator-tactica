@@ -2,6 +2,4 @@ import { NumberInput as MantineNumberInput, NumberInputProps, ElementProps } fro
 
 type Props = NumberInputProps & ElementProps<"input", keyof NumberInputProps>;
 
-export const NumberInput = (props: Props) => {
-  return <MantineNumberInput {...props} />;
-};
+export const NumberInput = (props: Props) => <MantineNumberInput {...props} />;

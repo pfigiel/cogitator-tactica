@@ -2,6 +2,4 @@ import { Button as MantineButton, ButtonProps, ElementProps } from "@mantine/cor
 
 type Props = ButtonProps & ElementProps<"button", keyof ButtonProps>;
 
-export const Button = (props: Props) => {
-  return <MantineButton {...props} />;
-};
+export const Button = (props: Props) => <MantineButton {...props} />;

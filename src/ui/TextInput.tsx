@@ -2,6 +2,4 @@ import { TextInput as MantineTextInput, TextInputProps, ElementProps } from "@ma
 
 type Props = TextInputProps & ElementProps<"input", keyof TextInputProps>;
 
-export const TextInput = (props: Props) => {
-  return <MantineTextInput {...props} />;
-};
+export const TextInput = (props: Props) => <MantineTextInput {...props} />;

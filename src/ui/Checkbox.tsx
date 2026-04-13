@@ -2,6 +2,4 @@ import { Checkbox as MantineCheckbox, CheckboxProps, ElementProps } from "@manti
 
 type Props = CheckboxProps & ElementProps<"input", keyof CheckboxProps>;
 
-export const Checkbox = (props: Props) => {
-  return <MantineCheckbox {...props} />;
-};
+export const Checkbox = (props: Props) => <MantineCheckbox {...props} />;

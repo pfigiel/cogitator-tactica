@@ -7,8 +7,6 @@ export const Paper = ({
   p = "md",
   radius = "md",
   ...props
-}: Props) => {
-  return (
+}: Props) => (
     <MantinePaper className={styles.root} p={p} radius={radius} {...props} />
   );
-};

@@ -65,7 +65,7 @@ export type ModifierEffect =
   | { type: "IGNORE_COVER" };
 
 /** A resolved modifier from any source (weapon ability, cover, aura, stratagem, …). */
-export interface Modifier {
+export type Modifier = {
   /** Human-readable source label, e.g. "Twin-linked", "cover", "Heavy". */
   source: string;
   effect: ModifierEffect;
@@ -78,7 +78,7 @@ export interface Modifier {
  * Activates context-dependent weapon abilities (Heavy, Lance, Rapid Fire, Melta, Conversion).
  * All false by default.
  */
-export interface AttackerContext {
+export type AttackerContext = {
   remainedStationary: boolean; // Heavy: +1 to hit
   charged:            boolean; // Lance: +1 to wound
   atHalfRange:        boolean; // Rapid Fire: +X attacks, Melta: +X damage
@@ -98,7 +98,7 @@ export const DEFAULT_ATTACKER_CONTEXT: AttackerContext = {
  * Per-unit situational flags for defenders.
  * Can be extended with additional flags (e.g. in cover, jeneration defensible, etc.).
  */
-export interface DefenderContext {
+export type DefenderContext = {
   inCover: boolean;
 }
 
@@ -108,7 +108,7 @@ export const DEFAULT_DEFENDER_CONTEXT: DefenderContext = {
 
 // ─── Weapon profile ──────────────────────────────────────────────────────────
 
-export interface WeaponProfile {
+export type WeaponProfile = {
   name: string;
   /** Number of attacks per model. Fixed number or dice expression e.g. "D6". */
   attacks: DiceExpression;
@@ -123,7 +123,7 @@ export interface WeaponProfile {
 
 // ─── Unit profile ─────────────────────────────────────────────────────────────
 
-export interface UnitProfile {
+export type UnitProfile = {
   id: string;
   name: string;
   toughness: number;
@@ -141,12 +141,12 @@ export interface UnitProfile {
 export type Phase = "shooting" | "melee";
 export type FirstFighter = "attacker" | "defender";
 
-export interface SelectedWeaponInput {
+export type SelectedWeaponInput = {
   weapon: WeaponProfile;
   modelCount: number;
 }
 
-export interface CombatantInput {
+export type CombatantInput = {
   unit: UnitProfile;
   modelCount: number;
   defenderContext?: DefenderContext;
@@ -154,13 +154,13 @@ export interface CombatantInput {
   selectedWeapons: SelectedWeaponInput[];
 }
 
-export interface ShootingCombatInput {
+export type ShootingCombatInput = {
   phase: "shooting";
   attacker: CombatantInput;
   defender: CombatantInput;
 }
 
-export interface MeleeCombatInput {
+export type MeleeCombatInput = {
   phase: "melee";
   attacker: CombatantInput;
   defender: CombatantInput;
@@ -175,7 +175,7 @@ export type CombatInput = ShootingCombatInput | MeleeCombatInput;
  * A single step in the combat resolution pipeline.
  * Future stats (std dev, probability curves) can be added without breaking callers.
  */
-export interface CombatStep {
+export type CombatStep = {
   label: string;
   /** The number of dice / tokens entering this step */
   input: number;
@@ -184,7 +184,7 @@ export interface CombatStep {
 }
 
 /** Result for a single weapon within a directional combat resolution. */
-export interface WeaponResult {
+export type WeaponResult = {
   weaponName: string;
   modelCount: number;
   steps: CombatStep[];
@@ -192,7 +192,7 @@ export interface WeaponResult {
   averageModelsSlain: number;
 }
 
-export interface DirectionalResult {
+export type DirectionalResult = {
   attackerName: string;
   defenderName: string;
   weaponResults: WeaponResult[];
@@ -202,7 +202,7 @@ export interface DirectionalResult {
   totalAverageModelsSlain: number;
 }
 
-export interface CombatResult {
+export type CombatResult = {
   phase: Phase;
   /** For shooting: one direction. For melee: attacker→defender direction. */
   primary: DirectionalResult;
@@ -219,13 +219,13 @@ export interface CombatResult {
  * modelCount overrides the unit's total model count (e.g. only 2 models have grenade launchers).
  * If omitted, defaults to the unit's total model count.
  */
-export interface SelectedWeapon {
+export type SelectedWeapon = {
   weaponName: string;
   modelCount?: number;
 }
 
 /** The structured form state that drives both UI and calculator */
-export interface CombatFormState {
+export type CombatFormState = {
   phase: Phase;
   attackerUnitId: string;
   attackerCount: number;

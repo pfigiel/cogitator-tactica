@@ -1,14 +1,12 @@
 import { DiceExpression } from "../types";
 
-export interface Rng {
+export type Rng = {
   d6(): number;
   dice(expr: DiceExpression): number;
 }
 
 export const standardRng: Rng = {
-  d6: (): number => {
-    return Math.floor(Math.random() * 6) + 1;
-  },
+  d6: (): number => Math.floor(Math.random() * 6) + 1,
 
   dice: (expr: DiceExpression): number => {
     if (typeof expr === "number") return expr;

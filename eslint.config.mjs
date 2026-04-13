@@ -10,6 +10,8 @@ export default tseslint.config(
   {
     plugins: { "prefer-arrow": preferArrow },
     rules: {
+      "@typescript-eslint/consistent-type-definitions": ["error", "type"],
+      "arrow-body-style": ["error", "as-needed"],
       "prefer-arrow/prefer-arrow-functions": [
         "error",
         {
@@ -18,7 +20,6 @@ export default tseslint.config(
           classPropertiesAllowed: false,
         },
       ],
-      "@typescript-eslint/consistent-type-definitions": ["error", "type"]
     },
   },
 );

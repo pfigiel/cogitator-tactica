@@ -18,7 +18,7 @@ import {
 } from "../modifiers";
 import { Rng } from "./rng";
 
-export interface StepCounts {
+export type StepCounts = {
   attacks: number;
   hits: number;
   wounds: number;
