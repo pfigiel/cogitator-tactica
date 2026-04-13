@@ -40,7 +40,7 @@ Rules:
 - attackerCount and defenderCount must be positive integers
 - If a unit name is ambiguous, pick the closest match from the available list`;
 
-interface UnitResolution {
+type UnitResolution = {
   phase: "shooting" | "melee";
   attackerUnitId: string;
   attackerCount: number;
@@ -49,7 +49,7 @@ interface UnitResolution {
   defenderInCover: boolean;
   firstFighter: "attacker" | "defender";
   weaponsExplicit: boolean;
-}
+};
 
 const resolveUnitsAndContext = async (
   prompt: string,
@@ -148,10 +148,10 @@ Rules:
  * defenderWeapons is always populated: from the LLM in melee phase,
  * or from a hardcoded default (first melee weapon) in shooting phase.
  */
-interface WeaponResolution {
+type WeaponResolution = {
   attackerWeapons: SelectedWeapon[];
   defenderWeapons: SelectedWeapon[];
-}
+};
 
 // Fallback is resolved to a name by the caller (not a pool), decoupling
 // this function from phase-specific pool selection logic.

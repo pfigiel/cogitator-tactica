@@ -5,9 +5,9 @@ import { Alert, Stack } from "@/ui";
 import { DirectionTable } from "./components/DirectionTable/DirectionTable";
 import styles from "./ResultsDisplay.module.css";
 
-interface Props {
+type Props = {
   result: CombatResult;
-}
+};
 
 const ResultsDisplay = ({ result }: Props) => {
   return (

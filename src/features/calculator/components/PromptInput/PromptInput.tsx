@@ -5,9 +5,9 @@ import { CombatFormState } from "@/lib/calculator/types";
 import { TextInput, Button, Stack, Group } from "@/ui";
 import styles from "./PromptInput.module.css";
 
-interface Props {
+type Props = {
   onParsed: (state: CombatFormState) => void;
-}
+};
 
 const PromptInput = ({ onParsed }: Props) => {
   const [prompt, setPrompt] = useState("");

@@ -3,22 +3,22 @@ import { Paper, Group, Stack, Button, NumberInput } from "@/ui";
 import { formatStats, formatAbilities } from "./weaponFormatters";
 import styles from "./WeaponRecord.module.css";
 
-interface SelectionProps {
+type SelectionProps = {
   modelCount: number;
   onCountChange: (count: number) => void;
   onMoveUp: () => void;
   onMoveDown: () => void;
   isFirst: boolean;
   isLast: boolean;
-}
+};
 
-interface WeaponRecordProps {
+type Props = {
   weapon: WeaponProfile;
   weaponType: "shooting" | "melee";
   isSelected: boolean;
   onToggle: () => void;
   selectionProps?: SelectionProps;
-}
+};
 
 export const WeaponRecord = ({
   weapon,
@@ -26,7 +26,7 @@ export const WeaponRecord = ({
   isSelected,
   onToggle,
   selectionProps,
-}: WeaponRecordProps) => {
+}: Props) => {
   const stats = formatStats(weapon, weaponType);
   const abilities = formatAbilities(weapon.abilities);
 

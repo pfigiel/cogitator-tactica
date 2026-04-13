@@ -18,6 +18,7 @@ export default tseslint.config(
           classPropertiesAllowed: false,
         },
       ],
+      "@typescript-eslint/consistent-type-definitions": ["error", "type"]
     },
   },
 );

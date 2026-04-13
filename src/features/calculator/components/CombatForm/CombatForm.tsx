@@ -18,11 +18,11 @@ import {
 } from "./components/AttackerContextSection/AttackerContextSection";
 import styles from "./CombatForm.module.css";
 
-interface Props {
+type Props = {
   state: CombatFormState;
   onChange: (state: CombatFormState) => void;
   onCalculate: () => void;
-}
+};
 
 const UNIT_DATA = UNIT_LIST.map((u) => ({ value: u.id, label: u.name }));
 
