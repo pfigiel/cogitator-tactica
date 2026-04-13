@@ -1,5 +1,9 @@
 import { useState } from "react";
-import { Select as MantineSelect, SelectProps, ElementProps } from "@mantine/core";
+import {
+  Select as MantineSelect,
+  SelectProps,
+  ElementProps,
+} from "@mantine/core";
 
 export type SelectDataItem = { value: string; label: string };
 
@@ -7,16 +11,18 @@ export const filterDataBySearchLength = (
   data: SelectDataItem[],
   searchValue: string,
   minSearchLength: number | undefined,
-  selectedValue: string | null
+  selectedValue: string | null,
 ): SelectDataItem[] => {
   if (minSearchLength === undefined) return data;
   if (searchValue.length < minSearchLength) {
     if (selectedValue === null) return [];
     return data.filter((item) => item.value === selectedValue);
   }
-  // Threshold met: filter by content (Mantine won't filter in controlled-search mode)
-  return data.filter((item) =>
-    item.label.toLowerCase().includes(searchValue.toLowerCase())
+
+  return data.filter(
+    (item) =>
+      item.value === selectedValue ||
+      item.label.toLowerCase().includes(searchValue.toLowerCase()),
   );
 };
 
@@ -24,10 +30,20 @@ type SearchProps =
   | { searchable: true; minSearchLength?: number }
   | { searchable?: false | undefined; minSearchLength?: never };
 
-type Props = Omit<SelectProps & ElementProps<"input", keyof SelectProps>, "searchable"> &
+type Props = Omit<
+  SelectProps & ElementProps<"input", keyof SelectProps>,
+  "searchable"
+> &
   SearchProps;
 
-export const Select = ({ minSearchLength, searchable, data, value, onChange, ...rest }: Props) => {
+export const Select = ({
+  minSearchLength,
+  searchable,
+  data,
+  value,
+  onChange,
+  ...rest
+}: Props) => {
   const [searchValue, setSearchValue] = useState("");
 
   const filteredData =
@@ -36,7 +52,7 @@ export const Select = ({ minSearchLength, searchable, data, value, onChange, ...
           data as SelectDataItem[],
           searchValue,
           minSearchLength,
-          value ?? null
+          value ?? null,
         )
       : data;
 
@@ -48,8 +64,12 @@ export const Select = ({ minSearchLength, searchable, data, value, onChange, ...
       value={value}
       onChange={onChange}
       searchValue={minSearchLength !== undefined ? searchValue : undefined}
-      onSearchChange={minSearchLength !== undefined ? setSearchValue : undefined}
-      onDropdownClose={minSearchLength !== undefined ? () => setSearchValue("") : undefined}
+      onSearchChange={
+        minSearchLength !== undefined ? setSearchValue : undefined
+      }
+      onDropdownClose={
+        minSearchLength !== undefined ? () => setSearchValue("") : undefined
+      }
     />
   );
 };

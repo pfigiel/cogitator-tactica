@@ -33,4 +33,11 @@ describe("filterDataBySearchLength", () => {
   it("returns full data when minSearchLength is not set (undefined)", () => {
     expect(filterDataBySearchLength(DATA, "", undefined, null)).toEqual(DATA);
   });
+
+  it("always includes the selected item even when query does not match its label", () => {
+    expect(filterDataBySearchLength(DATA, "Alpha", 3, "b")).toEqual([
+      { value: "a", label: "Alpha" },
+      { value: "b", label: "Beta" },
+    ]);
+  });
 });
