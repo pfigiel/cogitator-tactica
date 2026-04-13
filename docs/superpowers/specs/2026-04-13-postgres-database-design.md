@@ -11,6 +11,7 @@ Replace the static `src/data/units.ts` file with a Postgres database backed by P
 
 - **Database:** Postgres
 - **ORM:** Prisma
+- **Local dev:** Docker Compose (`docker compose up -d`)
 - **Vector search (future):** pgvector extension
 
 ## Schema
@@ -68,6 +69,15 @@ The weapon `id` is derived deterministically:
 2. If another weapon already has the same slug but different stats (same name, different profile), append a 6-char hash of `(name, type, attacks, skill, strength, ap, damage)`: e.g. `bolt_rifle_a3f29c`
 
 Collision detection happens in-memory during the transform pass by maintaining a `Map<slug, stats>` before any DB writes. Same name + same stats always produces the same ID, making reruns idempotent.
+
+## Local Development Setup
+
+A `docker-compose.yml` at the repo root starts a Postgres container. The service exposes port `5432` and uses a named volume for persistence. A `.env` file (gitignored) holds `DATABASE_URL`. A `.env.example` file is committed with a placeholder value so new developers know what to set.
+
+Developer setup flow:
+1. `docker compose up -d`
+2. Copy `.env.example` → `.env`, fill in credentials
+3. `npx prisma migrate dev`
 
 ## Import Script Changes
 
