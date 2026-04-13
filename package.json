@@ -19,7 +19,7 @@
     "@anthropic-ai/sdk": "^0.80.0",
     "@mantine/core": "^9.0.1",
     "@mantine/hooks": "^9.0.1",
-    "@prisma/client": "^7.7.0",
+    "@prisma/client": "^6.19.3",
     "@types/node": "^25.5.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
@@ -36,7 +36,7 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prefer-arrow": "^1.2.3",
     "prettier": "^3.8.2",
-    "prisma": "^7.7.0",
+    "prisma": "^6.19.3",
     "tsx": "^4.21.0",
     "typescript-eslint": "^8.58.1",
     "vitest": "^4.1.4"
