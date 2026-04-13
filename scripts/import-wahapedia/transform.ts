@@ -1,99 +1,124 @@
-import type { UnitProfile, WeaponProfile, DiceExpression } from "../../src/lib/calculator/types";
+import type {
+  UnitProfile,
+  WeaponProfile,
+  DiceExpression,
+} from "../../src/lib/calculator/types";
 import type { ParsedData, WargearRow } from "./parse";
 import { parseAbilities } from "./abilities";
 
 // ─── Field parsing helpers ────────────────────────────────────────────────────
 
-function parseSave(raw: string): number {
-  return parseInt(raw.replace("+", ""), 10);
-}
+const parseSave = (raw: string): number => parseInt(raw.replace("+", ""), 10);
 
-function parseInvuln(raw: string): number | undefined {
+const parseInvuln = (raw: string): number | undefined => {
   const t = raw.trim();
   if (!t || t === "-") return undefined;
-  return parseInt(t.replace("+", ""), 10);
-}
 
-function parseSkill(raw: string): number {
+  return parseInt(t.replace("+", ""), 10);
+};
+
+const parseSkill = (raw: string): number => {
   const t = raw.trim();
   if (t === "N/A" || t === "-" || t === "") return 0;
   return parseInt(t.replace("+", ""), 10);
-}
+};
 
 const DICE_EXPR_RE = /^(\d+)?D(3|6)([+-]\d+)?$/i;
 
-function parseDiceExpression(raw: string): DiceExpression | null {
+const parseDiceExpression = (raw: string): DiceExpression | null => {
   const t = raw.trim();
   if (t === "-" || t === "") return null;
   const asNum = Number(t);
   if (!isNaN(asNum)) return asNum;
   if (DICE_EXPR_RE.test(t)) return t.toUpperCase();
   return null; // invalid
-}
+};
 
-function slugify(name: string): string {
-  return name
+const slugify = (name: string): string =>
+  name
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "_")
     .replace(/^_+|_+$/g, "");
-}
 
 // ─── Weapon building ──────────────────────────────────────────────────────────
 
-export interface WeaponWarning {
+export type WeaponWarning = {
   unitName: string;
   weaponName: string;
   message: string;
-}
+};
 
-function buildWeapon(
+const buildWeapon = (
   row: WargearRow,
   unitName: string,
   warnings: WeaponWarning[],
-): WeaponProfile | null {
+): WeaponProfile | null => {
   const attacks = parseDiceExpression(row.A);
   if (attacks === null) {
-    warnings.push({ unitName, weaponName: row.name, message: `invalid attacks value "${row.A}" — weapon skipped` });
+    warnings.push({
+      unitName,
+      weaponName: row.name,
+      message: `invalid attacks value "${row.A}" — weapon skipped`,
+    });
     return null;
   }
 
   const damage = parseDiceExpression(row.D);
   if (damage === null) {
-    warnings.push({ unitName, weaponName: row.name, message: `invalid damage value "${row.D}" — weapon skipped` });
+    warnings.push({
+      unitName,
+      weaponName: row.name,
+      message: `invalid damage value "${row.D}" — weapon skipped`,
+    });
     return null;
   }
 
   const skill = parseSkill(row.BS_WS);
   const strength = parseInt(row.S, 10);
   if (isNaN(strength)) {
-    warnings.push({ unitName, weaponName: row.name, message: `invalid strength value "${row.S}" — weapon skipped` });
+    warnings.push({
+      unitName,
+      weaponName: row.name,
+      message: `invalid strength value "${row.S}" — weapon skipped`,
+    });
     return null;
   }
   const apRaw = parseInt(row.AP, 10);
   if (isNaN(apRaw)) {
-    warnings.push({ unitName, weaponName: row.name, message: `invalid AP value "${row.AP}" — weapon skipped` });
+    warnings.push({
+      unitName,
+      weaponName: row.name,
+      message: `invalid AP value "${row.AP}" — weapon skipped`,
+    });
     return null;
   }
   const ap = -apRaw; // Wahapedia stores negative; app uses positive
 
   const { abilities, unknownTokens } = parseAbilities(row.description);
   for (const token of unknownTokens) {
-    warnings.push({ unitName, weaponName: row.name, message: `unrecognized ability token "${token}"` });
+    warnings.push({
+      unitName,
+      weaponName: row.name,
+      message: `unrecognized ability token "${token}"`,
+    });
   }
 
   return { name: row.name, attacks, skill, strength, ap, damage, abilities };
-}
+};
 
 // ─── Main transform ───────────────────────────────────────────────────────────
 
-export interface TransformResult {
+export type TransformResult = {
   units: UnitProfile[];
   warnings: WeaponWarning[];
   skippedKillTeam: number;
   countByFaction: Map<string, number>;
-}
+};
 
-export function transform(data: ParsedData, factions: string[]): TransformResult {
+export const transform = (
+  data: ParsedData,
+  factions: string[],
+): TransformResult => {
   const units: UnitProfile[] = [];
   const warnings: WeaponWarning[] = [];
   const countByFaction = new Map<string, number>(factions.map((f) => [f, 0]));
@@ -174,9 +199,12 @@ export function transform(data: ParsedData, factions: string[]): TransformResult
       };
 
       units.push(unit);
-      countByFaction.set(sheet.faction_id, (countByFaction.get(sheet.faction_id) ?? 0) + 1);
+      countByFaction.set(
+        sheet.faction_id,
+        (countByFaction.get(sheet.faction_id) ?? 0) + 1,
+      );
     }
   }
 
   return { units, warnings, skippedKillTeam, countByFaction };
-}
+};

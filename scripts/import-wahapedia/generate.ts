@@ -1,6 +1,6 @@
 import type { UnitProfile } from "../../src/lib/calculator/types";
 
-export function generateUnitsFile(units: UnitProfile[]): string {
+export const generateUnitsFile = (units: UnitProfile[]): string => {
   const unitsRecord = Object.fromEntries(units.map((u) => [u.id, u]));
   const body = JSON.stringify(unitsRecord, null, 2);
 
@@ -13,4 +13,4 @@ export function generateUnitsFile(units: UnitProfile[]): string {
     "export const UNIT_LIST = Object.values(UNITS);",
     "",
   ].join("\n");
-}
+};

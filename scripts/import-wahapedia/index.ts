@@ -5,7 +5,7 @@ import { parseAll } from "./parse";
 import { transform } from "./transform";
 import { generateUnitsFile } from "./generate";
 
-async function main() {
+const main = async () => {
   const { values } = parseArgs({
     args: process.argv.slice(2),
     options: {
@@ -13,12 +13,17 @@ async function main() {
     },
   });
 
-  const factions = (values.factions as string).split(",").map((f) => f.trim().toUpperCase());
+  const factions = (values.factions as string)
+    .split(",")
+    .map((f) => f.trim().toUpperCase());
 
   console.log(`Importing factions: ${factions.join(", ")}`);
 
   const data = await parseAll();
-  const { units, warnings, skippedKillTeam, countByFaction } = transform(data, factions);
+  const { units, warnings, skippedKillTeam, countByFaction } = transform(
+    data,
+    factions,
+  );
 
   // Print warnings
   for (const w of warnings) {
@@ -38,7 +43,7 @@ async function main() {
   const content = generateUnitsFile(units);
   await writeFile(outputPath, content, "utf-8");
   console.log(`Written to ${outputPath}`);
-}
+};
 
 main().catch((err) => {
   console.error(err);

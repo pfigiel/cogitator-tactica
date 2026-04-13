@@ -13,38 +13,42 @@ import type { WeaponAbility } from "../../src/lib/calculator/types";
 //                        by the parameterized parsers (which only handle integers).
 
 const ABILITY_MAP: Record<string, WeaponAbility> = {
-  "ASSAULT":            { type: "ASSAULT" },
-  "BLAST":              { type: "BLAST" },
-  "CONVERSION":         { type: "CONVERSION" },
+  ASSAULT: { type: "ASSAULT" },
+  BLAST: { type: "BLAST" },
+  CONVERSION: { type: "CONVERSION" },
   "DEVASTATING WOUNDS": { type: "DEVASTATING_WOUNDS" },
-  "HAZARDOUS":          { type: "HAZARDOUS" },
-  "HEAVY":              { type: "HEAVY" },
-  "IGNORES COVER":      { type: "IGNORES_COVER" },
-  "INDIRECT FIRE":      { type: "INDIRECT_FIRE" },
-  "LANCE":              { type: "LANCE" },
-  "LETHAL HITS":        { type: "LETHAL_HITS" },
-  "LINKED FIRE":        { type: "LINKED_FIRE" },
-  "PISTOL":             { type: "PISTOL" },
-  "PRECISION":          { type: "PRECISION" },
-  "PSYCHIC":            { type: "PSYCHIC" },
-  "TORRENT":            { type: "TORRENT" },
-  "TWIN-LINKED":        { type: "TWIN_LINKED" },
+  HAZARDOUS: { type: "HAZARDOUS" },
+  HEAVY: { type: "HEAVY" },
+  "IGNORES COVER": { type: "IGNORES_COVER" },
+  "INDIRECT FIRE": { type: "INDIRECT_FIRE" },
+  LANCE: { type: "LANCE" },
+  "LETHAL HITS": { type: "LETHAL_HITS" },
+  "LINKED FIRE": { type: "LINKED_FIRE" },
+  PISTOL: { type: "PISTOL" },
+  PRECISION: { type: "PRECISION" },
+  PSYCHIC: { type: "PSYCHIC" },
+  TORRENT: { type: "TORRENT" },
+  "TWIN-LINKED": { type: "TWIN_LINKED" },
 };
 
 // ─── Parameterized ability parsers ────────────────────────────────────────────
 // Each entry: regex with capture groups, factory function.
 // Adding a new parameterized ability: add one entry here.
 
-interface ParameterizedParser {
+type ParameterizedParser = {
   re: RegExp;
   parse: (match: RegExpMatchArray) => WeaponAbility;
-}
+};
 
 const PARAMETERIZED: ParameterizedParser[] = [
   {
     // "ANTI-INFANTRY 4+", "ANTI-VEHICLE 2+", "ANTI-FLY 4+"
     re: /^ANTI-(\w+)\s+(\d+)\+$/i,
-    parse: (m) => ({ type: "ANTI", keyword: m[1].toUpperCase(), threshold: parseInt(m[2], 10) }),
+    parse: (m) => ({
+      type: "ANTI",
+      keyword: m[1].toUpperCase(),
+      threshold: parseInt(m[2], 10),
+    }),
   },
   {
     // "MELTA 2", "MELTA 3"
@@ -65,10 +69,10 @@ const PARAMETERIZED: ParameterizedParser[] = [
 
 // ─── Public API ───────────────────────────────────────────────────────────────
 
-export interface ParseAbilitiesResult {
+export type ParseAbilitiesResult = {
   abilities: WeaponAbility[];
   unknownTokens: string[];
-}
+};
 
 /**
  * Parse a comma-separated ability description string into WeaponAbility[].
@@ -78,13 +82,16 @@ export interface ParseAbilitiesResult {
  * → abilities: [ANTI infantry/4, DEVASTATING_WOUNDS, RAPID_FIRE/1]
  * → unknownTokens: []
  */
-export function parseAbilities(description: string): ParseAbilitiesResult {
+export const parseAbilities = (description: string): ParseAbilitiesResult => {
   if (!description.trim()) return { abilities: [], unknownTokens: [] };
 
   const abilities: WeaponAbility[] = [];
   const unknownTokens: string[] = [];
 
-  const tokens = description.split(",").map((t) => t.trim().toUpperCase()).filter(Boolean);
+  const tokens = description
+    .split(",")
+    .map((t) => t.trim().toUpperCase())
+    .filter(Boolean);
 
   for (const token of tokens) {
     // 1. Try simple lookup
@@ -110,4 +117,4 @@ export function parseAbilities(description: string): ParseAbilitiesResult {
   }
 
   return { abilities, unknownTokens };
-}
+};

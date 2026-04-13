@@ -5,67 +5,75 @@ const DATA_DIR = join(process.cwd(), "wahapedia-data");
 
 // ─── Row types ────────────────────────────────────────────────────────────────
 
-export interface DatasheetRow {
+export type DatasheetRow = {
   id: string;
   name: string;
   faction_id: string;
-}
+};
 
-export interface ModelRow {
+export type ModelRow = {
   datasheet_id: string;
   line: string;
-  name: string;      // model variant name (e.g. "Sergeant"); may be same as unit name
+  name: string; // model variant name (e.g. "Sergeant"); may be same as unit name
   T: string;
   Sv: string;
   inv_sv: string;
   W: string;
-}
+};
 
-export interface WargearRow {
+export type WargearRow = {
   datasheet_id: string;
   line: string;
   name: string;
-  description: string;  // comma-separated ability tokens
-  type: string;          // "Ranged" | "Melee"
+  description: string; // comma-separated ability tokens
+  type: string; // "Ranged" | "Melee"
   A: string;
   BS_WS: string;
   S: string;
   AP: string;
   D: string;
-}
+};
 
-export interface KeywordRow {
+export type KeywordRow = {
   datasheet_id: string;
   keyword: string;
-}
+};
 
 // ─── CSV parser ───────────────────────────────────────────────────────────────
 
-function parseCsv(content: string): Record<string, string>[] {
-  const lines = content.replace(/^\uFEFF/, "").split("\n").filter((l) => l.trim());
+const parseCsv = (content: string): Record<string, string>[] => {
+  const lines = content
+    .replace(/^\uFEFF/, "")
+    .split("\n")
+    .filter((l) => l.trim());
   if (lines.length < 2) return [];
-  const headers = lines[0].split("|").map((h) => h.trim()).filter(Boolean);
+  const headers = lines[0]
+    .split("|")
+    .map((h) => h.trim())
+    .filter(Boolean);
   return lines.slice(1).map((line) => {
     const values = line.split("|");
-    return Object.fromEntries(headers.map((h, i) => [h, (values[i] ?? "").trim()]));
+    return Object.fromEntries(
+      headers.map((h, i) => [h, (values[i] ?? "").trim()]),
+    );
   });
-}
+};
 
-async function readCsv(filename: string): Promise<Record<string, string>[]> {
+const readCsv = async (filename: string): Promise<Record<string, string>[]> => {
   const content = await readFile(join(DATA_DIR, filename), "utf-8");
   return parseCsv(content);
-}
+};
 
 // ─── Public API ───────────────────────────────────────────────────────────────
 
-export interface ParsedData {
+export type ParsedData = {
   datasheets: DatasheetRow[];
   models: ModelRow[];
   wargear: WargearRow[];
   keywords: KeywordRow[];
-}
+};
 
-export async function parseAll(): Promise<ParsedData> {
+export const parseAll = async (): Promise<ParsedData> => {
   const [dsRaw, modRaw, wgRaw, kwRaw] = await Promise.all([
     readCsv("Datasheets.csv"),
     readCsv("Datasheets_models.csv"),
@@ -108,4 +116,4 @@ export async function parseAll(): Promise<ParsedData> {
   }));
 
   return { datasheets, models, wargear, keywords };
-}
+};
