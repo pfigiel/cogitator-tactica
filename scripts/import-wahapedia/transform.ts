@@ -87,7 +87,7 @@ const buildWeapon = (
   row: WargearRow,
   unitName: string,
   warnings: WeaponWarning[],
-): WeaponProfile | null => {
+): Omit<WeaponProfile, "id"> | null => {
   const attacks = parseDiceExpression(row.A);
   if (attacks === null) {
     warnings.push({
@@ -143,8 +143,10 @@ const buildWeapon = (
 
 // ─── Main transform ───────────────────────────────────────────────────────────
 
+export type UnitWithFaction = UnitProfile & { factionId: string };
+
 export type TransformResult = {
-  units: UnitProfile[];
+  units: UnitWithFaction[];
   warnings: WeaponWarning[];
   skippedKillTeam: number;
   countByFaction: Map<string, number>;
@@ -154,8 +156,10 @@ export const transform = (
   data: ParsedData,
   factions: string[],
 ): TransformResult => {
-  const units: UnitProfile[] = [];
+  const units: UnitWithFaction[] = [];
   const warnings: WeaponWarning[] = [];
+  const slugToFp = new Map<string, string>();
+  const fpToId = new Map<string, string>();
   const countByFaction = new Map<string, number>(factions.map((f) => [f, 0]));
   let skippedKillTeam = 0;
 
@@ -212,25 +216,39 @@ export const transform = (
       const meleeWeapons: WeaponProfile[] = [];
 
       for (const wgRow of wargearRows) {
-        const weapon = buildWeapon(wgRow, unitName, warnings);
-        if (!weapon) continue;
-        if (wgRow.type.toLowerCase() === "ranged") {
+        const weaponData = buildWeapon(wgRow, unitName, warnings);
+        if (!weaponData) continue;
+
+        const wtype = wgRow.type.toLowerCase() === "ranged" ? "shooting" : "melee";
+        const fp = weaponFingerprint(
+          wtype,
+          weaponData.attacks,
+          weaponData.skill,
+          weaponData.strength,
+          weaponData.ap,
+          weaponData.damage,
+        );
+        const id = deriveWeaponId(weaponData.name, fp, slugToFp, fpToId);
+        const weapon: WeaponProfile = { id, ...weaponData };
+
+        if (wtype === "shooting") {
           shootingWeapons.push(weapon);
         } else {
           meleeWeapons.push(weapon);
         }
       }
 
-      const unit: UnitProfile = {
+      const unit: UnitWithFaction = {
         id: unitId,
         name: unitName,
         toughness,
         save,
-        ...(invuln !== undefined ? { invuln } : {}),
+        ...(invuln !== undefined && { invuln }),
         wounds,
         keywords,
         shootingWeapons,
         meleeWeapons,
+        factionId: sheet.faction_id,
       };
 
       units.push(unit);
