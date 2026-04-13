@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import type {
   UnitProfile,
   WeaponProfile,
@@ -39,6 +40,40 @@ const slugify = (name: string): string =>
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "_")
     .replace(/^_+|_+$/g, "");
+
+export const deriveWeaponId = (
+  name: string,
+  fingerprint: string,
+  slugToFp: Map<string, string>,
+  fpToId: Map<string, string>,
+): string => {
+  if (fpToId.has(fingerprint)) return fpToId.get(fingerprint)!;
+
+  const base = slugify(name);
+
+  let id: string;
+  if (!slugToFp.has(base)) {
+    slugToFp.set(base, fingerprint);
+    id = base;
+  } else if (slugToFp.get(base) === fingerprint) {
+    id = base;
+  } else {
+    const hash = createHash("sha256").update(fingerprint).digest("hex").slice(0, 6);
+    id = `${base}_${hash}`;
+  }
+
+  fpToId.set(fingerprint, id);
+  return id;
+};
+
+export const weaponFingerprint = (
+  type: string,
+  attacks: string | number,
+  skill: number,
+  strength: number,
+  ap: number,
+  damage: string | number,
+): string => `${type}|${attacks}|${skill}|${strength}|${ap}|${damage}`;
 
 // ─── Weapon building ──────────────────────────────────────────────────────────
 
