@@ -1,6 +1,11 @@
 "use client";
 
-import { CombatFormState, Phase, FirstFighter, UnitProfile } from "@/lib/calculator/types";
+import {
+  CombatFormState,
+  Phase,
+  FirstFighter,
+  UnitProfile,
+} from "@/lib/calculator/types";
 import {
   Button,
   Select,
@@ -25,7 +30,13 @@ type Props = {
   unitList: Array<{ id: string; name: string }>;
 };
 
-const CombatForm = ({ state, onChange, onCalculate, units, unitList }: Props) => {
+const CombatForm = ({
+  state,
+  onChange,
+  onCalculate,
+  units,
+  unitList,
+}: Props) => {
   const UNIT_DATA = unitList.map((u) => ({ value: u.id, label: u.name }));
 
   const handlePhaseChange = (phase: Phase) => {
@@ -68,21 +79,19 @@ const CombatForm = ({ state, onChange, onCalculate, units, unitList }: Props) =>
       ...state,
       defenderUnitId: unitId,
       defenderWeapons:
-        meleeWeapons.length > 0
-          ? [{ weaponName: meleeWeapons[0].name }]
-          : [],
+        meleeWeapons.length > 0 ? [{ weaponName: meleeWeapons[0].name }] : [],
     });
   };
 
   const toggleAttackerWeapon = (weaponName: string) => {
     const isSelected = state.attackerWeapons.some(
-      (w) => w.weaponName === weaponName
+      (w) => w.weaponName === weaponName,
     );
     if (isSelected) {
       onChange({
         ...state,
         attackerWeapons: state.attackerWeapons.filter(
-          (w) => w.weaponName !== weaponName
+          (w) => w.weaponName !== weaponName,
         ),
       });
     } else {
@@ -97,14 +106,14 @@ const CombatForm = ({ state, onChange, onCalculate, units, unitList }: Props) =>
     onChange({
       ...state,
       attackerWeapons: state.attackerWeapons.map((w) =>
-        w.weaponName === weaponName ? { ...w, modelCount: count } : w
+        w.weaponName === weaponName ? { ...w, modelCount: count } : w,
       ),
     });
   };
 
   const moveAttackerWeaponUp = (weaponName: string) => {
     const idx = state.attackerWeapons.findIndex(
-      (w) => w.weaponName === weaponName
+      (w) => w.weaponName === weaponName,
     );
     if (idx <= 0) return;
     const next = [...state.attackerWeapons];
@@ -114,7 +123,7 @@ const CombatForm = ({ state, onChange, onCalculate, units, unitList }: Props) =>
 
   const moveAttackerWeaponDown = (weaponName: string) => {
     const idx = state.attackerWeapons.findIndex(
-      (w) => w.weaponName === weaponName
+      (w) => w.weaponName === weaponName,
     );
     if (idx < 0 || idx >= state.attackerWeapons.length - 1) return;
     const next = [...state.attackerWeapons];
@@ -124,13 +133,13 @@ const CombatForm = ({ state, onChange, onCalculate, units, unitList }: Props) =>
 
   const toggleDefenderWeapon = (weaponName: string) => {
     const isSelected = state.defenderWeapons.some(
-      (w) => w.weaponName === weaponName
+      (w) => w.weaponName === weaponName,
     );
     if (isSelected) {
       onChange({
         ...state,
         defenderWeapons: state.defenderWeapons.filter(
-          (w) => w.weaponName !== weaponName
+          (w) => w.weaponName !== weaponName,
         ),
       });
     } else {
@@ -145,14 +154,14 @@ const CombatForm = ({ state, onChange, onCalculate, units, unitList }: Props) =>
     onChange({
       ...state,
       defenderWeapons: state.defenderWeapons.map((w) =>
-        w.weaponName === weaponName ? { ...w, modelCount: count } : w
+        w.weaponName === weaponName ? { ...w, modelCount: count } : w,
       ),
     });
   };
 
   const moveDefenderWeaponUp = (weaponName: string) => {
     const idx = state.defenderWeapons.findIndex(
-      (w) => w.weaponName === weaponName
+      (w) => w.weaponName === weaponName,
     );
     if (idx <= 0) return;
     const next = [...state.defenderWeapons];
@@ -162,7 +171,7 @@ const CombatForm = ({ state, onChange, onCalculate, units, unitList }: Props) =>
 
   const moveDefenderWeaponDown = (weaponName: string) => {
     const idx = state.defenderWeapons.findIndex(
-      (w) => w.weaponName === weaponName
+      (w) => w.weaponName === weaponName,
     );
     if (idx < 0 || idx >= state.defenderWeapons.length - 1) return;
     const next = [...state.defenderWeapons];
@@ -180,11 +189,11 @@ const CombatForm = ({ state, onChange, onCalculate, units, unitList }: Props) =>
 
   const attackerContextFlags = relevantContextFlags(
     attackerWeaponPool,
-    state.attackerWeapons
+    state.attackerWeapons,
   );
   const defenderContextFlags = relevantContextFlags(
     defenderUnit?.meleeWeapons ?? [],
-    state.defenderWeapons
+    state.defenderWeapons,
   );
 
   return (
