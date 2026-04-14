@@ -152,7 +152,6 @@ export type UnitWithFaction = UnitProfile & { factionId: string };
 export type TransformResult = {
   units: UnitWithFaction[];
   warnings: WeaponWarning[];
-  skippedKillTeam: number;
   countByFaction: Map<string, number>;
 };
 
@@ -165,7 +164,6 @@ export const transform = (
   const slugToFp = new Map<string, string>();
   const fpToId = new Map<string, string>();
   const countByFaction = new Map<string, number>(factions.map((f) => [f, 0]));
-  let skippedKillTeam = 0;
 
   // Index models and wargear by datasheet_id for O(1) lookup
   const modelsBySheet = new Map<string, typeof data.models>();
@@ -192,22 +190,19 @@ export const transform = (
   // Process each datasheet
   for (const sheet of data.datasheets) {
     if (!factions.includes(sheet.faction_id)) continue;
-    if (/kill team/i.test(sheet.name)) {
-      skippedKillTeam++;
-      continue;
-    }
 
     const modelLines = modelsBySheet.get(sheet.id) ?? [];
     if (modelLines.length === 0) continue;
 
     const wargearRows = wargearBySheet.get(sheet.id) ?? [];
     const keywords = keywordsBySheet.get(sheet.id) ?? [];
-    const isMultiModel = modelLines.length > 1;
 
-    for (const modelLine of modelLines) {
-      const unitName = isMultiModel
-        ? `${sheet.name} - ${modelLine.name}`
-        : sheet.name;
+    for (let i = 0; i < modelLines.length; ++i) {
+      const modelLine = modelLines[i];
+      const isFirstLine = i === 0;
+      const unitName = isFirstLine
+        ? sheet.name
+        : `${sheet.name} ${modelLine.name.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase())}`;
 
       const unitId = slugify(unitName);
       const toughness = parseInt(modelLine.T, 10);
@@ -265,5 +260,5 @@ export const transform = (
     }
   }
 
-  return { units, warnings, skippedKillTeam, countByFaction };
+  return { units, warnings, countByFaction };
 };

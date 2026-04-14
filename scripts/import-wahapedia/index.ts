@@ -36,10 +36,7 @@ const main = async () => {
   console.log("Backup complete.");
 
   const data = await parseAll();
-  const { units, warnings, skippedKillTeam, countByFaction } = transform(
-    data,
-    factions,
-  );
+  const { units, warnings, countByFaction } = transform(data, factions);
 
   for (const w of warnings) {
     console.warn(`[WARN] ${w.unitName} / ${w.weaponName}: ${w.message}`);
@@ -48,9 +45,7 @@ const main = async () => {
   const byFaction = factions
     .map((f) => `${f}: ${countByFaction.get(f) ?? 0}`)
     .join(", ");
-  console.log(
-    `Importing ${units.length} units (${byFaction}). Skipped ${skippedKillTeam} (Kill Team).`,
-  );
+  console.log(`Importing ${units.length} units (${byFaction}).`);
 
   await upsertAll(units);
   console.log("Done.");

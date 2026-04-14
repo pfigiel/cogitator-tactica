@@ -23,7 +23,7 @@ const DEFAULT_FORM: CombatFormState = {
   attackerCount: 10,
   attackerWeapons: [{ weaponName: "Bolt Rifle" }],
   attackerContext: DEFAULT_ATTACKER_CONTEXT,
-  defenderUnitId: "boyz_boy",
+  defenderUnitId: "boyz",
   defenderCount: 20,
   defenderInCover: false,
   defenderWeapons: [{ weaponName: "Choppa" }],
@@ -97,7 +97,6 @@ const Home = () => {
   useEffect(() => {
     ensureUnit(DEFAULT_FORM.attackerUnitId);
     ensureUnit(DEFAULT_FORM.defenderUnitId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleCalculate = async () => {
