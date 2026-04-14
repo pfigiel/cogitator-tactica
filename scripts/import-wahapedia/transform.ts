@@ -58,7 +58,10 @@ export const deriveWeaponId = (
   } else if (slugToFp.get(base) === fingerprint) {
     id = base;
   } else {
-    const hash = createHash("sha256").update(fingerprint).digest("hex").slice(0, 6);
+    const hash = createHash("sha256")
+      .update(fingerprint)
+      .digest("hex")
+      .slice(0, 6);
     id = `${base}_${hash}`;
   }
 
@@ -67,13 +70,14 @@ export const deriveWeaponId = (
 };
 
 export const weaponFingerprint = (
+  name: string,
   type: string,
   attacks: string | number,
   skill: number,
   strength: number,
   ap: number,
   damage: string | number,
-): string => `${type}|${attacks}|${skill}|${strength}|${ap}|${damage}`;
+): string => `${name}|${type}|${attacks}|${skill}|${strength}|${ap}|${damage}`;
 
 // ─── Weapon building ──────────────────────────────────────────────────────────
 
@@ -219,8 +223,10 @@ export const transform = (
         const weaponData = buildWeapon(wgRow, unitName, warnings);
         if (!weaponData) continue;
 
-        const wtype = wgRow.type.toLowerCase() === "ranged" ? "shooting" : "melee";
+        const wtype =
+          wgRow.type.toLowerCase() === "ranged" ? "shooting" : "melee";
         const fp = weaponFingerprint(
+          weaponData.name,
           wtype,
           weaponData.attacks,
           weaponData.skill,

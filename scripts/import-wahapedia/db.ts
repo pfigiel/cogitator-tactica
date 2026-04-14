@@ -6,7 +6,10 @@ const prisma = new PrismaClient();
 const validFactions = new Set<string>(Object.values(Faction));
 
 const toFaction = (id: string): Faction => {
-  if (!validFactions.has(id)) throw new Error(`Unknown faction "${id}" — add it to the Faction enum in schema.prisma`);
+  if (!validFactions.has(id))
+    throw new Error(
+      `Unknown faction "${id}" — add it to the Faction enum in schema.prisma`,
+    );
   return id as Faction;
 };
 
@@ -87,7 +90,10 @@ export const upsertAll = async (units: UnitWithFaction[]): Promise<void> => {
       ];
       if (allWeaponIds.length > 0) {
         await tx.unitWeapon.createMany({
-          data: allWeaponIds.map((weaponId) => ({ unitId: unit.id, weaponId })),
+          data: allWeaponIds.map((weaponId) => ({
+            unitId: unit.id,
+            weaponId,
+          })),
         });
       }
     }

@@ -30,11 +30,16 @@ const main = async () => {
   mkdirSync(backupDir, { recursive: true });
 
   console.log(`Backing up database to backups/${timestamp}.dump ...`);
-  execSync(`pg_dump "${databaseUrl}" -Fc -f "${backupPath}"`, { stdio: "inherit" });
+  execSync(`pg_dump "${databaseUrl}" -Fc -f "${backupPath}"`, {
+    stdio: "inherit",
+  });
   console.log("Backup complete.");
 
   const data = await parseAll();
-  const { units, warnings, skippedKillTeam, countByFaction } = transform(data, factions);
+  const { units, warnings, skippedKillTeam, countByFaction } = transform(
+    data,
+    factions,
+  );
 
   for (const w of warnings) {
     console.warn(`[WARN] ${w.unitName} / ${w.weaponName}: ${w.message}`);
