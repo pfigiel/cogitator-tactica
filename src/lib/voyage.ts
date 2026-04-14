@@ -6,12 +6,19 @@ const MODEL = "voyage-3";
 
 export const embedText = async (text: string): Promise<number[]> => {
   const result = await client.embed({ input: [text], model: MODEL });
-  return (result.data?.[0].embedding as number[]) || [];
+  const embedding = result.data?.[0]?.embedding;
+  if (!embedding) throw new Error("Voyage AI returned no embedding");
+  return embedding;
 };
 
 export const embedTexts = async (texts: string[]): Promise<number[][]> => {
   const result = await client.embed({ input: texts, model: MODEL });
-  return (result.data || [])
-    .sort((a: any, b: any) => (a.index ?? 0) - (b.index ?? 0))
-    .map((d: any) => d.embedding as number[]);
+  const data = result.data ?? [];
+  return data
+    .sort((a, b) => (a.index ?? 0) - (b.index ?? 0))
+    .map((d) => {
+      if (!d.embedding)
+        throw new Error("Voyage AI returned no embedding for item");
+      return d.embedding;
+    });
 };
