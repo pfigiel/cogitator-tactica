@@ -28,7 +28,7 @@ model Unit {
   invuln      Int?
   wounds      Int
   keywords    String[]
-  embedding   Unsupported("vector(1536)")?
+  embedding   Unsupported("vector(1024)")?
   unitWeapons UnitWeapon[]
 
   @@map("units")
