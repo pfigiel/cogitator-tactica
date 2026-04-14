@@ -5,7 +5,8 @@ import {
   SelectedWeapon,
   DEFAULT_ATTACKER_CONTEXT,
 } from "@/lib/calculator/types";
-import { listUnits, getUnit } from "@/lib/db/units";
+import { getUnit, searchUnitsByEmbedding } from "@/lib/db/units";
+import { embedText } from "@/lib/voyage";
 
 const client = new Anthropic(); // reads ANTHROPIC_API_KEY from env
 
@@ -57,94 +58,63 @@ export const parseContextFromJson = (text: string): ParsedContext => {
   };
 };
 
-// ─── Call 1: Unit and context resolution ─────────────────────────────────────
+// ─── Call 1: Context extraction (no unit list) ───────────────────────────────
 
-type UnitResolution = {
-  phase: "shooting" | "melee";
-  attackerUnitId: string;
-  attackerCount: number;
-  defenderUnitId: string;
-  defenderCount: number;
-  defenderInCover: boolean;
-  firstFighter: "attacker" | "defender";
-  weaponsExplicit: boolean;
-};
+const extractContext = async (prompt: string): Promise<ParsedContext> => {
+  const systemPrompt = `You are a Warhammer 40,000 combat assistant. Extract combat parameters from the user's prompt.
 
-const resolveUnitsAndContext = async (
-  prompt: string,
-): Promise<UnitResolution> => {
-  console.log("[parser] call1 input:", prompt);
-  const unitList = await listUnits();
-  const unitNameList = unitList
-    .map((u) => `  - id: "${u.id}", name: "${u.name}"`)
-    .join("\n");
-  const systemPromptUnits = `You are a Warhammer 40,000 combat assistant. Parse a natural language combat description into structured JSON.
+Return a JSON object with:
+- "attackerName": string — the attacker unit name as mentioned by the user
+- "defenderName": string — the defender unit name as mentioned by the user
+- "attackerCount": number — number of attacking models (default 1)
+- "defenderCount": number — number of defending models (default 1)
+- "phase": "shooting" | "melee" (default "shooting")
+- "defenderInCover": boolean (default false)
+- "firstFighter": "attacker" | "defender" (default "attacker")
+- "attackerWeaponNames": string[] — weapon names mentioned for the attacker (empty array if none)
+- "defenderWeaponNames": string[] — weapon names mentioned for the defender (empty array if none)
 
-Available units:
-${unitNameList}
+Return only a JSON object, no other text.`;
 
-Return ONLY valid JSON matching this exact schema (no markdown, no explanation):
-{
-  "phase": "shooting" | "melee",
-  "attackerUnitId": string,
-  "attackerCount": number,
-  "defenderUnitId": string,
-  "defenderCount": number,
-  "defenderInCover": boolean,
-  "firstFighter": "attacker" | "defender",
-  "weaponsExplicit": boolean
-}
-
-Rules:
-- "phase" defaults to "shooting" if not specified
-- "firstFighter" defaults to "attacker" if not specified or ambiguous
-- "defenderInCover" is true only if cover is explicitly mentioned
-- "weaponsExplicit" is true only if the user's prompt explicitly names specific weapon(s)
-- attackerCount and defenderCount must be positive integers
-- If a unit name is ambiguous, pick the closest match from the available list`;
   const message = await client.messages.create({
     model: "claude-haiku-4-5-20251001",
     max_tokens: 256,
-    cache_control: { type: "ephemeral" },
-    system: systemPromptUnits,
+    system: systemPrompt,
     messages: [{ role: "user", content: prompt }],
   });
 
   const rawText = message.content
     .filter((block) => block.type === "text")
-    .map((block) => (block as { type: "text"; text: string }).text)[0];
+    .map((block) => (block as { type: "text"; text: string }).text)
+    .join("");
 
-  console.log("[parser] call1 raw output:", rawText);
+  return parseContextFromJson(rawText);
+};
 
-  const jsonMatch = rawText.match(/\{[\s\S]*\}/);
-  if (!jsonMatch)
-    throw new Error(`No JSON object found in LLM response: ${rawText}`);
-  const text = jsonMatch[0];
+// ─── Unit resolution via vector search ──────────────────────────────────────
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let parsed: any;
-  try {
-    parsed = JSON.parse(text);
-  } catch {
-    throw new Error(`LLM returned invalid JSON: ${text}`);
-  }
+const resolveUnits = async (
+  ctx: ParsedContext,
+): Promise<{
+  attackerUnit: UnitProfile | null;
+  defenderUnit: UnitProfile | null;
+}> => {
+  const [attackerEmbedding, defenderEmbedding] = await Promise.all([
+    embedText(ctx.attackerName),
+    embedText(ctx.defenderName),
+  ]);
 
-  if (!parsed.phase || !parsed.attackerUnitId || !parsed.defenderUnitId) {
-    throw new Error(`LLM response missing required fields: ${text}`);
-  }
+  const [attackerMatches, defenderMatches] = await Promise.all([
+    searchUnitsByEmbedding(attackerEmbedding),
+    searchUnitsByEmbedding(defenderEmbedding),
+  ]);
 
-  const result = {
-    phase: parsed.phase,
-    attackerUnitId: parsed.attackerUnitId,
-    attackerCount: Math.max(1, Number(parsed.attackerCount) || 1),
-    defenderUnitId: parsed.defenderUnitId,
-    defenderCount: Math.max(1, Number(parsed.defenderCount) || 1),
-    defenderInCover: Boolean(parsed.defenderInCover),
-    firstFighter: parsed.firstFighter ?? "attacker",
-    weaponsExplicit: Boolean(parsed.weaponsExplicit),
-  };
-  console.log("[parser] call1 parsed:", result);
-  return result;
+  const [attackerUnit, defenderUnit] = await Promise.all([
+    attackerMatches[0] ? getUnit(attackerMatches[0].id) : null,
+    defenderMatches[0] ? getUnit(defenderMatches[0].id) : null,
+  ]);
+
+  return { attackerUnit, defenderUnit };
 };
 
 // ─── Call 2: Weapon resolution (conditional) ─────────────────────────────────
@@ -278,13 +248,14 @@ const resolveWeapons = async (
 };
 
 export const parsePrompt = async (prompt: string): Promise<CombatFormState> => {
-  const unitResolution = await resolveUnitsAndContext(prompt);
+  const ctx = await extractContext(prompt);
+  const { attackerUnit, defenderUnit: defenderUnitOrNull } =
+    await resolveUnits(ctx);
 
-  const { phase, attackerUnitId, defenderUnitId } = unitResolution;
-  const [attackerUnit, defenderUnit] = await Promise.all([
-    getUnit(attackerUnitId),
-    getUnit(defenderUnitId),
-  ]).then(([a, d]) => [a ?? undefined, d ?? undefined]);
+  const phase = ctx.phase;
+  const attackerUnitId = attackerUnit?.id ?? "";
+  const defenderUnitId = defenderUnitOrNull?.id ?? "";
+  const defenderUnit = defenderUnitOrNull ?? undefined;
 
   const defaultAttackerPool = attackerUnit
     ? phase === "shooting"
@@ -296,7 +267,10 @@ export const parsePrompt = async (prompt: string): Promise<CombatFormState> => {
   let attackerWeapons: SelectedWeapon[];
   let defenderWeapons: SelectedWeapon[];
 
-  if (unitResolution.weaponsExplicit && attackerUnit) {
+  const weaponsExplicit =
+    ctx.attackerWeaponNames.length > 0 || ctx.defenderWeaponNames.length > 0;
+
+  if (weaponsExplicit && attackerUnit) {
     const weaponResolution = await resolveWeapons(
       prompt,
       attackerUnit,
@@ -319,15 +293,15 @@ export const parsePrompt = async (prompt: string): Promise<CombatFormState> => {
   const combatFormState = {
     phase,
     attackerUnitId,
-    attackerCount: unitResolution.attackerCount,
+    attackerCount: ctx.attackerCount,
     attackerWeapons,
     attackerContext: DEFAULT_ATTACKER_CONTEXT,
     defenderUnitId,
-    defenderCount: unitResolution.defenderCount,
-    defenderInCover: unitResolution.defenderInCover,
+    defenderCount: ctx.defenderCount,
+    defenderInCover: ctx.defenderInCover,
     defenderWeapons,
     defenderContext: DEFAULT_ATTACKER_CONTEXT,
-    firstFighter: unitResolution.firstFighter,
+    firstFighter: ctx.firstFighter,
   };
   console.log("[parser] parsePrompt result:", combatFormState);
   return combatFormState;
