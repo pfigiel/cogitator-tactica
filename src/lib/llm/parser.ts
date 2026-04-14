@@ -192,18 +192,34 @@ const parseWeaponList = (
 };
 
 const resolveWeapons = async (
-  prompt: string,
+  ctx: ParsedContext,
   attackerUnit: UnitProfile,
   defenderUnit: UnitProfile | undefined,
   phase: "shooting" | "melee",
 ): Promise<WeaponResolution> => {
-  console.log("[parser] call2 input:", prompt);
+  console.log(
+    "[parser] call2 input:",
+    ctx.attackerWeaponNames,
+    ctx.defenderWeaponNames,
+  );
   const message = await client.messages.create({
     model: "claude-haiku-4-5-20251001",
     max_tokens: 256,
     cache_control: { type: "ephemeral" },
     system: buildWeaponSystemPrompt(attackerUnit, defenderUnit, phase),
-    messages: [{ role: "user", content: prompt }],
+    messages: [
+      {
+        role: "user",
+        content: [
+          ctx.attackerWeaponNames.length > 0
+            ? `Attacker weapons mentioned: ${ctx.attackerWeaponNames.join(", ")}`
+            : "No specific attacker weapons mentioned.",
+          ctx.defenderWeaponNames.length > 0
+            ? `Defender weapons mentioned: ${ctx.defenderWeaponNames.join(", ")}`
+            : "No specific defender weapons mentioned.",
+        ].join("\n"),
+      },
+    ],
   });
 
   const rawText = message.content
@@ -249,60 +265,59 @@ const resolveWeapons = async (
 
 export const parsePrompt = async (prompt: string): Promise<CombatFormState> => {
   const ctx = await extractContext(prompt);
-  const { attackerUnit, defenderUnit: defenderUnitOrNull } =
-    await resolveUnits(ctx);
+
+  const { attackerUnit, defenderUnit } = await resolveUnits(ctx);
+
+  if (!attackerUnit || !defenderUnit) {
+    throw new Error(
+      `Could not resolve units: attacker="${ctx.attackerName}", defender="${ctx.defenderName}"`,
+    );
+  }
 
   const phase = ctx.phase;
-  const attackerUnitId = attackerUnit?.id ?? "";
-  const defenderUnitId = defenderUnitOrNull?.id ?? "";
-  const defenderUnit = defenderUnitOrNull ?? undefined;
 
-  const defaultAttackerPool = attackerUnit
-    ? phase === "shooting"
+  const defaultAttackerPool =
+    phase === "shooting"
       ? attackerUnit.shootingWeapons
-      : attackerUnit.meleeWeapons
-    : [];
-  const defaultDefenderPool = defenderUnit ? defenderUnit.meleeWeapons : [];
+      : attackerUnit.meleeWeapons;
+  const defaultDefenderPool = defenderUnit.meleeWeapons;
 
-  let attackerWeapons: SelectedWeapon[];
-  let defenderWeapons: SelectedWeapon[];
+  let attackerWeapons: SelectedWeapon[] =
+    defaultAttackerPool.length > 0
+      ? [{ weaponName: defaultAttackerPool[0].name }]
+      : [];
+  let defenderWeapons: SelectedWeapon[] =
+    defaultDefenderPool.length > 0
+      ? [{ weaponName: defaultDefenderPool[0].name }]
+      : [];
 
-  const weaponsExplicit =
-    ctx.attackerWeaponNames.length > 0 || ctx.defenderWeaponNames.length > 0;
-
-  if (weaponsExplicit && attackerUnit) {
+  if (
+    ctx.attackerWeaponNames.length > 0 ||
+    ctx.defenderWeaponNames.length > 0
+  ) {
     const weaponResolution = await resolveWeapons(
-      prompt,
+      ctx,
       attackerUnit,
       defenderUnit,
       phase,
     );
     attackerWeapons = weaponResolution.attackerWeapons;
     defenderWeapons = weaponResolution.defenderWeapons;
-  } else {
-    attackerWeapons =
-      defaultAttackerPool.length > 0
-        ? [{ weaponName: defaultAttackerPool[0].name }]
-        : [];
-    defenderWeapons =
-      defaultDefenderPool.length > 0
-        ? [{ weaponName: defaultDefenderPool[0].name }]
-        : [];
   }
 
-  const combatFormState = {
+  const result = {
     phase,
-    attackerUnitId,
+    attackerUnitId: attackerUnit.id,
     attackerCount: ctx.attackerCount,
     attackerWeapons,
     attackerContext: DEFAULT_ATTACKER_CONTEXT,
-    defenderUnitId,
+    defenderUnitId: defenderUnit.id,
     defenderCount: ctx.defenderCount,
     defenderInCover: ctx.defenderInCover,
     defenderWeapons,
     defenderContext: DEFAULT_ATTACKER_CONTEXT,
     firstFighter: ctx.firstFighter,
   };
-  console.log("[parser] parsePrompt result:", combatFormState);
-  return combatFormState;
+  console.log("[parser] parsePrompt result:", result);
+  return result;
 };
