@@ -52,11 +52,15 @@ const Home = () => {
   const [form, setForm] = useState<CombatFormState>(DEFAULT_FORM);
   const [result, setResult] = useState<CombatResult | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [unitList, setUnitList] = useState<Array<{ id: string; name: string }>>([]);
+  const [unitList, setUnitList] = useState<Array<{ id: string; name: string }>>(
+    [],
+  );
   const unitsRef = useRef<Record<string, UnitProfile>>({});
   const [units, setUnits] = useState<Record<string, UnitProfile>>({});
 
-  const setUnitsAndRef = (updater: (prev: Record<string, UnitProfile>) => Record<string, UnitProfile>) => {
+  const setUnitsAndRef = (
+    updater: (prev: Record<string, UnitProfile>) => Record<string, UnitProfile>,
+  ) => {
     setUnits((prev) => {
       const next = updater(prev);
       unitsRef.current = next;
@@ -68,7 +72,9 @@ const Home = () => {
     fetch("/api/units")
       .then((r) => r.json())
       .then((list: Array<{ id: string; name: string }>) => setUnitList(list))
-      .catch(() => {/* non-fatal: dropdown stays empty */});
+      .catch(() => {
+        /* non-fatal: dropdown stays empty */
+      });
   }, []);
 
   const ensureUnit = useCallback(
@@ -197,7 +203,7 @@ const Home = () => {
 
         {/* Prompt input */}
         <Paper>
-          <PromptInput onParsed={(parsed) => setForm(parsed)} />
+          <PromptInput onParsed={handleFormChange} />
         </Paper>
 
         {/* Form */}
@@ -209,9 +215,7 @@ const Home = () => {
             units={units}
             unitList={unitList}
           />
-          {error && (
-            <p className={styles.error}>Error: {error}</p>
-          )}
+          {error && <p className={styles.error}>Error: {error}</p>}
         </Paper>
 
         {/* Results */}
