@@ -12,7 +12,8 @@
     "format:check": "prettier --check .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "import-units": "tsx scripts/import-wahapedia/index.ts --factions SM,ORK"
+    "import-units": "tsx scripts/import-wahapedia/index.ts --factions SM,ORK",
+    "generate-embeddings": "tsx scripts/generate-embeddings/index.ts"
   },
   "private": true,
   "dependencies": {
@@ -28,7 +29,8 @@
     "postcss": "^8.5.8",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
-    "typescript": "^6.0.2"
+    "typescript": "^6.0.2",
+    "voyageai": "^0.2.1"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
