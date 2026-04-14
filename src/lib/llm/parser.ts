@@ -9,8 +9,55 @@ import { listUnits, getUnit } from "@/lib/db/units";
 
 const client = new Anthropic(); // reads ANTHROPIC_API_KEY from env
 
-// ─── Call 1: Unit and context resolution ─────────────────────────────────────
+// ─── ParsedContext: Pure JSON parsing helper ────────────────────────────────────
 
+export type ParsedContext = {
+  attackerName: string;
+  defenderName: string;
+  attackerCount: number;
+  defenderCount: number;
+  phase: "shooting" | "melee";
+  defenderInCover: boolean;
+  firstFighter: "attacker" | "defender";
+  attackerWeaponNames: string[];
+  defenderWeaponNames: string[];
+};
+
+export const parseContextFromJson = (text: string): ParsedContext => {
+  const jsonMatch = text.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) throw new Error(`No JSON object found in: ${text}`);
+
+  let parsed: any;
+  try {
+    parsed = JSON.parse(jsonMatch[0]);
+  } catch {
+    throw new Error(`Invalid JSON: ${text}`);
+  }
+
+  if (!parsed.attackerName || !parsed.defenderName) {
+    throw new Error(
+      `Missing required fields attackerName/defenderName: ${text}`,
+    );
+  }
+
+  return {
+    attackerName: String(parsed.attackerName),
+    defenderName: String(parsed.defenderName),
+    attackerCount: Math.max(1, Number(parsed.attackerCount) || 1),
+    defenderCount: Math.max(1, Number(parsed.defenderCount) || 1),
+    phase: parsed.phase === "melee" ? "melee" : "shooting",
+    defenderInCover: Boolean(parsed.defenderInCover),
+    firstFighter: parsed.firstFighter === "defender" ? "defender" : "attacker",
+    attackerWeaponNames: Array.isArray(parsed.attackerWeaponNames)
+      ? parsed.attackerWeaponNames.filter((w: unknown) => typeof w === "string")
+      : [],
+    defenderWeaponNames: Array.isArray(parsed.defenderWeaponNames)
+      ? parsed.defenderWeaponNames.filter((w: unknown) => typeof w === "string")
+      : [],
+  };
+};
+
+// ─── Call 1: Unit and context resolution ─────────────────────────────────────
 
 type UnitResolution = {
   phase: "shooting" | "melee";
