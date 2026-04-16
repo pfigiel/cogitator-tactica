@@ -11,7 +11,7 @@ export const buildUnitEmbeddingText = (unit: {
 const BATCH_SIZE = 128;
 
 const main = async () => {
-  const { embedTexts } = await import("../../src/lib/voyage");
+  const { embedTexts } = await import("../../src/lib/embeddings/common/voyage");
   const { values } = (await import("node:util")).parseArgs({
     args: process.argv.slice(2),
     options: {

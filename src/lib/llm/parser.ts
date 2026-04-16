@@ -6,7 +6,7 @@ import {
   DEFAULT_ATTACKER_CONTEXT,
 } from "@/lib/calculator/types";
 import { getUnit, searchUnitsByEmbedding } from "@/lib/db/units";
-import { embedText } from "@/lib/voyage";
+import { embedText } from "@/lib/embeddings/common/voyage";
 
 const client = new Anthropic(); // reads ANTHROPIC_API_KEY from env
 
