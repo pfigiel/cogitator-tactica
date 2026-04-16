@@ -39,6 +39,11 @@ export type KeywordRow = {
   keyword: string;
 };
 
+export type FactionRow = {
+  id: string;
+  name: string;
+};
+
 // ─── CSV parser ───────────────────────────────────────────────────────────────
 
 const parseCsv = (content: string): Record<string, string>[] => {
@@ -71,14 +76,16 @@ export type ParsedData = {
   models: ModelRow[];
   wargear: WargearRow[];
   keywords: KeywordRow[];
+  factions: FactionRow[];
 };
 
 export const parseAll = async (): Promise<ParsedData> => {
-  const [dsRaw, modRaw, wgRaw, kwRaw] = await Promise.all([
+  const [dsRaw, modRaw, wgRaw, kwRaw, facRaw] = await Promise.all([
     readCsv("Datasheets.csv"),
     readCsv("Datasheets_models.csv"),
     readCsv("Datasheets_wargear.csv"),
     readCsv("Datasheets_keywords.csv"),
+    readCsv("Factions.csv"),
   ]);
 
   const datasheets: DatasheetRow[] = dsRaw.map((r) => ({
@@ -115,5 +122,10 @@ export const parseAll = async (): Promise<ParsedData> => {
     keyword: r["keyword"],
   }));
 
-  return { datasheets, models, wargear, keywords };
+  const factions: FactionRow[] = facRaw.map((r) => ({
+    id: r["id"],
+    name: r["name"],
+  }));
+
+  return { datasheets, models, wargear, keywords, factions };
 };
