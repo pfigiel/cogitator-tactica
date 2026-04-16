@@ -153,6 +153,7 @@ export type TransformResult = {
   units: UnitWithFaction[];
   warnings: WeaponWarning[];
   countByFaction: Map<string, number>;
+  factions: Array<{ id: string; name: string }>;
 };
 
 export const transform = (
@@ -260,5 +261,10 @@ export const transform = (
     }
   }
 
-  return { units, warnings, countByFaction };
+  const usedFactionIds = new Set(units.map((u) => u.factionId));
+  const factionsResult = data.factions
+    .filter((f) => usedFactionIds.has(f.id))
+    .map((f) => ({ id: f.id, name: f.name }));
+
+  return { units, warnings, countByFaction, factions: factionsResult };
 };
