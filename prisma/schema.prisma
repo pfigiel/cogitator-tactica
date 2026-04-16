@@ -9,20 +9,24 @@ datasource db {
   extensions = [vector]
 }
 
-enum Faction {
-  SM
-  ORK
-}
-
 enum WeaponType {
   shooting
   melee
 }
 
+model Faction {
+  id    String @id
+  name  String
+  units Unit[]
+
+  @@map("factions")
+}
+
 model Unit {
   id          String     @id
   name        String
-  factionId   Faction    @map("faction_id")
+  factionId   String     @map("faction_id")
+  faction     Faction    @relation(fields: [factionId], references: [id])
   toughness   Int
   save        Int
   invuln      Int?
