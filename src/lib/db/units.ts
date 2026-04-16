@@ -25,19 +25,13 @@ export const searchUnitsByEmbedding = async (
   factionId?: string,
 ): Promise<Array<{ id: string; name: string }>> => {
   const vectorLiteral = Prisma.raw(`'[${embedding.join(",")}]'::vector`);
-  if (factionId) {
-    return prisma.$queryRaw<Array<{ id: string; name: string }>>`
-      SELECT id, name
-      FROM units
-      WHERE embedding IS NOT NULL AND faction_id = ${factionId}
-      ORDER BY embedding <=> ${vectorLiteral}
-      LIMIT ${limit}
-    `;
-  }
+  const factionFilter = factionId
+    ? Prisma.sql`AND faction_id = ${factionId}`
+    : Prisma.empty;
   return prisma.$queryRaw<Array<{ id: string; name: string }>>`
     SELECT id, name
     FROM units
-    WHERE embedding IS NOT NULL
+    WHERE embedding IS NOT NULL ${factionFilter}
     ORDER BY embedding <=> ${vectorLiteral}
     LIMIT ${limit}
   `;
