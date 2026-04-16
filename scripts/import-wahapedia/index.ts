@@ -14,11 +14,11 @@ const main = async () => {
     },
   });
 
-  const factions = (values.factions as string)
+  const factions_filter = (values.factions as string)
     .split(",")
     .map((f) => f.trim().toUpperCase());
 
-  console.log(`Importing factions: ${factions.join(", ")}`);
+  console.log(`Importing factions: ${factions_filter.join(", ")}`);
 
   // Backup current DB before making changes
   const databaseUrl = process.env.DATABASE_URL;
@@ -36,18 +36,21 @@ const main = async () => {
   console.log("Backup complete.");
 
   const data = await parseAll();
-  const { units, warnings, countByFaction } = transform(data, factions);
+  const { units, warnings, countByFaction, factions } = transform(
+    data,
+    factions_filter,
+  );
 
   for (const w of warnings) {
     console.warn(`[WARN] ${w.unitName} / ${w.weaponName}: ${w.message}`);
   }
 
-  const byFaction = factions
+  const byFaction = factions_filter
     .map((f) => `${f}: ${countByFaction.get(f) ?? 0}`)
     .join(", ");
   console.log(`Importing ${units.length} units (${byFaction}).`);
 
-  await upsertAll(units);
+  await upsertAll(units, factions);
   console.log("Done.");
 };
 

@@ -1,20 +1,12 @@
-import { PrismaClient, Faction, WeaponType } from "@prisma/client";
+import { PrismaClient, WeaponType } from "@prisma/client";
 import type { UnitWithFaction } from "./transform";
 
 const prisma = new PrismaClient();
 
-const validFactions = new Set<string>(Object.values(Faction));
-
-const toFaction = (id: string): Faction => {
-  if (!validFactions.has(id))
-    throw new Error(
-      `Unknown faction "${id}" — add it to the Faction enum in schema.prisma`,
-    );
-  return id as Faction;
-};
-
-export const upsertAll = async (units: UnitWithFaction[]): Promise<void> => {
-  // Collect all unique weapons across all units (deduplicated by id)
+export const upsertAll = async (
+  units: UnitWithFaction[],
+  factions: Array<{ id: string; name: string }>,
+): Promise<void> => {
   const weaponMap = new Map<
     string,
     { weapon: UnitWithFaction["shootingWeapons"][0]; wtype: WeaponType }
@@ -29,6 +21,15 @@ export const upsertAll = async (units: UnitWithFaction[]): Promise<void> => {
   }
 
   await prisma.$transaction(async (tx) => {
+    // 0. Upsert factions first so units FK constraint is satisfied
+    for (const faction of factions) {
+      await tx.faction.upsert({
+        where: { id: faction.id },
+        update: { name: faction.name },
+        create: { id: faction.id, name: faction.name },
+      });
+    }
+
     // 1. Upsert weapons
     for (const { weapon, wtype } of weaponMap.values()) {
       await tx.weapon.upsert({
@@ -63,7 +64,7 @@ export const upsertAll = async (units: UnitWithFaction[]): Promise<void> => {
         where: { id: unit.id },
         update: {
           name: unit.name,
-          factionId: toFaction(unit.factionId),
+          factionId: unit.factionId,
           toughness: unit.toughness,
           save: unit.save,
           invuln: unit.invuln ?? null,
@@ -73,7 +74,7 @@ export const upsertAll = async (units: UnitWithFaction[]): Promise<void> => {
         create: {
           id: unit.id,
           name: unit.name,
-          factionId: toFaction(unit.factionId),
+          factionId: unit.factionId,
           toughness: unit.toughness,
           save: unit.save,
           invuln: unit.invuln ?? null,
@@ -82,7 +83,6 @@ export const upsertAll = async (units: UnitWithFaction[]): Promise<void> => {
         },
       });
 
-      // Replace weapon associations so removals are handled
       await tx.unitWeapon.deleteMany({ where: { unitId: unit.id } });
       const allWeaponIds = [
         ...unit.shootingWeapons.map((w) => w.id),
