@@ -1,33 +1,36 @@
-import { PrismaClient, Prisma, Faction } from "@prisma/client";
+import { PrismaClient, Prisma } from "@prisma/client";
 
 const prisma = new PrismaClient();
-
-export const buildUnitEmbeddingText = (unit: {
-  name: string;
-  keywords: string[];
-  weapons: string[];
-}): string => [unit.name, ...unit.keywords, ...unit.weapons].join(" ");
 
 const BATCH_SIZE = 128;
 
 const main = async () => {
   const { embedTexts } = await import("../../src/lib/embeddings/common/voyage");
+  const { buildUnitEmbeddingText } =
+    await import("../../src/lib/embeddings/units/buildUnitEmbeddingText");
+
   const { values } = (await import("node:util")).parseArgs({
     args: process.argv.slice(2),
     options: {
       factions: {
         type: "string",
-        default: Object.values(Faction).join(","),
+        default: "SM,ORK",
       },
     },
   });
 
-  const factions = (values.factions as string)
+  const factionFilter = (values.factions as string)
     .split(",")
-    .map((f) => f.trim()) as Faction[];
+    .map((f) => f.trim());
+
+  // Fetch faction name lookup from DB
+  const factionRows = await prisma.faction.findMany({
+    select: { id: true, name: true },
+  });
+  const factionNameById = new Map(factionRows.map((f) => [f.id, f.name]));
 
   const units = await prisma.unit.findMany({
-    where: { factionId: { in: factions } },
+    where: { factionId: { in: factionFilter } },
     include: { unitWeapons: { include: { weapon: true } } },
   });
 
@@ -38,8 +41,13 @@ const main = async () => {
     const texts = batch.map((u) =>
       buildUnitEmbeddingText({
         name: u.name,
-        keywords: u.keywords,
-        weapons: u.unitWeapons.map((uw) => uw.weapon.name),
+        faction: factionNameById.get(u.factionId),
+        meleeWeapons: u.unitWeapons
+          .filter((uw) => uw.weapon.type === "melee")
+          .map((uw) => uw.weapon.name),
+        rangedWeapons: u.unitWeapons
+          .filter((uw) => uw.weapon.type === "shooting")
+          .map((uw) => uw.weapon.name),
       }),
     );
 
