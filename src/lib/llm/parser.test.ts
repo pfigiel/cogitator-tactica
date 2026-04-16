@@ -1,7 +1,10 @@
 import { describe, it, expect, vi } from "vitest";
 
 // Mock transitive deps that have ESM directory-import issues in Vitest
-vi.mock("@/lib/voyage", () => ({ embedText: vi.fn(), embedTexts: vi.fn() }));
+vi.mock("@/lib/embeddings/common/voyage", () => ({
+  embedText: vi.fn(),
+  embedTexts: vi.fn(),
+}));
 vi.mock("@/lib/db/units", () => ({
   getUnit: vi.fn(),
   searchUnitsByEmbedding: vi.fn(),
