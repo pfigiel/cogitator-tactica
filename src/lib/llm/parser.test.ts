@@ -75,3 +75,47 @@ describe("parseContextFromJson", () => {
     expect(result.defenderCount).toBe(1);
   });
 });
+
+describe("parseContextFromJson faction fields", () => {
+  const base = {
+    attackerName: "Intercessors",
+    defenderName: "Boyz",
+    attackerCount: 10,
+    defenderCount: 20,
+    phase: "shooting",
+    defenderInCover: false,
+    firstFighter: "attacker",
+    attackerWeaponNames: [],
+    defenderWeaponNames: [],
+  };
+
+  it("parses attackerFactionId and defenderFactionId when present", () => {
+    const result = parseContextFromJson(
+      JSON.stringify({
+        ...base,
+        attackerFactionId: "SM",
+        defenderFactionId: "ORK",
+      }),
+    );
+    expect(result.attackerFactionId).toBe("SM");
+    expect(result.defenderFactionId).toBe("ORK");
+  });
+
+  it("sets faction ids to undefined when LLM returns null", () => {
+    const result = parseContextFromJson(
+      JSON.stringify({
+        ...base,
+        attackerFactionId: null,
+        defenderFactionId: null,
+      }),
+    );
+    expect(result.attackerFactionId).toBeUndefined();
+    expect(result.defenderFactionId).toBeUndefined();
+  });
+
+  it("sets faction ids to undefined when fields are absent", () => {
+    const result = parseContextFromJson(JSON.stringify(base));
+    expect(result.attackerFactionId).toBeUndefined();
+    expect(result.defenderFactionId).toBeUndefined();
+  });
+});

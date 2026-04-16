@@ -6,7 +6,10 @@ import {
   DEFAULT_ATTACKER_CONTEXT,
 } from "@/lib/calculator/types";
 import { getUnit, searchUnitsByEmbedding } from "@/lib/db/units";
+import { getAllFactions } from "@/lib/db/factions";
+import type { FactionRecord } from "@/lib/db/factions";
 import { embedText } from "@/lib/embeddings/common/voyage";
+import { buildUnitEmbeddingText } from "@/lib/embeddings/units/buildUnitEmbeddingText";
 
 const client = new Anthropic(); // reads ANTHROPIC_API_KEY from env
 
@@ -22,6 +25,8 @@ export type ParsedContext = {
   firstFighter: "attacker" | "defender";
   attackerWeaponNames: string[];
   defenderWeaponNames: string[];
+  attackerFactionId?: string;
+  defenderFactionId?: string;
 };
 
 export const parseContextFromJson = (text: string): ParsedContext => {
@@ -55,12 +60,27 @@ export const parseContextFromJson = (text: string): ParsedContext => {
     defenderWeaponNames: Array.isArray(parsed.defenderWeaponNames)
       ? parsed.defenderWeaponNames.filter((w: unknown) => typeof w === "string")
       : [],
+    attackerFactionId:
+      typeof parsed.attackerFactionId === "string"
+        ? parsed.attackerFactionId
+        : undefined,
+    defenderFactionId:
+      typeof parsed.defenderFactionId === "string"
+        ? parsed.defenderFactionId
+        : undefined,
   };
 };
 
 // ─── Call 1: Context extraction (no unit list) ───────────────────────────────
 
-const extractContext = async (prompt: string): Promise<ParsedContext> => {
+const extractContext = async (
+  prompt: string,
+  factions: FactionRecord[],
+): Promise<ParsedContext> => {
+  const factionsContext = factions
+    .map((f) => `- ${f.name} (id: "${f.id}")`)
+    .join("\n");
+
   const systemPrompt = `You are a Warhammer 40,000 combat assistant. Extract combat parameters from the user's prompt.
 
 Return a JSON object with:
@@ -73,6 +93,13 @@ Return a JSON object with:
 - "firstFighter": "attacker" | "defender" (default "attacker")
 - "attackerWeaponNames": string[] — weapon names mentioned for the attacker (empty array if none)
 - "defenderWeaponNames": string[] — weapon names mentioned for the defender (empty array if none)
+- "attackerFactionId": string | null — faction id ONLY if the attacker's faction is explicitly named in the prompt; null otherwise
+- "defenderFactionId": string | null — faction id ONLY if the defender's faction is explicitly named in the prompt; null otherwise
+
+Known factions:
+${factionsContext}
+
+IMPORTANT: Only return a faction id when you are certain the user explicitly stated that faction. If the faction is implied, guessed, or not mentioned at all, return null.
 
 Return only a JSON object, no other text.`;
 
@@ -95,18 +122,46 @@ Return only a JSON object, no other text.`;
 
 const resolveUnits = async (
   ctx: ParsedContext,
+  factions: FactionRecord[],
 ): Promise<{
   attackerUnit: UnitProfile | null;
   defenderUnit: UnitProfile | null;
 }> => {
+  const getFactionName = (id: string | undefined): string | undefined =>
+    id ? factions.find((f) => f.id === id)?.name : undefined;
+
+  const weaponLabel = ctx.phase === "shooting" ? "ranged" : "melee";
+
+  const attackerText = buildUnitEmbeddingText({
+    name: ctx.attackerName,
+    faction: getFactionName(ctx.attackerFactionId),
+    ...(weaponLabel === "ranged" && ctx.attackerWeaponNames.length
+      ? { rangedWeapons: ctx.attackerWeaponNames }
+      : {}),
+    ...(weaponLabel === "melee" && ctx.attackerWeaponNames.length
+      ? { meleeWeapons: ctx.attackerWeaponNames }
+      : {}),
+  });
+
+  const defenderText = buildUnitEmbeddingText({
+    name: ctx.defenderName,
+    faction: getFactionName(ctx.defenderFactionId),
+    ...(weaponLabel === "ranged" && ctx.defenderWeaponNames.length
+      ? { rangedWeapons: ctx.defenderWeaponNames }
+      : {}),
+    ...(weaponLabel === "melee" && ctx.defenderWeaponNames.length
+      ? { meleeWeapons: ctx.defenderWeaponNames }
+      : {}),
+  });
+
   const [attackerEmbedding, defenderEmbedding] = await Promise.all([
-    embedText(ctx.attackerName),
-    embedText(ctx.defenderName),
+    embedText(attackerText),
+    embedText(defenderText),
   ]);
 
   const [attackerMatches, defenderMatches] = await Promise.all([
-    searchUnitsByEmbedding(attackerEmbedding),
-    searchUnitsByEmbedding(defenderEmbedding),
+    searchUnitsByEmbedding(attackerEmbedding, 1, ctx.attackerFactionId),
+    searchUnitsByEmbedding(defenderEmbedding, 1, ctx.defenderFactionId),
   ]);
 
   const [attackerUnit, defenderUnit] = await Promise.all([
@@ -264,9 +319,10 @@ const resolveWeapons = async (
 };
 
 export const parsePrompt = async (prompt: string): Promise<CombatFormState> => {
-  const ctx = await extractContext(prompt);
+  const factions = await getAllFactions();
+  const ctx = await extractContext(prompt, factions);
 
-  const { attackerUnit, defenderUnit } = await resolveUnits(ctx);
+  const { attackerUnit, defenderUnit } = await resolveUnits(ctx, factions);
 
   if (!attackerUnit || !defenderUnit) {
     throw new Error(
