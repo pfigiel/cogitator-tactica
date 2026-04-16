@@ -9,7 +9,7 @@ Embedding-based unit search fails for common informal references. "Intercessors"
 
 ## DB Schema
 
-Add nullable `alt_names text[]` column to the `units` table.
+Add nullable `alt_names text[]` column to the `units` table. Alt names are stored as a PostgreSQL text array in the `units` row — no separate table.
 
 **Prisma**:
 
@@ -41,7 +41,8 @@ generateAltNames(
 - Units are chunked into groups of 30.
 - All chunks for a faction are called **in parallel** (`Promise.all`) to keep import fast — SM has 300+ units (10+ chunks).
 - Each chunk fires one LLM call (Claude Haiku) with the faction name as context.
-- Response is structured JSON: `{ unitName: string, altNames: string[] | null }[]`. The function maps results back to unit IDs by matching `unitName` exactly against the names supplied in the chunk. Unmatched names are logged as a warning and skipped.
+- **Input to LLM**: `{ id: string, name: string }[]` — unit ID and name pairs.
+- **Output from LLM**: `{ [unitId: string]: string[] | null }` — a JSON object keyed by unit ID. Using IDs as keys avoids any issues with special characters in unit names. Missing keys are logged as a warning and skipped.
 
 ### LLM Prompt
 
