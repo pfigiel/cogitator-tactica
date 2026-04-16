@@ -22,8 +22,18 @@ export const getUnit = async (id: string): Promise<UnitProfile | null> => {
 export const searchUnitsByEmbedding = async (
   embedding: number[],
   limit = 1,
+  factionId?: string,
 ): Promise<Array<{ id: string; name: string }>> => {
   const vectorLiteral = Prisma.raw(`'[${embedding.join(",")}]'::vector`);
+  if (factionId) {
+    return prisma.$queryRaw<Array<{ id: string; name: string }>>`
+      SELECT id, name
+      FROM units
+      WHERE embedding IS NOT NULL AND faction_id = ${factionId}
+      ORDER BY embedding <=> ${vectorLiteral}
+      LIMIT ${limit}
+    `;
+  }
   return prisma.$queryRaw<Array<{ id: string; name: string }>>`
     SELECT id, name
     FROM units
