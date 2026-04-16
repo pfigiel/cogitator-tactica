@@ -101,12 +101,12 @@ Phase determines the weapon label for both sides. Weapons are included for a giv
 | Factions DB query (`getAllFactions`) | `src/lib/db/factions.ts` (new)                                         |
 | `searchUnitsByEmbedding`             | `src/lib/db/units.ts` (updated)                                        |
 | Prisma schema + migration            | `prisma/schema.prisma` + new migration                                 |
-| Factions seed data                   | `prisma/seed.ts` (new or extended)                                     |
+| Factions seeding                     | `scripts/import-wahapedia/db.ts` (extended)                            |
 | Parser                               | `src/lib/llm/parser.ts` (updated)                                      |
 | Generate-embeddings script           | `scripts/generate-embeddings/index.ts` (updated)                       |
 
 ## Migration & Re-embedding
 
-1. Add Prisma migration for the `factions` table
-2. Seed factions table
+1. Add Prisma migration for the `factions` table (drop `Faction` enum, add `factions` table, update `units.faction_id` to string FK)
+2. Extend `scripts/import-wahapedia/db.ts` to upsert faction rows (id + name) as part of the regular import flow — factions are sourced from Wahapedia data, not a one-off seed script
 3. Re-run `generate-embeddings` script to regenerate all unit embeddings with the new structured format
