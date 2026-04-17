@@ -5,12 +5,13 @@ describe("buildUnitEmbeddingText", () => {
   it("includes all fields when all are provided", () => {
     const result = buildUnitEmbeddingText({
       name: "Intercessor Squad",
+      altNames: ["Intercessors"],
       faction: "Space Marines",
       meleeWeapons: ["Astartes chainsword", "Close combat weapon"],
       rangedWeapons: ["Bolt rifle", "Grenade Launcher"],
     });
     expect(result).toBe(
-      "Unit: Intercessor Squad\nFaction: Space Marines\nMelee weapons: Astartes chainsword, Close combat weapon\nRanged weapons: Bolt rifle, Grenade Launcher",
+      "Unit: Intercessor Squad\nAlternative names: Intercessors\nFaction: Space Marines\nMelee weapons: Astartes chainsword, Close combat weapon\nRanged weapons: Bolt rifle, Grenade Launcher",
     );
   });
 
