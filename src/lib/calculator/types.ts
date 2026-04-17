@@ -1,26 +1,39 @@
 // ─── Weapon special abilities ────────────────────────────────────────────────
 
 export type WeaponAbility =
-  | { type: "ANTI"; keyword: string; threshold: number }  // crit wound vs keyword on threshold+
-  | { type: "ASSAULT" }                                   // can shoot after Advancing (no calc effect)
-  | { type: "BLAST" }                                     // +1 attack per 5 defender models
-  | { type: "CONVERSION" }                                // at long range: crit hits on 4+
-  | { type: "DEVASTATING_WOUNDS" }                        // crit wounds deal mortal wounds (skip save)
-  | { type: "HAZARDOUS" }                                 // self-inflicts mortal wounds (no calc effect)
-  | { type: "HEAVY" }                                     // if Remained Stationary: +1 to hit
-  | { type: "IGNORES_COVER" }                             // target does not benefit from cover
-  | { type: "INDIRECT_FIRE" }                             // −1 to hit; target gains cover
-  | { type: "LANCE" }                                     // on the turn you charge: +1 to wound
-  | { type: "LETHAL_HITS" }                               // crit hits auto-wound (skip wound roll)
-  | { type: "LINKED_FIRE" }                               // LoS from friendly unit (no calc effect)
-  | { type: "MELTA"; value: number }                      // at half range: +X damage
-  | { type: "PISTOL" }                                    // can shoot in engagement range (no calc effect)
-  | { type: "PRECISION" }                                 // target Characters directly (no calc effect)
-  | { type: "PSYCHIC" }                                   // psychic weapon keyword (no calc effect)
-  | { type: "RAPID_FIRE"; value: number }                 // at half range: +X attacks
-  | { type: "SUSTAINED_HITS"; value: number }             // each crit hit generates N extra hits
-  | { type: "TORRENT" }                                   // auto-hits (no hit roll needed)
-  | { type: "TWIN_LINKED" };                              // re-roll wound rolls
+  | { type: "ANTI"; keyword: string; threshold: number } // crit wound vs keyword on threshold+
+  | { type: "ASSAULT" } // can shoot after Advancing (no calc effect)
+  | { type: "BLAST" } // +1 attack per 5 defender models
+  | { type: "BUBBLECHUKKA" } // random S/AP/D (no calc effect)
+  | { type: "CONVERSION" } // at long range: crit hits on 4+
+  | { type: "CTAN_POWER" } // C'tan power attack (no calc effect)
+  | { type: "DEAD_CHOPPY" } // bonus attacks on charge (no calc effect)
+  | { type: "DEVASTATING_WOUNDS" } // crit wounds deal mortal wounds (skip save)
+  | { type: "EXTRA_ATTACKS" } // grants a bonus weapon attack (no calc effect)
+  | { type: "HARPOONED" } // target cannot move away (no calc effect)
+  | { type: "HAZARDOUS" } // self-inflicts mortal wounds (no calc effect)
+  | { type: "HEAVY" } // if Remained Stationary: +1 to hit
+  | { type: "HOOKED" } // target cannot move away (no calc effect)
+  | { type: "IGNORES_COVER" } // target does not benefit from cover
+  | { type: "IMPALED" } // target suffers movement penalty (no calc effect)
+  | { type: "INDIRECT_FIRE" } // −1 to hit; target gains cover
+  | { type: "LANCE" } // on the turn you charge: +1 to wound
+  | { type: "LETHAL_HITS" } // crit hits auto-wound (skip wound roll)
+  | { type: "LINKED_FIRE" } // LoS from friendly unit (no calc effect)
+  | { type: "MELTA"; value: number } // at half range: +X damage
+  | { type: "ONE_SHOT" } // weapon may only be fired once per battle (no calc effect)
+  | { type: "OVERCHARGE" } // increased power mode (no calc effect)
+  | { type: "PISTOL" } // can shoot in engagement range (no calc effect)
+  | { type: "PLASMA_WARHEAD" } // plasma warhead effect (no calc effect)
+  | { type: "PRECISION" } // target Characters directly (no calc effect)
+  | { type: "PSYCHIC" } // psychic weapon keyword (no calc effect)
+  | { type: "PSYCHIC_ASSASSIN" } // psychic assassin effect (no calc effect)
+  | { type: "RAPID_FIRE"; value: DiceExpression } // at half range: +X attacks
+  | { type: "REVERBERATING_SUMMONS" } // summons additional models (no calc effect)
+  | { type: "SNAGGED" } // target cannot move away (no calc effect)
+  | { type: "SUSTAINED_HITS"; value: DiceExpression } // each crit hit generates N extra hits
+  | { type: "TORRENT" } // auto-hits (no hit roll needed)
+  | { type: "TWIN_LINKED" }; // re-roll wound rolls
 
 /**
  * A fixed number or a dice expression string, e.g. "D6", "2D6", "D3+3".
@@ -45,19 +58,19 @@ export type RerollType = "ONES" | "ALL";
  *  - Boolean flags     : present if any source provides them
  */
 export type ModifierEffect =
-  | { type: "HIT_THRESHOLD_DELTA";    value: number }
-  | { type: "WOUND_THRESHOLD_DELTA";  value: number }
-  | { type: "SAVE_THRESHOLD_DELTA";   value: number }
+  | { type: "HIT_THRESHOLD_DELTA"; value: number }
+  | { type: "WOUND_THRESHOLD_DELTA"; value: number }
+  | { type: "SAVE_THRESHOLD_DELTA"; value: number }
   | { type: "INVULN_THRESHOLD_DELTA"; value: number }
   /** Crits on X+ for hit rolls — multiple sources: take lowest. */
-  | { type: "CRIT_HIT_THRESHOLD";   value: number }
+  | { type: "CRIT_HIT_THRESHOLD"; value: number }
   /** Crits on X+ for wound rolls (e.g. Anti) — multiple sources: take lowest. */
   | { type: "CRIT_WOUND_THRESHOLD"; value: number }
-  | { type: "HIT_REROLL";   reroll: RerollType }
+  | { type: "HIT_REROLL"; reroll: RerollType }
   | { type: "WOUND_REROLL"; reroll: RerollType }
-  | { type: "SAVE_REROLL";  reroll: RerollType }
+  | { type: "SAVE_REROLL"; reroll: RerollType }
   | { type: "EXTRA_ATTACKS"; value: number }
-  | { type: "EXTRA_DAMAGE";  value: number }
+  | { type: "EXTRA_DAMAGE"; value: number }
   | { type: "AUTO_HIT" }
   | { type: "LETHAL_HITS" }
   | { type: "SUSTAINED_HITS"; value: number }
@@ -69,7 +82,7 @@ export type Modifier = {
   /** Human-readable source label, e.g. "Twin-linked", "cover", "Heavy". */
   source: string;
   effect: ModifierEffect;
-}
+};
 
 // ─── Attacker context ─────────────────────────────────────────────────────────
 
@@ -80,16 +93,16 @@ export type Modifier = {
  */
 export type AttackerContext = {
   remainedStationary: boolean; // Heavy: +1 to hit
-  charged:            boolean; // Lance: +1 to wound
-  atHalfRange:        boolean; // Rapid Fire: +X attacks, Melta: +X damage
-  atLongRange:        boolean; // Conversion: crit hits on 4+
-}
+  charged: boolean; // Lance: +1 to wound
+  atHalfRange: boolean; // Rapid Fire: +X attacks, Melta: +X damage
+  atLongRange: boolean; // Conversion: crit hits on 4+
+};
 
 export const DEFAULT_ATTACKER_CONTEXT: AttackerContext = {
   remainedStationary: false,
-  charged:            false,
-  atHalfRange:        false,
-  atLongRange:        false,
+  charged: false,
+  atHalfRange: false,
+  atLongRange: false,
 };
 
 // ─── Defender context ─────────────────────────────────────────────────────────
@@ -100,7 +113,7 @@ export const DEFAULT_ATTACKER_CONTEXT: AttackerContext = {
  */
 export type DefenderContext = {
   inCover: boolean;
-}
+};
 
 export const DEFAULT_DEFENDER_CONTEXT: DefenderContext = {
   inCover: false,
@@ -115,12 +128,12 @@ export type WeaponProfile = {
   attacks: DiceExpression;
   /** Skill threshold (e.g. 3 means 3+). For BS (shooting) or WS (melee). */
   skill: number;
-  strength: number;
+  strength: DiceExpression;
   ap: number;
   /** Damage per unsaved wound. Fixed number or dice expression e.g. "D3". */
   damage: DiceExpression;
   abilities: WeaponAbility[];
-}
+};
 
 // ─── Unit profile ─────────────────────────────────────────────────────────────
 
@@ -128,14 +141,14 @@ export type UnitProfile = {
   id: string;
   name: string;
   toughness: number;
-  save: number;    // e.g. 3 means 3+
+  save: number; // e.g. 3 means 3+
   invuln?: number; // e.g. 5 means 5+ invulnerable
-  wounds: number;  // wounds per model
+  wounds: number; // wounds per model
   /** Unit keywords for Anti ability matching (uppercase, e.g. ["VEHICLE", "WALKER"]). */
   keywords: string[];
   shootingWeapons: WeaponProfile[];
   meleeWeapons: WeaponProfile[];
-}
+};
 
 // ─── Combat input ─────────────────────────────────────────────────────────────
 
@@ -145,7 +158,7 @@ export type FirstFighter = "attacker" | "defender";
 export type SelectedWeaponInput = {
   weapon: WeaponProfile;
   modelCount: number;
-}
+};
 
 export type CombatantInput = {
   unit: UnitProfile;
@@ -153,20 +166,20 @@ export type CombatantInput = {
   defenderContext?: DefenderContext;
   attackerContext?: AttackerContext;
   selectedWeapons: SelectedWeaponInput[];
-}
+};
 
 export type ShootingCombatInput = {
   phase: "shooting";
   attacker: CombatantInput;
   defender: CombatantInput;
-}
+};
 
 export type MeleeCombatInput = {
   phase: "melee";
   attacker: CombatantInput;
   defender: CombatantInput;
   firstFighter: FirstFighter;
-}
+};
 
 export type CombatInput = ShootingCombatInput | MeleeCombatInput;
 
@@ -182,7 +195,7 @@ export type CombatStep = {
   input: number;
   /** Expected successes / output from this step */
   average: number;
-}
+};
 
 /** Result for a single weapon within a directional combat resolution. */
 export type WeaponResult = {
@@ -191,7 +204,7 @@ export type WeaponResult = {
   steps: CombatStep[];
   averageDamage: number;
   averageModelsSlain: number;
-}
+};
 
 export type DirectionalResult = {
   attackerName: string;
@@ -201,7 +214,7 @@ export type DirectionalResult = {
   totalAverageDamage: number;
   /** Sum of models slain across all weapons (approximation — no overkill carryover between weapons) */
   totalAverageModelsSlain: number;
-}
+};
 
 export type CombatResult = {
   phase: Phase;
@@ -211,7 +224,7 @@ export type CombatResult = {
   counterattack?: DirectionalResult;
   /** If melee and firstFighter = defender, note that primary was resolved second. */
   firstFighterNote?: string;
-}
+};
 
 // ─── Form / LLM types ─────────────────────────────────────────────────────────
 
@@ -223,7 +236,7 @@ export type CombatResult = {
 export type SelectedWeapon = {
   weaponName: string;
   modelCount?: number;
-}
+};
 
 /** The structured form state that drives both UI and calculator */
 export type CombatFormState = {
@@ -239,5 +252,5 @@ export type CombatFormState = {
   /** Ordered list of selected melee weapons for the defender (used for melee counterattack). */
   defenderWeapons: SelectedWeapon[];
   defenderContext: AttackerContext; // used for melee counterattack
-  firstFighter: FirstFighter;       // only relevant for melee
-}
+  firstFighter: FirstFighter; // only relevant for melee
+};

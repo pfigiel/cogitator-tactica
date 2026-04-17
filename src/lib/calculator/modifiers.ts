@@ -34,7 +34,9 @@ export const resolveWeaponModifiers = (
 ): Modifier[] => {
   const modifiers: Modifier[] = [];
 
-  const hasIgnoresCover = weapon.abilities.some((a) => a.type === "IGNORES_COVER");
+  const hasIgnoresCover = weapon.abilities.some(
+    (a) => a.type === "IGNORES_COVER",
+  );
 
   // Cover: grants defender +1 to save (SAVE_THRESHOLD_DELTA −1 = easier save for defender).
   // Negated if the weapon has Ignores Cover.
@@ -63,7 +65,10 @@ export const resolveWeaponModifiers = (
       case "BLAST":
         modifiers.push({
           source: "Blast",
-          effect: { type: "EXTRA_ATTACKS", value: Math.floor(defenderModelCount / 5) },
+          effect: {
+            type: "EXTRA_ATTACKS",
+            value: Math.floor(defenderModelCount / 5),
+          },
         });
         break;
 
@@ -140,7 +145,7 @@ export const resolveWeaponModifiers = (
         break;
 
       case "RAPID_FIRE":
-        if (context.atHalfRange) {
+        if (context.atHalfRange && typeof ability.value === "number") {
           modifiers.push({
             source: `Rapid Fire (${ability.value})`,
             effect: { type: "EXTRA_ATTACKS", value: ability.value },
@@ -149,10 +154,12 @@ export const resolveWeaponModifiers = (
         break;
 
       case "SUSTAINED_HITS":
-        modifiers.push({
-          source: `Sustained Hits (${ability.value})`,
-          effect: { type: "SUSTAINED_HITS", value: ability.value },
-        });
+        if (typeof ability.value === "number") {
+          modifiers.push({
+            source: `Sustained Hits (${ability.value})`,
+            effect: { type: "SUSTAINED_HITS", value: ability.value },
+          });
+        }
         break;
 
       case "TORRENT":
@@ -171,11 +178,24 @@ export const resolveWeaponModifiers = (
 
       // ── No-op abilities (stored in type system for UI display only) ──────────
       case "ASSAULT":
+      case "BUBBLECHUKKA":
+      case "CTAN_POWER":
+      case "DEAD_CHOPPY":
+      case "EXTRA_ATTACKS":
+      case "HARPOONED":
       case "HAZARDOUS":
+      case "HOOKED":
+      case "IMPALED":
       case "LINKED_FIRE":
+      case "ONE_SHOT":
+      case "OVERCHARGE":
       case "PISTOL":
+      case "PLASMA_WARHEAD":
       case "PRECISION":
       case "PSYCHIC":
+      case "PSYCHIC_ASSASSIN":
+      case "REVERBERATING_SUMMONS":
+      case "SNAGGED":
         break;
     }
   }
@@ -208,7 +228,10 @@ export const applyAndClampDelta = (
 ): number => {
   const rawTotal = modifiers
     .filter((m) => m.effect.type === type)
-    .reduce((sum, m) => sum + (m.effect as { type: string; value: number }).value, 0);
+    .reduce(
+      (sum, m) => sum + (m.effect as { type: string; value: number }).value,
+      0,
+    );
   return base + Math.max(-1, Math.min(1, rawTotal));
 };
 
@@ -244,14 +267,22 @@ export const effectiveReroll = (
 };
 
 /** Sum all EXTRA_ATTACKS values. No cap (not a roll modifier). */
-export const totalExtraAttacks = (modifiers: Modifier[]): number => modifiers
+export const totalExtraAttacks = (modifiers: Modifier[]): number =>
+  modifiers
     .filter((m) => m.effect.type === "EXTRA_ATTACKS")
-    .reduce((sum, m) => sum + (m.effect as { type: string; value: number }).value, 0);
+    .reduce(
+      (sum, m) => sum + (m.effect as { type: string; value: number }).value,
+      0,
+    );
 
 /** Sum all EXTRA_DAMAGE values. No cap (not a roll modifier). */
-export const totalExtraDamage = (modifiers: Modifier[]): number => modifiers
+export const totalExtraDamage = (modifiers: Modifier[]): number =>
+  modifiers
     .filter((m) => m.effect.type === "EXTRA_DAMAGE")
-    .reduce((sum, m) => sum + (m.effect as { type: string; value: number }).value, 0);
+    .reduce(
+      (sum, m) => sum + (m.effect as { type: string; value: number }).value,
+      0,
+    );
 
 /**
  * Returns the maximum SUSTAINED_HITS value across sources.

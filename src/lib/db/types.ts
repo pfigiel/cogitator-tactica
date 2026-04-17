@@ -22,7 +22,7 @@ export const toWeaponProfile = (db: DbWeapon): WeaponProfile => ({
   name: db.name,
   attacks: parseDiceExpr(db.attacks),
   skill: db.skill,
-  strength: db.strength,
+  strength: parseDiceExpr(db.strength),
   ap: db.ap,
   damage: parseDiceExpr(db.damage),
   abilities: db.abilities as WeaponAbility[],

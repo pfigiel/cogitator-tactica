@@ -25,7 +25,7 @@ export type StepCounts = {
   unsavedWounds: number;
   damage: number;
   modelsSlain: number;
-}
+};
 
 /** S vs T wound threshold per 10th edition core rules. */
 const woundThreshold = (strength: number, toughness: number): number => {
@@ -78,8 +78,16 @@ export const simulateWeaponOnce = (
 
   // ── Step 2: Hit rolls ─────────────────────────────────────────────────────────
   const isAutoHit = hasModifier(modifiers, "AUTO_HIT");
-  const hitThreshold = applyAndClampDelta(weapon.skill, modifiers, "HIT_THRESHOLD_DELTA");
-  const critHitThreshold = effectiveCritThreshold(modifiers, "CRIT_HIT_THRESHOLD", 6);
+  const hitThreshold = applyAndClampDelta(
+    weapon.skill,
+    modifiers,
+    "HIT_THRESHOLD_DELTA",
+  );
+  const critHitThreshold = effectiveCritThreshold(
+    modifiers,
+    "CRIT_HIT_THRESHOLD",
+    6,
+  );
   const hitReroll = effectiveReroll(modifiers, "HIT_REROLL");
   const sustainedHitsValue = effectiveSustainedHits(modifiers);
   const hasLethalHits = hasModifier(modifiers, "LETHAL_HITS");
@@ -106,9 +114,20 @@ export const simulateWeaponOnce = (
   const totalHits = normalHits + critHits;
 
   // ── Step 3: Wound rolls ───────────────────────────────────────────────────────
-  const baseWoundThresh = woundThreshold(weapon.strength, defenderUnit.toughness);
-  const effectiveWoundThresh = applyAndClampDelta(baseWoundThresh, modifiers, "WOUND_THRESHOLD_DELTA");
-  const critWoundThreshold = effectiveCritThreshold(modifiers, "CRIT_WOUND_THRESHOLD", 6);
+  const baseWoundThresh = woundThreshold(
+    rng.dice(weapon.strength),
+    defenderUnit.toughness,
+  );
+  const effectiveWoundThresh = applyAndClampDelta(
+    baseWoundThresh,
+    modifiers,
+    "WOUND_THRESHOLD_DELTA",
+  );
+  const critWoundThreshold = effectiveCritThreshold(
+    modifiers,
+    "CRIT_WOUND_THRESHOLD",
+    6,
+  );
   const woundReroll = effectiveReroll(modifiers, "WOUND_REROLL");
   const hasDevastatingWounds = hasModifier(modifiers, "DEVASTATING_WOUNDS");
 
@@ -134,14 +153,21 @@ export const simulateWeaponOnce = (
 
   // ── Step 4: Saving throws ─────────────────────────────────────────────────────
   // Mortal wounds (Devastating Wounds) bypass saves. Auto-wounds and normal wounds require saves.
-  const armorSave = applyAndClampDelta(defenderUnit.save + weapon.ap, modifiers, "SAVE_THRESHOLD_DELTA");
+  const armorSave = applyAndClampDelta(
+    defenderUnit.save + weapon.ap,
+    modifiers,
+    "SAVE_THRESHOLD_DELTA",
+  );
   const invuln = defenderUnit.invuln;
-  const effectiveInvuln = invuln !== undefined
-    ? applyAndClampDelta(invuln, modifiers, "INVULN_THRESHOLD_DELTA")
-    : undefined;
+  const effectiveInvuln =
+    invuln !== undefined
+      ? applyAndClampDelta(invuln, modifiers, "INVULN_THRESHOLD_DELTA")
+      : undefined;
   const saveThreshold = Math.max(
     2,
-    effectiveInvuln !== undefined ? Math.min(armorSave, effectiveInvuln) : armorSave,
+    effectiveInvuln !== undefined
+      ? Math.min(armorSave, effectiveInvuln)
+      : armorSave,
   );
 
   const woundsRequiringSave = autoWounds + normalWounds;
@@ -188,5 +214,12 @@ export const simulateWeaponOnce = (
     }
   }
 
-  return { attacks: totalAttacks, hits: totalHits, wounds: totalWounds, unsavedWounds: totalUnsaved, damage: totalDamage, modelsSlain };
+  return {
+    attacks: totalAttacks,
+    hits: totalHits,
+    wounds: totalWounds,
+    unsavedWounds: totalUnsaved,
+    damage: totalDamage,
+    modelsSlain,
+  };
 };

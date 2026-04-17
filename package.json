@@ -13,7 +13,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "import-units": "tsx scripts/import-wahapedia/index.ts",
-    "generate-embeddings": "tsx scripts/generate-embeddings/index.ts"
+    "generate-embeddings": "tsx scripts/generate-embeddings/index.ts",
+    "db:dump": "dotenv -- sh -c 'mkdir -p backups && pg_dump \"$DATABASE_URL\" -Fc -f \"backups/$(date -u +%Y-%m-%dT%H-%M-%S).dump\"'"
   },
   "private": true,
   "dependencies": {

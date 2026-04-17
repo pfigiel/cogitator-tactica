@@ -3,30 +3,35 @@ import type { WeaponAbility } from "../../src/lib/calculator/types";
 // ─── Simple ability lookup table ──────────────────────────────────────────────
 // Key: normalized token (uppercase, whitespace-trimmed).
 // Adding a new no-parameter ability: add one line here.
-//
-// Intentionally absent tokens (generate [WARN] on import, by design):
-//   "EXTRA ATTACKS"    — grants a second bonus weapon attack; not a modifier on the
-//                        weapon itself but a rule that adds extra weapon activations.
-//                        No WeaponAbility equivalent; acceptable data loss.
-//   "ONE SHOT"         — weapon may only be fired once per battle; no calculator effect.
-//   "SUSTAINED HITS D3" / "RAPID FIRE D6" — dice-valued parameters not yet supported
-//                        by the parameterized parsers (which only handle integers).
 
 const ABILITY_MAP: Record<string, WeaponAbility> = {
   ASSAULT: { type: "ASSAULT" },
   BLAST: { type: "BLAST" },
+  BUBBLECHUKKA: { type: "BUBBLECHUKKA" },
   CONVERSION: { type: "CONVERSION" },
+  "C'TAN POWER": { type: "CTAN_POWER" },
+  "DEAD CHOPPY": { type: "DEAD_CHOPPY" },
   "DEVASTATING WOUNDS": { type: "DEVASTATING_WOUNDS" },
+  "EXTRA ATTACKS": { type: "EXTRA_ATTACKS" },
+  HARPOONED: { type: "HARPOONED" },
   HAZARDOUS: { type: "HAZARDOUS" },
   HEAVY: { type: "HEAVY" },
+  HOOKED: { type: "HOOKED" },
   "IGNORES COVER": { type: "IGNORES_COVER" },
+  IMPALED: { type: "IMPALED" },
   "INDIRECT FIRE": { type: "INDIRECT_FIRE" },
   LANCE: { type: "LANCE" },
   "LETHAL HITS": { type: "LETHAL_HITS" },
   "LINKED FIRE": { type: "LINKED_FIRE" },
+  "ONE SHOT": { type: "ONE_SHOT" },
+  OVERCHARGE: { type: "OVERCHARGE" },
   PISTOL: { type: "PISTOL" },
+  "PLASMA WARHEAD": { type: "PLASMA_WARHEAD" },
   PRECISION: { type: "PRECISION" },
   PSYCHIC: { type: "PSYCHIC" },
+  "PSYCHIC ASSASSIN": { type: "PSYCHIC_ASSASSIN" },
+  "REVERBERATING SUMMONS": { type: "REVERBERATING_SUMMONS" },
+  SNAGGED: { type: "SNAGGED" },
   TORRENT: { type: "TORRENT" },
   "TWIN-LINKED": { type: "TWIN_LINKED" },
 };
@@ -42,8 +47,8 @@ type ParameterizedParser = {
 
 const PARAMETERIZED: ParameterizedParser[] = [
   {
-    // "ANTI-INFANTRY 4+", "ANTI-VEHICLE 2+", "ANTI-FLY 4+"
-    re: /^ANTI-(\w+)\s+(\d+)\+$/i,
+    // "ANTI-INFANTRY 4+", "ANTI-VEHICLE 2+", "ANTI-FLY 4+", "ANTI-EPIC HERO 2+"
+    re: /^ANTI-(.+?)\s+(\d+)\+$/i,
     parse: (m) => ({
       type: "ANTI",
       keyword: m[1].toUpperCase(),
@@ -56,14 +61,26 @@ const PARAMETERIZED: ParameterizedParser[] = [
     parse: (m) => ({ type: "MELTA", value: parseInt(m[1], 10) }),
   },
   {
-    // "RAPID FIRE 1", "RAPID FIRE 2", "RAPID FIRE 3"
-    re: /^RAPID FIRE\s+(\d+)$/i,
-    parse: (m) => ({ type: "RAPID_FIRE", value: parseInt(m[1], 10) }),
+    // "RAPID FIRE 1", "RAPID FIRE 2", "RAPID FIRE D3", "RAPID FIRE D6", "RAPID FIRE D6+3"
+    re: /^RAPID FIRE\s+(\d+|(?:\d+)?D(?:3|6)(?:[+-]\d+)?)$/i,
+    parse: (m) => {
+      const raw = m[1].toUpperCase();
+      return {
+        type: "RAPID_FIRE",
+        value: /^\d+$/.test(raw) ? parseInt(raw, 10) : raw,
+      };
+    },
   },
   {
-    // "SUSTAINED HITS 1", "SUSTAINED HITS 2"
-    re: /^SUSTAINED HITS\s+(\d+)$/i,
-    parse: (m) => ({ type: "SUSTAINED_HITS", value: parseInt(m[1], 10) }),
+    // "SUSTAINED HITS 1", "SUSTAINED HITS 2", "SUSTAINED HITS D3", "SUSTAINED HITS D6", "SUSTAINED HITS D6+3"
+    re: /^SUSTAINED HITS\s+(\d+|(?:\d+)?D(?:3|6)(?:[+-]\d+)?)$/i,
+    parse: (m) => {
+      const raw = m[1].toUpperCase();
+      return {
+        type: "SUSTAINED_HITS",
+        value: /^\d+$/.test(raw) ? parseInt(raw, 10) : raw,
+      };
+    },
   },
 ];
 

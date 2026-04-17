@@ -1,7 +1,4 @@
 import { parseArgs } from "node:util";
-import { execSync } from "node:child_process";
-import { mkdirSync } from "node:fs";
-import { join } from "node:path";
 import { parseAll } from "./parse";
 import { transform } from "./transform";
 import { upsertAll, updateAltNames, disconnect } from "./db";
@@ -24,21 +21,6 @@ const main = async () => {
       ? `Importing factions: ${factions_filter.join(", ")}`
       : "Importing all factions",
   );
-
-  // Backup current DB before making changes
-  const databaseUrl = process.env.DATABASE_URL;
-  if (!databaseUrl) throw new Error("DATABASE_URL is not set");
-
-  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-  const backupDir = join(process.cwd(), "backups");
-  const backupPath = join(backupDir, `${timestamp}.dump`);
-  mkdirSync(backupDir, { recursive: true });
-
-  console.log(`Backing up database to backups/${timestamp}.dump ...`);
-  execSync(`pg_dump "${databaseUrl}" -Fc -f "${backupPath}"`, {
-    stdio: "inherit",
-  });
-  console.log("Backup complete.");
 
   const data = await parseAll();
   const { units, warnings, countByFaction, factions } = transform(

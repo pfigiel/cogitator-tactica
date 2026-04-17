@@ -74,7 +74,7 @@ export const weaponFingerprint = (
   type: string,
   attacks: string | number,
   skill: number,
-  strength: number,
+  strength: string | number,
   ap: number,
   damage: string | number,
 ): string => `${name}|${type}|${attacks}|${skill}|${strength}|${ap}|${damage}`;
@@ -113,8 +113,8 @@ const buildWeapon = (
   }
 
   const skill = parseSkill(row.BS_WS);
-  const strength = parseInt(row.S, 10);
-  if (isNaN(strength)) {
+  const strength = parseDiceExpression(row.S);
+  if (strength === null) {
     warnings.push({
       unitName,
       weaponName: row.name,

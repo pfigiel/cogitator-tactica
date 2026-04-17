@@ -45,7 +45,7 @@ model Weapon {
   type        WeaponType
   attacks     String
   skill       Int
-  strength    Int
+  strength    String
   ap          Int
   damage      String
   abilities   Json
