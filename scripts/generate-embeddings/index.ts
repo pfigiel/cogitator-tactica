@@ -41,6 +41,7 @@ const main = async () => {
     const texts = batch.map((u) =>
       buildUnitEmbeddingText({
         name: u.name,
+        altNames: u.altNames,
         faction: factionNameById.get(u.factionId),
         meleeWeapons: u.unitWeapons
           .filter((uw) => uw.weapon.type === "melee")
