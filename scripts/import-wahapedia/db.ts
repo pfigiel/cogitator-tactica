@@ -98,8 +98,6 @@ export const upsertAll = async (
       }
     }
   });
-
-  await prisma.$disconnect();
 };
 
 export const updateAltNames = async (
@@ -112,3 +110,5 @@ export const updateAltNames = async (
     });
   }
 };
+
+export const disconnect = () => prisma.$disconnect();

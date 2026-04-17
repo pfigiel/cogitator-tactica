@@ -4,7 +4,7 @@ import { mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { parseAll } from "./parse";
 import { transform } from "./transform";
-import { upsertAll, updateAltNames } from "./db";
+import { upsertAll, updateAltNames, disconnect } from "./db";
 import { generateAltNames } from "./alt-names";
 
 const main = async () => {
@@ -74,7 +74,9 @@ const main = async () => {
   console.log("Done.");
 };
 
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+main()
+  .catch((err) => {
+    console.error(err);
+    process.exit(1);
+  })
+  .finally(() => disconnect());
