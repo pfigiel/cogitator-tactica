@@ -14,14 +14,13 @@ const main = async () => {
     options: {
       factions: {
         type: "string",
-        default: "SM,ORK",
       },
     },
   });
 
-  const factionFilter = (values.factions as string)
-    .split(",")
-    .map((f) => f.trim());
+  const factionFilter = values.factions
+    ? (values.factions as string).split(",").map((f) => f.trim())
+    : null;
 
   // Fetch faction name lookup from DB
   const factionRows = await prisma.faction.findMany({
@@ -30,7 +29,7 @@ const main = async () => {
   const factionNameById = new Map(factionRows.map((f) => [f.id, f.name]));
 
   const units = await prisma.unit.findMany({
-    where: { factionId: { in: factionFilter } },
+    where: factionFilter ? { factionId: { in: factionFilter } } : {},
     include: { unitWeapons: { include: { weapon: true } } },
   });
 

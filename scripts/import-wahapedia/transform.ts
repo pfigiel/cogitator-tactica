@@ -158,13 +158,15 @@ export type TransformResult = {
 
 export const transform = (
   data: ParsedData,
-  factions: string[],
+  factions?: string[],
 ): TransformResult => {
   const units: UnitWithFaction[] = [];
   const warnings: WeaponWarning[] = [];
   const slugToFp = new Map<string, string>();
   const fpToId = new Map<string, string>();
-  const countByFaction = new Map<string, number>(factions.map((f) => [f, 0]));
+  const countByFaction = new Map<string, number>(
+    factions ? factions.map((f) => [f, 0]) : [],
+  );
 
   // Index models and wargear by datasheet_id for O(1) lookup
   const modelsBySheet = new Map<string, typeof data.models>();
@@ -190,7 +192,7 @@ export const transform = (
 
   // Process each datasheet
   for (const sheet of data.datasheets) {
-    if (!factions.includes(sheet.faction_id)) continue;
+    if (factions && !factions.includes(sheet.faction_id)) continue;
 
     const modelLines = modelsBySheet.get(sheet.id) ?? [];
     if (modelLines.length === 0) continue;

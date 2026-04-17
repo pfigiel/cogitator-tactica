@@ -11,15 +11,19 @@ const main = async () => {
   const { values } = parseArgs({
     args: process.argv.slice(2),
     options: {
-      factions: { type: "string", default: "SM,ORK" },
+      factions: { type: "string" },
     },
   });
 
-  const factions_filter = (values.factions as string)
-    .split(",")
-    .map((f) => f.trim().toUpperCase());
+  const factions_filter = values.factions
+    ? (values.factions as string).split(",").map((f) => f.trim().toUpperCase())
+    : null;
 
-  console.log(`Importing factions: ${factions_filter.join(", ")}`);
+  console.log(
+    factions_filter
+      ? `Importing factions: ${factions_filter.join(", ")}`
+      : "Importing all factions",
+  );
 
   // Backup current DB before making changes
   const databaseUrl = process.env.DATABASE_URL;
@@ -39,15 +43,15 @@ const main = async () => {
   const data = await parseAll();
   const { units, warnings, countByFaction, factions } = transform(
     data,
-    factions_filter,
+    factions_filter ?? undefined,
   );
 
   for (const w of warnings) {
     console.warn(`[WARN] ${w.unitName} / ${w.weaponName}: ${w.message}`);
   }
 
-  const byFaction = factions_filter
-    .map((f) => `${f}: ${countByFaction.get(f) ?? 0}`)
+  const byFaction = [...countByFaction.entries()]
+    .map(([f, n]) => `${f}: ${n}`)
     .join(", ");
   console.log(`Importing ${units.length} units (${byFaction}).`);
 
