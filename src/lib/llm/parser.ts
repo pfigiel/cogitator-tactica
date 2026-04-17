@@ -5,7 +5,11 @@ import {
   SelectedWeapon,
   DEFAULT_ATTACKER_CONTEXT,
 } from "@/lib/calculator/types";
-import { getUnit, searchUnitsByEmbedding } from "@/lib/db/units";
+import {
+  getUnit,
+  searchUnitsByEmbedding,
+  searchUnitsByFuzzyNameMatch,
+} from "@/lib/db/units";
 import { getAllFactions } from "@/lib/db/factions";
 import type { FactionRecord } from "@/lib/db/factions";
 import { embedText } from "@/lib/embeddings/common/voyage";
@@ -160,13 +164,22 @@ const resolveUnits = async (
   ]);
 
   const [attackerMatches, defenderMatches] = await Promise.all([
-    searchUnitsByEmbedding(attackerEmbedding, 1, ctx.attackerFactionId),
-    searchUnitsByEmbedding(defenderEmbedding, 1, ctx.defenderFactionId),
+    searchUnitsByEmbedding(attackerEmbedding, 5, ctx.attackerFactionId),
+    searchUnitsByEmbedding(defenderEmbedding, 5, ctx.defenderFactionId),
   ]);
 
+  const attackerBest = searchUnitsByFuzzyNameMatch(
+    ctx.attackerName,
+    attackerMatches,
+  );
+  const defenderBest = searchUnitsByFuzzyNameMatch(
+    ctx.defenderName,
+    defenderMatches,
+  );
+
   const [attackerUnit, defenderUnit] = await Promise.all([
-    attackerMatches[0] ? getUnit(attackerMatches[0].id) : null,
-    defenderMatches[0] ? getUnit(defenderMatches[0].id) : null,
+    attackerBest ? getUnit(attackerBest.id) : null,
+    defenderBest ? getUnit(defenderBest.id) : null,
   ]);
 
   return { attackerUnit, defenderUnit };

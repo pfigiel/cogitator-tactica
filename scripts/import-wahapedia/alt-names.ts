@@ -2,6 +2,7 @@ import Anthropic from "@anthropic-ai/sdk";
 
 const client = new Anthropic();
 const CHUNK_SIZE = 30;
+const MAX_CONCURRENT = 4;
 
 const SYSTEM_PROMPT = `You are generating alternative names for Warhammer 40,000 units.
 For each unit, generate up to 3 alternative names that players commonly use to refer to that unit.
@@ -47,18 +48,23 @@ export const generateAltNames = async (
     chunks.push(units.slice(i, i + CHUNK_SIZE));
   }
 
-  const chunkResults = await Promise.all(
-    chunks.map(async (chunk) => {
-      try {
-        return await callLlm(chunk, faction);
-      } catch (err) {
-        console.warn(
-          `[WARN] LLM call failed for chunk of ${chunk.length} units in faction ${faction}: ${err}`,
-        );
-        return {} as { [unitId: string]: string[] };
-      }
-    }),
-  );
+  const chunkResults: { [unitId: string]: string[] }[] = [];
+  for (let i = 0; i < chunks.length; i += MAX_CONCURRENT) {
+    const batch = chunks.slice(i, i + MAX_CONCURRENT);
+    const batchResults = await Promise.all(
+      batch.map(async (chunk) => {
+        try {
+          return await callLlm(chunk, faction);
+        } catch (err) {
+          console.warn(
+            `[WARN] LLM call failed for chunk of ${chunk.length} units in faction ${faction}: ${err}`,
+          );
+          return {} as { [unitId: string]: string[] };
+        }
+      }),
+    );
+    chunkResults.push(...batchResults);
+  }
 
   const merged: { [unitId: string]: string[] } = Object.assign(
     {},
