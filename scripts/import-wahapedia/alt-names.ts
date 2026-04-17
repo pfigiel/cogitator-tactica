@@ -48,7 +48,16 @@ export const generateAltNames = async (
   }
 
   const chunkResults = await Promise.all(
-    chunks.map((chunk) => callLlm(chunk, faction)),
+    chunks.map(async (chunk) => {
+      try {
+        return await callLlm(chunk, faction);
+      } catch (err) {
+        console.warn(
+          `[WARN] LLM call failed for chunk of ${chunk.length} units in faction ${faction}: ${err}`,
+        );
+        return {} as { [unitId: string]: string[] };
+      }
+    }),
   );
 
   const merged: { [unitId: string]: string[] } = Object.assign(
