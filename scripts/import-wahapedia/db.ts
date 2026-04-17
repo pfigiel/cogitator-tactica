@@ -101,3 +101,14 @@ export const upsertAll = async (
 
   await prisma.$disconnect();
 };
+
+export const updateAltNames = async (
+  results: { id: string; altNames: string[] }[],
+): Promise<void> => {
+  for (const { id, altNames } of results) {
+    await prisma.unit.update({
+      where: { id },
+      data: { altNames },
+    });
+  }
+};

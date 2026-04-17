@@ -4,7 +4,8 @@ import { mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { parseAll } from "./parse";
 import { transform } from "./transform";
-import { upsertAll } from "./db";
+import { upsertAll, updateAltNames } from "./db";
+import { generateAltNames } from "./alt-names";
 
 const main = async () => {
   const { values } = parseArgs({
@@ -51,6 +52,25 @@ const main = async () => {
   console.log(`Importing ${units.length} units (${byFaction}).`);
 
   await upsertAll(units, factions);
+  console.log("Units upserted.");
+
+  const factionNameById = new Map(factions.map((f) => [f.id, f.name]));
+  const unitsByFaction = new Map<string, { id: string; name: string }[]>();
+  for (const unit of units) {
+    const list = unitsByFaction.get(unit.factionId) ?? [];
+    list.push({ id: unit.id, name: unit.name });
+    unitsByFaction.set(unit.factionId, list);
+  }
+
+  for (const [factionId, factionUnits] of unitsByFaction) {
+    const factionName = factionNameById.get(factionId) ?? factionId;
+    console.log(
+      `Generating alt names for ${factionName} (${factionUnits.length} units)...`,
+    );
+    const altNames = await generateAltNames(factionUnits, factionName);
+    await updateAltNames(altNames);
+  }
+
   console.log("Done.");
 };
 
