@@ -56,4 +56,28 @@ describe("buildUnitEmbeddingText", () => {
     });
     expect(result).toBe("Unit: Ork Boyz\nFaction: Orks\nMelee weapons: Choppa");
   });
+
+  it("includes alt names line as second line when altNames is provided", () => {
+    const result = buildUnitEmbeddingText({
+      name: "Intercessor Squad",
+      altNames: ["Intercessors", "Space Marine Intercessors"],
+      faction: "Space Marines",
+    });
+    expect(result).toBe(
+      "Unit: Intercessor Squad\nAlternative names: Intercessors, Space Marine Intercessors\nFaction: Space Marines",
+    );
+  });
+
+  it("omits alt names line when altNames is an empty array", () => {
+    const result = buildUnitEmbeddingText({
+      name: "Azrael",
+      altNames: [],
+    });
+    expect(result).toBe("Unit: Azrael");
+  });
+
+  it("omits alt names line when altNames is undefined", () => {
+    const result = buildUnitEmbeddingText({ name: "Azrael" });
+    expect(result).toBe("Unit: Azrael");
+  });
 });
