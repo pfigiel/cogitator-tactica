@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import {
   UnitProfile,
+  WeaponProfile,
   CombatFormState,
   SelectedWeapon,
   DEFAULT_ATTACKER_CONTEXT,
@@ -19,6 +20,8 @@ const client = new Anthropic(); // reads ANTHROPIC_API_KEY from env
 
 // ─── ParsedContext: Pure JSON parsing helper ────────────────────────────────────
 
+export type WeaponHint = { name: string; count?: number };
+
 export type ParsedContext = {
   attackerName: string;
   defenderName: string;
@@ -27,10 +30,22 @@ export type ParsedContext = {
   phase: "shooting" | "melee";
   defenderInCover: boolean;
   firstFighter: "attacker" | "defender";
-  attackerWeaponNames: string[];
-  defenderWeaponNames: string[];
+  attackerWeaponHints: WeaponHint[];
+  defenderWeaponHints: WeaponHint[];
   attackerFactionId?: string;
   defenderFactionId?: string;
+};
+
+const parseWeaponHints = (raw: unknown): WeaponHint[] => {
+  if (!Array.isArray(raw)) return [];
+  return raw.flatMap((item) => {
+    if (!item || typeof item !== "object" || typeof item.name !== "string")
+      return [];
+    const hint: WeaponHint = { name: item.name };
+    if (item.count != null && Number.isFinite(Number(item.count)))
+      hint.count = Math.max(1, Number(item.count));
+    return [hint];
+  });
 };
 
 export const parseContextFromJson = (text: string): ParsedContext => {
@@ -58,12 +73,8 @@ export const parseContextFromJson = (text: string): ParsedContext => {
     phase: parsed.phase === "melee" ? "melee" : "shooting",
     defenderInCover: Boolean(parsed.defenderInCover),
     firstFighter: parsed.firstFighter === "defender" ? "defender" : "attacker",
-    attackerWeaponNames: Array.isArray(parsed.attackerWeaponNames)
-      ? parsed.attackerWeaponNames.filter((w: unknown) => typeof w === "string")
-      : [],
-    defenderWeaponNames: Array.isArray(parsed.defenderWeaponNames)
-      ? parsed.defenderWeaponNames.filter((w: unknown) => typeof w === "string")
-      : [],
+    attackerWeaponHints: parseWeaponHints(parsed.attackerWeaponHints),
+    defenderWeaponHints: parseWeaponHints(parsed.defenderWeaponHints),
     attackerFactionId:
       typeof parsed.attackerFactionId === "string"
         ? parsed.attackerFactionId
@@ -238,25 +249,36 @@ type WeaponResolution = {
   defenderWeapons: SelectedWeapon[];
 };
 
-// Fallback is resolved to a name by the caller (not a pool), decoupling
-// this function from phase-specific pool selection logic.
+const normalizeWeaponName = (s: string) =>
+  s
+    .toLowerCase()
+    .replace(/[''`\u2019]/g, "'")
+    .trim();
+
 const parseWeaponList = (
   raw: unknown,
-  fallbackName: string | undefined,
+  pool: WeaponProfile[],
+  fallbackId: string | undefined,
 ): SelectedWeapon[] => {
   if (Array.isArray(raw) && raw.length > 0) {
     const result: SelectedWeapon[] = raw
       .filter((item) => item && typeof item.weaponName === "string")
-      .map((item) => ({
-        weaponName: item.weaponName as string,
-        modelCount:
+      .flatMap((item) => {
+        const match = pool.find(
+          (w) =>
+            normalizeWeaponName(w.name) ===
+            normalizeWeaponName(item.weaponName as string),
+        );
+        if (!match) return [];
+        const modelCount =
           item.modelCount != null && Number.isFinite(Number(item.modelCount))
             ? Math.max(1, Number(item.modelCount))
-            : undefined,
-      }));
+            : undefined;
+        return [{ weaponId: match.id, modelCount }];
+      });
     if (result.length > 0) return result;
   }
-  return fallbackName ? [{ weaponName: fallbackName }] : [];
+  return fallbackId ? [{ weaponId: fallbackId }] : [];
 };
 
 const resolveWeapons = async (
@@ -318,13 +340,18 @@ const resolveWeapons = async (
   const weaponResult = {
     attackerWeapons: parseWeaponList(
       parsed.attackerWeapons,
-      attackerPool[0]?.name,
+      attackerPool,
+      attackerPool[0]?.id,
     ),
     defenderWeapons:
       phase === "melee"
-        ? parseWeaponList(parsed.defenderWeapons, defenderPool[0]?.name)
+        ? parseWeaponList(
+            parsed.defenderWeapons,
+            defenderPool,
+            defenderPool[0]?.id,
+          )
         : defenderPool.length > 0
-          ? [{ weaponName: defenderPool[0].name }]
+          ? [{ weaponId: defenderPool[0].id }]
           : [],
   };
   console.log("[parser] call2 parsed:", weaponResult);
@@ -353,11 +380,11 @@ export const parsePrompt = async (prompt: string): Promise<CombatFormState> => {
 
   let attackerWeapons: SelectedWeapon[] =
     defaultAttackerPool.length > 0
-      ? [{ weaponName: defaultAttackerPool[0].name }]
+      ? [{ weaponId: defaultAttackerPool[0].id }]
       : [];
   let defenderWeapons: SelectedWeapon[] =
     defaultDefenderPool.length > 0
-      ? [{ weaponName: defaultDefenderPool[0].name }]
+      ? [{ weaponId: defaultDefenderPool[0].id }]
       : [];
 
   if (

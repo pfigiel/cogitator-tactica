@@ -1,6 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
 
-// Mock transitive deps that have ESM directory-import issues in Vitest
 vi.mock("@/lib/embeddings/common/voyage", () => ({
   embedText: vi.fn(),
   embedTexts: vi.fn(),
@@ -13,6 +12,59 @@ vi.mock("@/lib/db/units", () => ({
 import { parseContextFromJson } from "./parser";
 
 describe("parseContextFromJson", () => {
+  it("parses weapon hints with counts", () => {
+    const json = JSON.stringify({
+      attackerName: "Space Marine Intercessors",
+      defenderName: "Ork Boyz",
+      attackerCount: 10,
+      defenderCount: 20,
+      phase: "melee",
+      defenderInCover: false,
+      firstFighter: "attacker",
+      attackerWeaponHints: [{ name: "Bolt Rifle" }],
+      defenderWeaponHints: [
+        { name: "Choppa", count: 19 },
+        { name: "Big Choppa", count: 1 },
+      ],
+    });
+    const result = parseContextFromJson(json);
+    expect(result.attackerWeaponHints).toEqual([{ name: "Bolt Rifle" }]);
+    expect(result.defenderWeaponHints).toEqual([
+      { name: "Choppa", count: 19 },
+      { name: "Big Choppa", count: 1 },
+    ]);
+  });
+
+  it("drops invalid count values (non-finite numbers)", () => {
+    const json = JSON.stringify({
+      attackerName: "A",
+      defenderName: "B",
+      attackerWeaponHints: [{ name: "Sword", count: "lots" }],
+      defenderWeaponHints: [{ name: "Axe", count: null }],
+    });
+    const result = parseContextFromJson(json);
+    expect(result.attackerWeaponHints).toEqual([{ name: "Sword" }]);
+    expect(result.defenderWeaponHints).toEqual([{ name: "Axe" }]);
+  });
+
+  it("drops entries that are not objects with a string name", () => {
+    const json = JSON.stringify({
+      attackerName: "A",
+      defenderName: "B",
+      attackerWeaponHints: [{ name: "Valid" }, "bare string", 42, null],
+      defenderWeaponHints: [],
+    });
+    const result = parseContextFromJson(json);
+    expect(result.attackerWeaponHints).toEqual([{ name: "Valid" }]);
+  });
+
+  it("defaults to empty arrays when hints are absent", () => {
+    const json = JSON.stringify({ attackerName: "A", defenderName: "B" });
+    const result = parseContextFromJson(json);
+    expect(result.attackerWeaponHints).toEqual([]);
+    expect(result.defenderWeaponHints).toEqual([]);
+  });
+
   it("parses a complete valid response", () => {
     const json = JSON.stringify({
       attackerName: "Space Marine Intercessors",
@@ -22,8 +74,8 @@ describe("parseContextFromJson", () => {
       phase: "shooting",
       defenderInCover: false,
       firstFighter: "attacker",
-      attackerWeaponNames: ["Bolt Rifle"],
-      defenderWeaponNames: [],
+      attackerWeaponHints: [{ name: "Bolt Rifle" }],
+      defenderWeaponHints: [],
     });
     const result = parseContextFromJson(json);
     expect(result).toEqual({
@@ -34,8 +86,8 @@ describe("parseContextFromJson", () => {
       phase: "shooting",
       defenderInCover: false,
       firstFighter: "attacker",
-      attackerWeaponNames: ["Bolt Rifle"],
-      defenderWeaponNames: [],
+      attackerWeaponHints: [{ name: "Bolt Rifle" }],
+      defenderWeaponHints: [],
     });
   });
 
@@ -50,8 +102,8 @@ describe("parseContextFromJson", () => {
     expect(result.defenderCount).toBe(1);
     expect(result.defenderInCover).toBe(false);
     expect(result.firstFighter).toBe("attacker");
-    expect(result.attackerWeaponNames).toEqual([]);
-    expect(result.defenderWeaponNames).toEqual([]);
+    expect(result.attackerWeaponHints).toEqual([]);
+    expect(result.defenderWeaponHints).toEqual([]);
   });
 
   it("throws if attackerName or defenderName is missing", () => {
@@ -85,8 +137,8 @@ describe("parseContextFromJson faction fields", () => {
     phase: "shooting",
     defenderInCover: false,
     firstFighter: "attacker",
-    attackerWeaponNames: [],
-    defenderWeaponNames: [],
+    attackerWeaponHints: [],
+    defenderWeaponHints: [],
   };
 
   it("parses attackerFactionId and defenderFactionId when present", () => {
