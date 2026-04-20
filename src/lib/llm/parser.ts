@@ -287,11 +287,6 @@ const resolveWeapons = async (
   defenderUnit: UnitProfile | undefined,
   phase: "shooting" | "melee",
 ): Promise<WeaponResolution> => {
-  console.log(
-    "[parser] call2 input:",
-    ctx.attackerWeaponHints,
-    ctx.defenderWeaponHints,
-  );
   const message = await client.messages.create({
     model: "claude-haiku-4-5-20251001",
     max_tokens: 256,
@@ -323,8 +318,6 @@ const resolveWeapons = async (
   const rawText = message.content
     .filter((block) => block.type === "text")
     .map((block) => (block as { type: "text"; text: string }).text)[0];
-
-  console.log("[parser] call2 raw output:", rawText);
 
   const jsonMatch = rawText.match(/\{[\s\S]*\}/);
   if (!jsonMatch)
@@ -362,7 +355,6 @@ const resolveWeapons = async (
           ? [{ weaponId: defenderPool[0].id }]
           : [],
   };
-  console.log("[parser] call2 parsed:", weaponResult);
   return weaponResult;
 };
 
@@ -422,6 +414,5 @@ export const parsePrompt = async (prompt: string): Promise<CombatFormState> => {
     defenderContext: DEFAULT_ATTACKER_CONTEXT,
     firstFighter: ctx.firstFighter,
   };
-  console.log("[parser] parsePrompt result:", result);
   return result;
 };
