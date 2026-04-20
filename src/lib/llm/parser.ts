@@ -106,8 +106,8 @@ Return a JSON object with:
 - "phase": "shooting" | "melee" (default "shooting")
 - "defenderInCover": boolean (default false)
 - "firstFighter": "attacker" | "defender" (default "attacker")
-- "attackerWeaponNames": string[] — weapon names mentioned for the attacker (empty array if none)
-- "defenderWeaponNames": string[] — weapon names mentioned for the defender (empty array if none)
+- "attackerWeaponHints": array of { "name": string, "count": number | null } — weapons mentioned for the attacker; set "count" ONLY when a number is directly and explicitly stated in the prompt for that specific weapon; otherwise omit or set null. Never guess, infer, or distribute the total model count.
+- "defenderWeaponHints": array of { "name": string, "count": number | null } — same rules as attackerWeaponHints
 - "attackerFactionId": string | null — faction id ONLY if the attacker's faction is explicitly named in the prompt; null otherwise
 - "defenderFactionId": string | null — faction id ONLY if the defender's faction is explicitly named in the prompt; null otherwise
 
@@ -150,22 +150,22 @@ const resolveUnits = async (
   const attackerText = buildUnitEmbeddingText({
     name: ctx.attackerName,
     faction: getFactionName(ctx.attackerFactionId),
-    ...(weaponLabel === "ranged" && ctx.attackerWeaponNames.length
-      ? { rangedWeapons: ctx.attackerWeaponNames }
+    ...(weaponLabel === "ranged" && ctx.attackerWeaponHints.length
+      ? { rangedWeapons: ctx.attackerWeaponHints.map((h) => h.name) }
       : {}),
-    ...(weaponLabel === "melee" && ctx.attackerWeaponNames.length
-      ? { meleeWeapons: ctx.attackerWeaponNames }
+    ...(weaponLabel === "melee" && ctx.attackerWeaponHints.length
+      ? { meleeWeapons: ctx.attackerWeaponHints.map((h) => h.name) }
       : {}),
   });
 
   const defenderText = buildUnitEmbeddingText({
     name: ctx.defenderName,
     faction: getFactionName(ctx.defenderFactionId),
-    ...(weaponLabel === "ranged" && ctx.defenderWeaponNames.length
-      ? { rangedWeapons: ctx.defenderWeaponNames }
+    ...(weaponLabel === "ranged" && ctx.defenderWeaponHints.length
+      ? { rangedWeapons: ctx.defenderWeaponHints.map((h) => h.name) }
       : {}),
-    ...(weaponLabel === "melee" && ctx.defenderWeaponNames.length
-      ? { meleeWeapons: ctx.defenderWeaponNames }
+    ...(weaponLabel === "melee" && ctx.defenderWeaponHints.length
+      ? { meleeWeapons: ctx.defenderWeaponHints.map((h) => h.name) }
       : {}),
   });
 
@@ -289,8 +289,8 @@ const resolveWeapons = async (
 ): Promise<WeaponResolution> => {
   console.log(
     "[parser] call2 input:",
-    ctx.attackerWeaponNames,
-    ctx.defenderWeaponNames,
+    ctx.attackerWeaponHints,
+    ctx.defenderWeaponHints,
   );
   const message = await client.messages.create({
     model: "claude-haiku-4-5-20251001",
@@ -301,11 +301,19 @@ const resolveWeapons = async (
       {
         role: "user",
         content: [
-          ctx.attackerWeaponNames.length > 0
-            ? `Attacker weapons mentioned: ${ctx.attackerWeaponNames.join(", ")}`
+          ctx.attackerWeaponHints.length > 0
+            ? `Attacker weapons mentioned: ${ctx.attackerWeaponHints
+                .map((h) =>
+                  h.count != null ? `${h.name} (${h.count})` : h.name,
+                )
+                .join(", ")}`
             : "No specific attacker weapons mentioned.",
-          ctx.defenderWeaponNames.length > 0
-            ? `Defender weapons mentioned: ${ctx.defenderWeaponNames.join(", ")}`
+          ctx.defenderWeaponHints.length > 0
+            ? `Defender weapons mentioned: ${ctx.defenderWeaponHints
+                .map((h) =>
+                  h.count != null ? `${h.name} (${h.count})` : h.name,
+                )
+                .join(", ")}`
             : "No specific defender weapons mentioned.",
         ].join("\n"),
       },
@@ -388,8 +396,8 @@ export const parsePrompt = async (prompt: string): Promise<CombatFormState> => {
       : [];
 
   if (
-    ctx.attackerWeaponNames.length > 0 ||
-    ctx.defenderWeaponNames.length > 0
+    ctx.attackerWeaponHints.length > 0 ||
+    ctx.defenderWeaponHints.length > 0
   ) {
     const weaponResolution = await resolveWeapons(
       ctx,
