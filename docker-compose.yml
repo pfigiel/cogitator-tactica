@@ -2,15 +2,16 @@ services:
   postgres:
     image: pgvector/pgvector:pg17
     environment:
-      POSTGRES_USER: wh_calc
-      POSTGRES_PASSWORD: wh_calc
-      POSTGRES_DB: wh_calc
+      POSTGRES_USER: cogitator_tactica
+      POSTGRES_PASSWORD: cogitator_tactica
+      POSTGRES_DB: cogitator_tactica
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U wh_calc -d wh_calc"]
+      test:
+        ["CMD-SHELL", "pg_isready -U cogitator_tactica -d cogitator_tactica"]
       interval: 5s
       timeout: 5s
       retries: 5
