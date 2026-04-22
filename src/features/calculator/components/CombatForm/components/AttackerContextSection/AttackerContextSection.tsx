@@ -1,27 +1,31 @@
-import { AttackerContext, SelectedWeapon, WeaponProfile } from "@/lib/calculator/types";
+import {
+  AttackerContext,
+  SelectedWeapon,
+  WeaponProfile,
+} from "@/lib/calculator/types";
 import { Checkbox, Stack } from "@/ui";
 import styles from "./AttackerContextSection.module.css";
 
 export const relevantContextFlags = (
   weapons: WeaponProfile[],
-  selected: SelectedWeapon[]
+  selected: SelectedWeapon[],
 ) => {
   const profiles = selected
-    .map((s) => weapons.find((w) => w.name === s.weaponName))
+    .map((s) => weapons.find((w) => w.id === s.weaponId))
     .filter((w): w is WeaponProfile => w !== undefined);
 
   return {
     showStationary: profiles.some((w) =>
-      w.abilities.some((a) => a.type === "HEAVY")
+      w.abilities.some((a) => a.type === "HEAVY"),
     ),
     showCharged: profiles.some((w) =>
-      w.abilities.some((a) => a.type === "LANCE")
+      w.abilities.some((a) => a.type === "LANCE"),
     ),
     showHalfRange: profiles.some((w) =>
-      w.abilities.some((a) => a.type === "RAPID_FIRE" || a.type === "MELTA")
+      w.abilities.some((a) => a.type === "RAPID_FIRE" || a.type === "MELTA"),
     ),
     showLongRange: profiles.some((w) =>
-      w.abilities.some((a) => a.type === "CONVERSION")
+      w.abilities.some((a) => a.type === "CONVERSION"),
     ),
   };
 };

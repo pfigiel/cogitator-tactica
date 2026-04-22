@@ -52,9 +52,9 @@ const CombatForm = ({
       ...state,
       phase,
       attackerWeapons:
-        attackerPool.length > 0 ? [{ weaponName: attackerPool[0].name }] : [],
+        attackerPool.length > 0 ? [{ weaponId: attackerPool[0].id }] : [],
       defenderWeapons:
-        defenderPool.length > 0 ? [{ weaponName: defenderPool[0].name }] : [],
+        defenderPool.length > 0 ? [{ weaponId: defenderPool[0].id }] : [],
     });
   };
 
@@ -68,7 +68,7 @@ const CombatForm = ({
     onChange({
       ...state,
       attackerUnitId: unitId,
-      attackerWeapons: pool.length > 0 ? [{ weaponName: pool[0].name }] : [],
+      attackerWeapons: pool.length > 0 ? [{ weaponId: pool[0].id }] : [],
     });
   };
 
@@ -79,100 +79,92 @@ const CombatForm = ({
       ...state,
       defenderUnitId: unitId,
       defenderWeapons:
-        meleeWeapons.length > 0 ? [{ weaponName: meleeWeapons[0].name }] : [],
+        meleeWeapons.length > 0 ? [{ weaponId: meleeWeapons[0].id }] : [],
     });
   };
 
-  const toggleAttackerWeapon = (weaponName: string) => {
+  const toggleAttackerWeapon = (weaponId: string) => {
     const isSelected = state.attackerWeapons.some(
-      (w) => w.weaponName === weaponName,
+      (w) => w.weaponId === weaponId,
     );
     if (isSelected) {
       onChange({
         ...state,
         attackerWeapons: state.attackerWeapons.filter(
-          (w) => w.weaponName !== weaponName,
+          (w) => w.weaponId !== weaponId,
         ),
       });
     } else {
       onChange({
         ...state,
-        attackerWeapons: [...state.attackerWeapons, { weaponName }],
+        attackerWeapons: [...state.attackerWeapons, { weaponId }],
       });
     }
   };
 
-  const setAttackerWeaponCount = (weaponName: string, count: number) => {
+  const setAttackerWeaponCount = (weaponId: string, count: number) => {
     onChange({
       ...state,
       attackerWeapons: state.attackerWeapons.map((w) =>
-        w.weaponName === weaponName ? { ...w, modelCount: count } : w,
+        w.weaponId === weaponId ? { ...w, modelCount: count } : w,
       ),
     });
   };
 
-  const moveAttackerWeaponUp = (weaponName: string) => {
-    const idx = state.attackerWeapons.findIndex(
-      (w) => w.weaponName === weaponName,
-    );
+  const moveAttackerWeaponUp = (weaponId: string) => {
+    const idx = state.attackerWeapons.findIndex((w) => w.weaponId === weaponId);
     if (idx <= 0) return;
     const next = [...state.attackerWeapons];
     [next[idx - 1], next[idx]] = [next[idx], next[idx - 1]];
     onChange({ ...state, attackerWeapons: next });
   };
 
-  const moveAttackerWeaponDown = (weaponName: string) => {
-    const idx = state.attackerWeapons.findIndex(
-      (w) => w.weaponName === weaponName,
-    );
+  const moveAttackerWeaponDown = (weaponId: string) => {
+    const idx = state.attackerWeapons.findIndex((w) => w.weaponId === weaponId);
     if (idx < 0 || idx >= state.attackerWeapons.length - 1) return;
     const next = [...state.attackerWeapons];
     [next[idx], next[idx + 1]] = [next[idx + 1], next[idx]];
     onChange({ ...state, attackerWeapons: next });
   };
 
-  const toggleDefenderWeapon = (weaponName: string) => {
+  const toggleDefenderWeapon = (weaponId: string) => {
     const isSelected = state.defenderWeapons.some(
-      (w) => w.weaponName === weaponName,
+      (w) => w.weaponId === weaponId,
     );
     if (isSelected) {
       onChange({
         ...state,
         defenderWeapons: state.defenderWeapons.filter(
-          (w) => w.weaponName !== weaponName,
+          (w) => w.weaponId !== weaponId,
         ),
       });
     } else {
       onChange({
         ...state,
-        defenderWeapons: [...state.defenderWeapons, { weaponName }],
+        defenderWeapons: [...state.defenderWeapons, { weaponId }],
       });
     }
   };
 
-  const setDefenderWeaponCount = (weaponName: string, count: number) => {
+  const setDefenderWeaponCount = (weaponId: string, count: number) => {
     onChange({
       ...state,
       defenderWeapons: state.defenderWeapons.map((w) =>
-        w.weaponName === weaponName ? { ...w, modelCount: count } : w,
+        w.weaponId === weaponId ? { ...w, modelCount: count } : w,
       ),
     });
   };
 
-  const moveDefenderWeaponUp = (weaponName: string) => {
-    const idx = state.defenderWeapons.findIndex(
-      (w) => w.weaponName === weaponName,
-    );
+  const moveDefenderWeaponUp = (weaponId: string) => {
+    const idx = state.defenderWeapons.findIndex((w) => w.weaponId === weaponId);
     if (idx <= 0) return;
     const next = [...state.defenderWeapons];
     [next[idx - 1], next[idx]] = [next[idx], next[idx - 1]];
     onChange({ ...state, defenderWeapons: next });
   };
 
-  const moveDefenderWeaponDown = (weaponName: string) => {
-    const idx = state.defenderWeapons.findIndex(
-      (w) => w.weaponName === weaponName,
-    );
+  const moveDefenderWeaponDown = (weaponId: string) => {
+    const idx = state.defenderWeapons.findIndex((w) => w.weaponId === weaponId);
     if (idx < 0 || idx >= state.defenderWeapons.length - 1) return;
     const next = [...state.defenderWeapons];
     [next[idx], next[idx + 1]] = [next[idx + 1], next[idx]];

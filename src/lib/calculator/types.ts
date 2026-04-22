@@ -234,7 +234,7 @@ export type CombatResult = {
  * If omitted, defaults to the unit's total model count.
  */
 export type SelectedWeapon = {
-  weaponName: string;
+  weaponId: string;
   modelCount?: number;
 };
 

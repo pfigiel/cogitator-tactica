@@ -35,7 +35,7 @@ Update the system prompt to extract `attackerWeaponHints` / `defenderWeaponHints
 Examples:
 
 - "19 boyz have choppas and 1 boy has big choppa" → `[{name:"choppa",count:19},{name:"big_choppa",count:1}]`
-- "use bolt rifles" → `[{name:"bolt_rifle"}]` (no count)
+- "10 intercessors with bolt rifles and bolt pistols" → `[{name:"bolt_rifle"}, {name:"bolt_pistol"}]` (no count)
 
 Update `parseContextFromJson` to parse the new shape with defensive fallbacks (treat missing/invalid count as `undefined`).
 
@@ -45,7 +45,7 @@ Update the user message to include counts when present:
 
 ```
 Attacker weapons mentioned: bolt_rifle
-Defender weapons mentioned: choppa (19 models), big_choppa (1 model)
+Defender weapons mentioned: choppa (19), big_choppa (1)
 ```
 
 The call 2 LLM already outputs `modelCount` per weapon in its schema — with the count in the user message, it will pass it through. `parseWeaponList` already maps `item.modelCount` → `SelectedWeapon.modelCount`, so no changes needed there.

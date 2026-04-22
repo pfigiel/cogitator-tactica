@@ -8,10 +8,10 @@ type Props = {
   selected: SelectedWeapon[];
   defaultModelCount: number;
   weaponType: "shooting" | "melee";
-  onToggle: (weaponName: string) => void;
-  onCountChange: (weaponName: string, count: number) => void;
-  onMoveUp: (weaponName: string) => void;
-  onMoveDown: (weaponName: string) => void;
+  onToggle: (weaponId: string) => void;
+  onCountChange: (weaponId: string, count: number) => void;
+  onMoveUp: (weaponId: string) => void;
+  onMoveDown: (weaponId: string) => void;
 };
 
 export const WeaponSelector = ({
@@ -28,15 +28,16 @@ export const WeaponSelector = ({
 
   const selectedWeapons = selected
     .map((s) => ({
-      profile: weapons.find((w) => w.name === s.weaponName),
+      profile: weapons.find((w) => w.id === s.weaponId),
       entry: s,
     }))
-    .filter((x): x is { profile: WeaponProfile; entry: SelectedWeapon } =>
-      x.profile !== undefined
+    .filter(
+      (x): x is { profile: WeaponProfile; entry: SelectedWeapon } =>
+        x.profile !== undefined,
     );
 
   const availableWeapons = weapons.filter(
-    (w) => !selected.some((s) => s.weaponName === w.name)
+    (w) => !selected.some((s) => s.weaponId === w.id),
   );
 
   return (
@@ -48,16 +49,16 @@ export const WeaponSelector = ({
         ) : (
           selectedWeapons.map((sw, idx) => (
             <WeaponRecord
-              key={sw.profile.name}
+              key={sw.profile.id}
               weapon={sw.profile}
               weaponType={weaponType}
               isSelected={true}
-              onToggle={() => onToggle(sw.profile.name)}
+              onToggle={() => onToggle(sw.profile.id)}
               selectionProps={{
                 modelCount: sw.entry.modelCount ?? defaultModelCount,
-                onCountChange: (val) => onCountChange(sw.profile.name, val),
-                onMoveUp: () => onMoveUp(sw.profile.name),
-                onMoveDown: () => onMoveDown(sw.profile.name),
+                onCountChange: (val) => onCountChange(sw.profile.id, val),
+                onMoveUp: () => onMoveUp(sw.profile.id),
+                onMoveDown: () => onMoveDown(sw.profile.id),
                 isFirst: idx === 0,
                 isLast: idx === selectedWeapons.length - 1,
               }}
@@ -72,11 +73,11 @@ export const WeaponSelector = ({
         ) : (
           availableWeapons.map((w) => (
             <WeaponRecord
-              key={w.name}
+              key={w.id}
               weapon={w}
               weaponType={weaponType}
               isSelected={false}
-              onToggle={() => onToggle(w.name)}
+              onToggle={() => onToggle(w.id)}
             />
           ))
         )}

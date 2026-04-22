@@ -21,12 +21,12 @@ const DEFAULT_FORM: CombatFormState = {
   phase: "shooting",
   attackerUnitId: "intercessor_squad",
   attackerCount: 10,
-  attackerWeapons: [{ weaponName: "Bolt Rifle" }],
+  attackerWeapons: [{ weaponId: "bolt_rifle" }],
   attackerContext: DEFAULT_ATTACKER_CONTEXT,
   defenderUnitId: "boyz",
   defenderCount: 20,
   defenderInCover: false,
-  defenderWeapons: [{ weaponName: "Choppa" }],
+  defenderWeapons: [{ weaponId: "choppa_3f38e6" }],
   defenderContext: DEFAULT_ATTACKER_CONTEXT,
   firstFighter: "attacker",
 };
@@ -40,7 +40,7 @@ const resolveWeapons = (
   const pool = phase === "shooting" ? unit.shootingWeapons : unit.meleeWeapons;
   return selectedWeapons
     .map((sw) => {
-      const weapon = pool.find((w) => w.name === sw.weaponName);
+      const weapon = pool.find((w) => w.id === sw.weaponId);
       return weapon
         ? { weapon, modelCount: sw.modelCount ?? defaultModelCount }
         : null;

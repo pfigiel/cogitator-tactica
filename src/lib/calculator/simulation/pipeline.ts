@@ -189,7 +189,7 @@ export const simulateWeaponOnce = (
   let modelsSlain = 0;
   let remainingHealth = defenderUnit.wounds;
 
-  for (let i = 0; i < unsavedNormal; i++) {
+  for (let i = 0; i < unsavedNormal && modelsSlain < defenderModelCount; i++) {
     const rawDmg = rng.dice(weapon.damage) + extraDamage;
     const dmg = Math.min(rawDmg, remainingHealth); // cap — no spillover
     remainingHealth -= dmg;
@@ -200,10 +200,10 @@ export const simulateWeaponOnce = (
     }
   }
 
-  for (let i = 0; i < mortalWounds; i++) {
+  for (let i = 0; i < mortalWounds && modelsSlain < defenderModelCount; i++) {
     let dmg = rng.dice(weapon.damage) + extraDamage;
     totalDamage += dmg;
-    while (dmg > 0) {
+    while (dmg > 0 && modelsSlain < defenderModelCount) {
       const applied = Math.min(dmg, remainingHealth);
       remainingHealth -= applied;
       dmg -= applied;
