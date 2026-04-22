@@ -13,6 +13,7 @@
 ## File Map
 
 **Created:**
+
 - `docker-compose.yml` — Postgres service for local dev
 - `.env.example` — committed placeholder for `DATABASE_URL`
 - `prisma/schema.prisma` — Prisma schema (units, weapons, unit_weapons, pgvector)
@@ -23,6 +24,7 @@
 - `src/lib/db/units.ts` — `listUnits()` and `getUnit()` query functions
 
 **Modified:**
+
 - `src/lib/calculator/types.ts` — add `id: string` to `WeaponProfile`
 - `src/lib/calculator/simulation/pipeline.test.ts` — add `id` to weapon fixtures
 - `src/lib/calculator/simulation/runner.test.ts` — add `id` to weapon fixtures
@@ -32,6 +34,7 @@
 - `.gitignore` — add `.env`
 
 **Deleted:**
+
 - `scripts/import-wahapedia/generate.ts`
 - `src/data/units.ts`
 
@@ -40,6 +43,7 @@
 ## Task 1: Local dev infrastructure
 
 **Files:**
+
 - Create: `docker-compose.yml`
 - Create: `.env.example`
 - Modify: `.gitignore`
@@ -51,9 +55,9 @@ services:
   postgres:
     image: postgres:17
     environment:
-      POSTGRES_USER: wh_calc
-      POSTGRES_PASSWORD: wh_calc
-      POSTGRES_DB: wh_calc
+      POSTGRES_USER: cogitator_tactica
+      POSTGRES_PASSWORD: cogitator_tactica
+      POSTGRES_DB: cogitator_tactica
     ports:
       - "5432:5432"
     volumes:
@@ -66,7 +70,7 @@ volumes:
 - [ ] **Step 2: Create .env.example**
 
 ```
-DATABASE_URL="postgresql://wh_calc:wh_calc@localhost:5432/wh_calc"
+DATABASE_URL="postgresql://cogitator_tactica:cogitator_tactica@localhost:5432/cogitator_tactica"
 ```
 
 - [ ] **Step 3: Add .env to .gitignore**
@@ -90,6 +94,7 @@ git commit -m "chore: add docker-compose and env config for postgres"
 ## Task 2: Install Prisma and write schema
 
 **Files:**
+
 - Create: `prisma/schema.prisma`
 
 - [ ] **Step 1: Install Prisma**
@@ -190,7 +195,7 @@ git commit -m "chore: add prisma with postgres schema"
 docker compose up -d
 ```
 
-Expected: container `wh-calc-postgres-1` (or similar) in running state.
+Expected: container `cogitator-tactica-postgres-1` (or similar) in running state.
 
 - [ ] **Step 2: Copy env and verify**
 
@@ -207,6 +212,7 @@ npx prisma migrate dev --name init
 ```
 
 Expected output includes:
+
 ```
 Your database is now in sync with your schema.
 Generated Prisma Client
@@ -232,6 +238,7 @@ git commit -m "chore: add initial prisma migration"
 ## Task 4: Add `id` to WeaponProfile and fix test fixtures
 
 **Files:**
+
 - Modify: `src/lib/calculator/types.ts`
 - Modify: `src/lib/calculator/simulation/pipeline.test.ts`
 - Modify: `src/lib/calculator/simulation/runner.test.ts`
@@ -260,7 +267,13 @@ In `src/lib/calculator/simulation/pipeline.test.ts`, update the `basicWeapon` fi
 ```typescript
 const basicWeapon: WeaponProfile = {
   id: "bolter",
-  name: "Bolter", attacks: 1, skill: 3, strength: 4, ap: 0, damage: 1, abilities: [],
+  name: "Bolter",
+  attacks: 1,
+  skill: 3,
+  strength: 4,
+  ap: 0,
+  damage: 1,
+  abilities: [],
 };
 ```
 
@@ -272,28 +285,37 @@ The inline weapon fixtures that do NOT spread `basicWeapon` also need `id`. Upda
 // torrent weapon (line ~63):
 const torrent: WeaponProfile = {
   id: "torrent_bolter",
-  ...basicWeapon, attacks: 3, ap: 3,
+  ...basicWeapon,
+  attacks: 3,
+  ap: 3,
   abilities: [{ type: "TORRENT" }],
 };
 
 // lethalWeapon (line ~81):
 const lethalWeapon: WeaponProfile = {
   id: "lethal_bolter",
-  ...basicWeapon, attacks: 2, strength: 1, ap: 3,
+  ...basicWeapon,
+  attacks: 2,
+  strength: 1,
+  ap: 3,
   abilities: [{ type: "LETHAL_HITS" }],
 };
 
 // devastatingWeapon (line ~98):
 const devastatingWeapon: WeaponProfile = {
   id: "devastating_bolter",
-  ...basicWeapon, attacks: 2,
+  ...basicWeapon,
+  attacks: 2,
   abilities: [{ type: "DEVASTATING_WOUNDS" }],
 };
 
 // antiWeapon (line ~174):
 const antiWeapon: WeaponProfile = {
   id: "anti_bolter",
-  ...basicWeapon, attacks: 2, strength: 4, ap: 0,
+  ...basicWeapon,
+  attacks: 2,
+  strength: 4,
+  ap: 0,
   abilities: [
     { type: "ANTI", keyword: "VEHICLE", threshold: 4 },
     { type: "DEVASTATING_WOUNDS" },
@@ -308,7 +330,13 @@ In `src/lib/calculator/simulation/runner.test.ts`, update the `bolter` fixture:
 ```typescript
 const bolter: WeaponProfile = {
   id: "bolter",
-  name: "Bolter", attacks: 1, skill: 3, strength: 4, ap: 3, damage: 1, abilities: [],
+  name: "Bolter",
+  attacks: 1,
+  skill: 3,
+  strength: 4,
+  ap: 3,
+  damage: 1,
+  abilities: [],
 };
 ```
 
@@ -332,6 +360,7 @@ git commit -m "feat: add id field to WeaponProfile"
 ## Task 5: Weapon ID derivation (TDD)
 
 **Files:**
+
 - Create: `scripts/import-wahapedia/transform.test.ts`
 - Modify: `scripts/import-wahapedia/transform.ts`
 
@@ -349,7 +378,9 @@ describe("deriveWeaponId", () => {
   it("returns slug of name for the first occurrence", () => {
     const slugToFp = new Map<string, string>();
     const fpToId = new Map<string, string>();
-    expect(deriveWeaponId("Bolt Rifle", "ranged|2|3|4|0|1", slugToFp, fpToId)).toBe("bolt_rifle");
+    expect(
+      deriveWeaponId("Bolt Rifle", "ranged|2|3|4|0|1", slugToFp, fpToId),
+    ).toBe("bolt_rifle");
   });
 
   it("returns the same id when the same fingerprint is seen again (deduplication)", () => {
@@ -357,7 +388,9 @@ describe("deriveWeaponId", () => {
     const fpToId = new Map<string, string>();
     const fp = "ranged|2|3|4|0|1";
     deriveWeaponId("Bolt Rifle", fp, slugToFp, fpToId);
-    expect(deriveWeaponId("Bolt Rifle", fp, slugToFp, fpToId)).toBe("bolt_rifle");
+    expect(deriveWeaponId("Bolt Rifle", fp, slugToFp, fpToId)).toBe(
+      "bolt_rifle",
+    );
   });
 
   it("appends a 6-char hex hash when same name has different stats", () => {
@@ -420,7 +453,10 @@ export const deriveWeaponId = (
   } else if (slugToFp.get(base) === fingerprint) {
     id = base;
   } else {
-    const hash = createHash("sha256").update(fingerprint).digest("hex").slice(0, 6);
+    const hash = createHash("sha256")
+      .update(fingerprint)
+      .digest("hex")
+      .slice(0, 6);
     id = `${base}_${hash}`;
   }
 
@@ -458,6 +494,7 @@ git commit -m "feat: add weapon ID derivation to import transform"
 ## Task 6: Update transform output to include weapon IDs and factionId
 
 **Files:**
+
 - Modify: `scripts/import-wahapedia/transform.ts`
 
 - [ ] **Step 1: Add UnitWithFaction type**
@@ -556,6 +593,7 @@ git commit -m "feat: include weapon ids and factionId in import transform output
 ## Task 7: Import script DB upsert (scripts/import-wahapedia/db.ts)
 
 **Files:**
+
 - Create: `scripts/import-wahapedia/db.ts`
 
 - [ ] **Step 1: Create scripts/import-wahapedia/db.ts**
@@ -568,7 +606,14 @@ const prisma = new PrismaClient();
 
 export const upsertAll = async (units: UnitWithFaction[]): Promise<void> => {
   // Collect all unique weapons across all units (deduplicated by id)
-  const weaponMap = new Map<string, { unit: UnitWithFaction; weapon: UnitWithFaction["shootingWeapons"][0]; wtype: WeaponType }>();
+  const weaponMap = new Map<
+    string,
+    {
+      unit: UnitWithFaction;
+      weapon: UnitWithFaction["shootingWeapons"][0];
+      wtype: WeaponType;
+    }
+  >();
   for (const unit of units) {
     for (const w of unit.shootingWeapons) {
       weaponMap.set(w.id, { unit, weapon: w, wtype: WeaponType.shooting });
@@ -662,6 +707,7 @@ git commit -m "feat: add db upsert logic for import script"
 ## Task 8: Update index.ts, add pg_dump, remove generate.ts
 
 **Files:**
+
 - Modify: `scripts/import-wahapedia/index.ts`
 - Delete: `scripts/import-wahapedia/generate.ts`
 
@@ -700,11 +746,16 @@ const main = async () => {
   mkdirSync(backupDir, { recursive: true });
 
   console.log(`Backing up database to backups/${timestamp}.dump ...`);
-  execSync(`pg_dump "${databaseUrl}" -Fc -f "${backupPath}"`, { stdio: "inherit" });
+  execSync(`pg_dump "${databaseUrl}" -Fc -f "${backupPath}"`, {
+    stdio: "inherit",
+  });
   console.log("Backup complete.");
 
   const data = await parseAll();
-  const { units, warnings, skippedKillTeam, countByFaction } = transform(data, factions);
+  const { units, warnings, skippedKillTeam, countByFaction } = transform(
+    data,
+    factions,
+  );
 
   for (const w of warnings) {
     console.warn(`[WARN] ${w.unitName} / ${w.weaponName}: ${w.message}`);
@@ -746,6 +797,7 @@ git commit -m "feat: update import script to upsert to db with pg_dump backup"
 ## Task 9: src/lib/db/ — Prisma client, types, and query functions
 
 **Files:**
+
 - Create: `src/lib/db/index.ts`
 - Create: `src/lib/db/types.ts`
 - Create: `src/lib/db/units.ts`
@@ -823,7 +875,9 @@ import { prisma } from ".";
 import { toUnitProfile } from "./types";
 import type { UnitProfile } from "@/lib/calculator/types";
 
-export const listUnits = async (): Promise<Array<{ id: string; name: string }>> =>
+export const listUnits = async (): Promise<
+  Array<{ id: string; name: string }>
+> =>
   prisma.unit.findMany({
     select: { id: true, name: true },
     orderBy: { name: "asc" },
@@ -850,6 +904,7 @@ git commit -m "feat: add db client, types, and unit query functions"
 ## Task 10: Update parser.ts to use DB queries
 
 **Files:**
+
 - Modify: `src/lib/llm/parser.ts`
 
 - [ ] **Step 1: Replace static imports with DB query imports**
@@ -912,6 +967,7 @@ git commit -m "feat: replace static unit data with db queries in llm parser"
 ## Task 11: Delete src/data/units.ts and verify end-to-end
 
 **Files:**
+
 - Delete: `src/data/units.ts`
 
 - [ ] **Step 1: Delete src/data/units.ts**
@@ -953,6 +1009,7 @@ npm run import-units
 ```
 
 Expected output:
+
 ```
 Backing up database to backups/<timestamp>.dump ...
 Backup complete.
@@ -968,6 +1025,7 @@ npx prisma studio
 ```
 
 Open the browser tab. Confirm:
+
 - `Unit` model shows rows with correct stats
 - `Weapon` model shows rows with generated IDs (slugs)
 - `UnitWeapon` model shows join rows linking units to weapons

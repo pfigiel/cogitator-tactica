@@ -5,7 +5,7 @@ import { theme } from "@/ui/theme";
 import styles from "./layout.module.css";
 
 export const metadata: Metadata = {
-  title: "WH40K Battle Calculator",
+  title: "Cogitator Tactica",
   description: "Warhammer 40,000 statistics battle calculator",
 };
 
@@ -14,16 +14,16 @@ type Props = {
 };
 
 const RootLayout = ({ children }: Props) => (
-    <html lang="en" suppressHydrationWarning>
-      <head>
-        <ColorSchemeScript defaultColorScheme="dark" />
-      </head>
-      <body className={styles.body}>
-        <MantineProvider theme={theme} defaultColorScheme="dark">
-          {children}
-        </MantineProvider>
-      </body>
-    </html>
-  );
+  <html lang="en" suppressHydrationWarning>
+    <head>
+      <ColorSchemeScript defaultColorScheme="dark" />
+    </head>
+    <body className={styles.body}>
+      <MantineProvider theme={theme} defaultColorScheme="dark">
+        {children}
+      </MantineProvider>
+    </body>
+  </html>
+);
 
 export default RootLayout;

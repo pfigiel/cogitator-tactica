@@ -44,7 +44,7 @@ const PromptInput = ({ onParsed }: Props) => {
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleParse()}
-          placeholder="e.g. 10 intercessors shoot at 20 ork boyz in cover"
+          placeholder="e.g. 10 intercessors with bolt rifles shoot at 20 ork boyz in cover"
           error={error}
         />
         <Button
