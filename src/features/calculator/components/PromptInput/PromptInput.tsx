@@ -12,12 +12,16 @@ type Props = {
 
 const PromptInput = ({ onParsed, onSimulate }: Props) => {
   const [prompt, setPrompt] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [loadingAction, setLoadingAction] = useState<
+    "parse" | "simulate" | null
+  >(null);
   const [error, setError] = useState<string | null>(null);
 
-  const parse = async (): Promise<CombatFormState | null> => {
+  const parse = async (
+    action: "parse" | "simulate",
+  ): Promise<CombatFormState | null> => {
     if (!prompt.trim()) return null;
-    setLoading(true);
+    setLoadingAction(action);
     setError(null);
     try {
       const res = await fetch("/api/parse", {
@@ -32,17 +36,17 @@ const PromptInput = ({ onParsed, onSimulate }: Props) => {
       setError(err instanceof Error ? err.message : "Unknown error");
       return null;
     } finally {
-      setLoading(false);
+      setLoadingAction(null);
     }
   };
 
   const handleParse = async () => {
-    const state = await parse();
+    const state = await parse("parse");
     if (state) onParsed(state);
   };
 
   const handleSimulate = async () => {
-    const state = await parse();
+    const state = await parse("simulate");
     if (state) onSimulate(state);
   };
 
@@ -65,8 +69,8 @@ const PromptInput = ({ onParsed, onSimulate }: Props) => {
           <Button
             variant="default"
             onClick={handleParse}
-            disabled={!prompt.trim() || loading}
-            loading={loading}
+            disabled={!prompt.trim() || loadingAction !== null}
+            loading={loadingAction === "parse"}
             fullWidth
           >
             PARSE REPORT
@@ -74,8 +78,8 @@ const PromptInput = ({ onParsed, onSimulate }: Props) => {
           <Button
             color="yellow"
             onClick={handleSimulate}
-            disabled={!prompt.trim() || loading}
-            loading={loading}
+            disabled={!prompt.trim() || loadingAction !== null}
+            loading={loadingAction === "simulate"}
             fullWidth
           >
             INITIATE SIMULATION
