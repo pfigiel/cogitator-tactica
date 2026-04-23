@@ -1,0 +1,17 @@
+.wrapper {
+  position: relative;
+}
+
+.gradient {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 52px;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    var(--mantine-color-body)
+  );
+  pointer-events: none;
+}
