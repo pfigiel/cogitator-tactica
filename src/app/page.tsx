@@ -179,9 +179,14 @@ const Home = () => {
     }
   };
 
+  useEffect(() => {
+    if (result) {
+      resultsRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [result]);
+
   const handleCalculate = async () => {
     await runCalculation(form);
-    resultsRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   const handleFormChange = useCallback(
@@ -199,7 +204,7 @@ const Home = () => {
 
   const handleParsedFromPrompt = useCallback(
     async (nextForm: CombatFormState) => {
-      await handleFormChange(nextForm);
+      handleFormChange(nextForm);
       setAccordionValue(ACCORDION_VALUE);
       accordionRef.current?.scrollIntoView({ behavior: "smooth" });
     },
@@ -208,9 +213,8 @@ const Home = () => {
 
   const handleSimulateFromPrompt = useCallback(
     async (nextForm: CombatFormState) => {
-      await handleFormChange(nextForm);
+      handleFormChange(nextForm);
       await runCalculation(nextForm);
-      resultsRef.current?.scrollIntoView({ behavior: "smooth" });
     },
     [handleFormChange],
   );
