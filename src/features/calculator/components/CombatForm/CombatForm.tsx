@@ -331,7 +331,6 @@ const CombatForm = ({
                 key={f}
                 variant={state.firstFighter === f ? "filled" : "default"}
                 onClick={() => onChange({ ...state, firstFighter: f })}
-                className={styles.capitalizeButton}
               >
                 {f}
               </Button>
