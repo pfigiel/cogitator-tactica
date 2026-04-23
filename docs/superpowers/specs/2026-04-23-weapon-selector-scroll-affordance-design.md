@@ -30,9 +30,9 @@ The gradient fade is implemented as an optional feature of `ScrollArea` and `Scr
 
 The gradient is shown or hidden based on scroll state, avoiding false affordance cues:
 
-- **Hidden by default** — the gradient starts invisible; it only appears once overflow is confirmed.
-- **Shown when overflow exists** — after mount, a `ResizeObserver` watches the Mantine viewport element (accessed via Mantine's `viewportRef` prop). Whenever the observed size changes, it checks `scrollHeight > clientHeight`; if true, the gradient becomes visible.
-- **Hidden at bottom** — Mantine's `onScrollPositionChange` fires on every scroll event with `{x, y}`. When `scrollTop + clientHeight >= scrollHeight - 8px` (8px threshold for subpixel rendering), the gradient is hidden. It reappears if the user scrolls back up.
+- **No flicker on mount** — a `useLayoutEffect` checks `scrollHeight > clientHeight` on the viewport element synchronously, before the browser paints. This means the correct initial `showGradient` state is committed to the DOM in the same frame as the first render — no flash of incorrect state.
+- **Adapts to content changes** — after mount, a `ResizeObserver` watches the viewport element (accessed via Mantine's `viewportRef` prop). Whenever the observed size changes, it re-runs the same `scrollHeight > clientHeight` check.
+- **Hidden at bottom** — Mantine's `onScrollPositionChange` fires on every scroll event with `{x, y}`. When `scrollTop + clientHeight >= scrollHeight - 8` (8px threshold for subpixel rendering), the gradient is hidden. It reappears if the user scrolls back up.
 
 State is a single `boolean` (`showGradient`) managed inside the component. The `ResizeObserver` is cleaned up on unmount.
 
