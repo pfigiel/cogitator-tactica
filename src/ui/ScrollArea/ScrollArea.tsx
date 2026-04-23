@@ -39,8 +39,11 @@ const useGradient = (enabled: boolean) => {
   useLayoutEffect(() => {
     if (!enabled) return;
     check();
+    const el = viewportRef.current;
+    if (!el) return;
     const observer = new ResizeObserver(check);
-    if (viewportRef.current) observer.observe(viewportRef.current);
+    observer.observe(el);
+    if (el.firstElementChild) observer.observe(el.firstElementChild);
     return () => observer.disconnect();
   }, [enabled, check]);
 
@@ -59,10 +62,10 @@ export const ScrollArea = ({
 
   const handleScroll = useCallback(
     (pos: { x: number; y: number }) => {
-      if (withFadeGradient) check();
+      check();
       onScrollPositionChange?.(pos);
     },
-    [withFadeGradient, check, onScrollPositionChange],
+    [check, onScrollPositionChange],
   );
 
   if (!withFadeGradient) {
@@ -83,7 +86,12 @@ export const ScrollArea = ({
         classNames={mantineClassNames as ScrollAreaProps["classNames"]}
         {...props}
       />
-      {show && <div className={clsx(styles.gradient, gradientClass)} />}
+      {show && (
+        <div
+          aria-hidden="true"
+          className={clsx(styles.gradient, gradientClass)}
+        />
+      )}
     </div>
   );
 };
@@ -100,10 +108,10 @@ export const ScrollAreaAutosize = ({
 
   const handleScroll = useCallback(
     (pos: { x: number; y: number }) => {
-      if (withFadeGradient) check();
+      check();
       onScrollPositionChange?.(pos);
     },
-    [withFadeGradient, check, onScrollPositionChange],
+    [check, onScrollPositionChange],
   );
 
   if (!withFadeGradient) {
@@ -124,7 +132,12 @@ export const ScrollAreaAutosize = ({
         classNames={mantineClassNames as ScrollAreaAutosizeProps["classNames"]}
         {...props}
       />
-      {show && <div className={clsx(styles.gradient, gradientClass)} />}
+      {show && (
+        <div
+          aria-hidden="true"
+          className={clsx(styles.gradient, gradientClass)}
+        />
+      )}
     </div>
   );
 };
