@@ -14,7 +14,7 @@ Wrap both the "Selected weapons" and "Available weapons" sections in a `Paper wi
 
 The gradient fade is implemented as an optional feature of `ScrollArea` and `ScrollAreaAutosize` in the UI library, not in `WeaponSelector` itself.
 
-**New prop:** `withFadeGradient?: boolean` — when true, renders a gradient overlay anchored to the bottom of the scroll area.
+**New prop:** `withFadeGradient?: boolean` — when true, activates the smart gradient overlay.
 
 **Gradient element:** A `div` wraps the Mantine scroll area with `position: relative`. A `::after` pseudo-element on that wrapper produces:
 
@@ -26,15 +26,22 @@ The gradient fade is implemented as an optional feature of `ScrollArea` and `Scr
 
 `ScrollArea` and `ScrollAreaAutosize` each expose this same `withFadeGradient` / `classNames` API independently, since they are separate components.
 
-The gradient always renders when `withFadeGradient` is true. When the list fits without scrolling it is barely perceptible; when the list overflows it creates a strong directional cue.
+### Dynamic gradient visibility
+
+The gradient is shown or hidden based on scroll state, avoiding false affordance cues:
+
+- **Hidden by default** — the gradient starts invisible; it only appears once overflow is confirmed.
+- **Shown when overflow exists** — after mount, a `ResizeObserver` watches the Mantine viewport element (accessed via Mantine's `viewportRef` prop). Whenever the observed size changes, it checks `scrollHeight > clientHeight`; if true, the gradient becomes visible.
+- **Hidden at bottom** — Mantine's `onScrollPositionChange` fires on every scroll event with `{x, y}`. When `scrollTop + clientHeight >= scrollHeight - 8px` (8px threshold for subpixel rendering), the gradient is hidden. It reappears if the user scrolls back up.
+
+State is a single `boolean` (`showGradient`) managed inside the component. The `ResizeObserver` is cleaned up on unmount.
 
 ## Files changed
 
-- `src/ui/ScrollArea/ScrollArea.tsx` — add `withFadeGradient` prop and `classNames.gradient` slot to both `ScrollArea` and `ScrollAreaAutosize`; render gradient element conditionally
+- `src/ui/ScrollArea/ScrollArea.tsx` — add `withFadeGradient` prop and `classNames.gradient` slot to both `ScrollArea` and `ScrollAreaAutosize`; manage `showGradient` state with viewport ref + ResizeObserver
 - `src/ui/ScrollArea/ScrollArea.module.css` — new file with `.wrapper` (position: relative) and `.gradient` (the overlay) styles
 - `WeaponSelector.tsx` — add `Paper` wrappers around both sections; pass `withFadeGradient` to `ScrollAreaAutosize`
 
 ## Out of scope
 
-- Dynamically hiding the gradient when content does not overflow (adds JS complexity for minimal gain)
 - Changes to the "Selected weapons" scroll behaviour (it is not constrained in height)
