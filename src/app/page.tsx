@@ -14,7 +14,7 @@ import { calculate } from "@/lib/calculator";
 import PromptInput from "@/features/calculator/components/PromptInput/PromptInput";
 import CombatForm from "@/features/calculator/components/CombatForm/CombatForm";
 import ResultsDisplay from "@/features/calculator/components/ResultsDisplay/ResultsDisplay";
-import { Paper, Stack } from "@/ui";
+import { Accordion, Paper, Stack } from "@/ui";
 import styles from "./page.module.css";
 
 const DEFAULT_FORM: CombatFormState = {
@@ -48,15 +48,20 @@ const resolveWeapons = (
     .filter((x): x is SelectedWeaponInput => x !== null);
 };
 
+const ACCORDION_VALUE = "combat-parameters";
+
 const Home = () => {
   const [form, setForm] = useState<CombatFormState>(DEFAULT_FORM);
   const [result, setResult] = useState<CombatResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [accordionValue, setAccordionValue] = useState<string | null>(null);
   const [unitList, setUnitList] = useState<Array<{ id: string; name: string }>>(
     [],
   );
   const unitsRef = useRef<Record<string, UnitProfile>>({});
   const [units, setUnits] = useState<Record<string, UnitProfile>>({});
+  const accordionRef = useRef<HTMLDivElement>(null);
+  const resultsRef = useRef<HTMLDivElement>(null);
 
   const setUnitsAndRef = (
     updater: (prev: Record<string, UnitProfile>) => Record<string, UnitProfile>,
@@ -93,17 +98,16 @@ const Home = () => {
     [],
   );
 
-  // Pre-fetch the default units on mount so the form has weapon pools immediately
   useEffect(() => {
     ensureUnit(DEFAULT_FORM.attackerUnitId);
     ensureUnit(DEFAULT_FORM.defenderUnitId);
   }, []);
 
-  const handleCalculate = async () => {
+  const runCalculation = async (formState: CombatFormState) => {
     setError(null);
     const [attacker, defender] = await Promise.all([
-      ensureUnit(form.attackerUnitId),
-      ensureUnit(form.defenderUnitId),
+      ensureUnit(formState.attackerUnitId),
+      ensureUnit(formState.defenderUnitId),
     ]);
 
     if (!attacker || !defender) {
@@ -113,41 +117,41 @@ const Home = () => {
 
     const attackerWeapons = resolveWeapons(
       attacker,
-      form.phase,
-      form.attackerWeapons,
-      form.attackerCount,
+      formState.phase,
+      formState.attackerWeapons,
+      formState.attackerCount,
     );
     const defenderWeapons = resolveWeapons(
       defender,
       "melee",
-      form.defenderWeapons,
-      form.defenderCount,
+      formState.defenderWeapons,
+      formState.defenderCount,
     );
 
     if (attackerWeapons.length === 0) {
       setError("No valid attacker weapons selected.");
       return;
     }
-    if (form.phase === "melee" && defenderWeapons.length === 0) {
+    if (formState.phase === "melee" && defenderWeapons.length === 0) {
       setError("No valid defender weapons selected for melee counterattack.");
       return;
     }
 
     try {
       const combatResult = await calculate(
-        form.phase === "shooting"
+        formState.phase === "shooting"
           ? {
               phase: "shooting",
               attacker: {
                 unit: attacker,
-                modelCount: form.attackerCount,
-                attackerContext: form.attackerContext,
+                modelCount: formState.attackerCount,
+                attackerContext: formState.attackerContext,
                 selectedWeapons: attackerWeapons,
               },
               defender: {
                 unit: defender,
-                modelCount: form.defenderCount,
-                defenderContext: { inCover: form.defenderInCover },
+                modelCount: formState.defenderCount,
+                defenderContext: { inCover: formState.defenderInCover },
                 selectedWeapons: defenderWeapons,
               },
             }
@@ -155,18 +159,18 @@ const Home = () => {
               phase: "melee",
               attacker: {
                 unit: attacker,
-                modelCount: form.attackerCount,
-                attackerContext: form.attackerContext,
+                modelCount: formState.attackerCount,
+                attackerContext: formState.attackerContext,
                 selectedWeapons: attackerWeapons,
               },
               defender: {
                 unit: defender,
-                modelCount: form.defenderCount,
-                defenderContext: { inCover: form.defenderInCover },
-                attackerContext: form.defenderContext,
+                modelCount: formState.defenderCount,
+                defenderContext: { inCover: formState.defenderInCover },
+                attackerContext: formState.defenderContext,
                 selectedWeapons: defenderWeapons,
               },
-              firstFighter: form.firstFighter,
+              firstFighter: formState.firstFighter,
             },
       );
       setResult(combatResult);
@@ -175,9 +179,13 @@ const Home = () => {
     }
   };
 
+  const handleCalculate = async () => {
+    await runCalculation(form);
+    resultsRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
   const handleFormChange = useCallback(
     async (next: CombatFormState) => {
-      // Pre-fetch any newly selected unit so weapon pools are ready
       if (next.attackerUnitId !== form.attackerUnitId) {
         ensureUnit(next.attackerUnitId);
       }
@@ -189,10 +197,27 @@ const Home = () => {
     [form.attackerUnitId, form.defenderUnitId, ensureUnit],
   );
 
+  const handleParsedFromPrompt = useCallback(
+    async (nextForm: CombatFormState) => {
+      await handleFormChange(nextForm);
+      setAccordionValue(ACCORDION_VALUE);
+      accordionRef.current?.scrollIntoView({ behavior: "smooth" });
+    },
+    [handleFormChange],
+  );
+
+  const handleSimulateFromPrompt = useCallback(
+    async (nextForm: CombatFormState) => {
+      await handleFormChange(nextForm);
+      await runCalculation(nextForm);
+      resultsRef.current?.scrollIntoView({ behavior: "smooth" });
+    },
+    [handleFormChange],
+  );
+
   return (
     <main className={styles.main}>
       <Stack gap="xl">
-        {/* Header */}
         <header className={styles.header}>
           <span className={styles.appName}>Cogitator Tactica</span>
           {" · "}
@@ -201,28 +226,35 @@ const Home = () => {
           </span>
         </header>
 
-        {/* Prompt input */}
-        <Paper>
-          <PromptInput onParsed={handleFormChange} />
-        </Paper>
+        <PromptInput
+          onParsed={handleParsedFromPrompt}
+          onSimulate={handleSimulateFromPrompt}
+        />
 
-        {/* Form */}
-        <Paper>
-          <CombatForm
-            state={form}
-            onChange={handleFormChange}
-            onCalculate={handleCalculate}
-            units={units}
-            unitList={unitList}
-          />
-          {error && <p className={styles.error}>Error: {error}</p>}
-        </Paper>
+        <div ref={accordionRef}>
+          <Accordion value={accordionValue} onChange={setAccordionValue}>
+            <Accordion.Item value={ACCORDION_VALUE}>
+              <Accordion.Control>Combat Parameters</Accordion.Control>
+              <Accordion.Panel>
+                <CombatForm
+                  state={form}
+                  onChange={handleFormChange}
+                  onCalculate={handleCalculate}
+                  units={units}
+                  unitList={unitList}
+                />
+                {error && <p className={styles.error}>Error: {error}</p>}
+              </Accordion.Panel>
+            </Accordion.Item>
+          </Accordion>
+        </div>
 
-        {/* Results */}
         {result && (
-          <Paper>
-            <ResultsDisplay result={result} />
-          </Paper>
+          <div ref={resultsRef}>
+            <Paper>
+              <ResultsDisplay result={result} />
+            </Paper>
+          </div>
         )}
       </Stack>
     </main>
