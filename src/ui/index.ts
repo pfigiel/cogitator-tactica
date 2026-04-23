@@ -8,3 +8,4 @@ export { Paper } from "./Paper";
 export { Alert } from "./Alert";
 export { Stack } from "./Stack";
 export { Group } from "./Group";
+export { ScrollArea, ScrollAreaAutosize } from "./ScrollArea";

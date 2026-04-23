@@ -1,5 +1,5 @@
 import type { SelectedWeapon, WeaponProfile } from "@/lib/calculator/types";
-import { Stack } from "@/ui";
+import { Paper, ScrollAreaAutosize, Stack } from "@/ui";
 import { WeaponRecord } from "./components/WeaponRecord";
 import styles from "./WeaponSelector.module.css";
 
@@ -42,46 +42,54 @@ export const WeaponSelector = ({
 
   return (
     <Stack gap="xs">
-      <Stack gap="xs">
-        <span className={styles.dimmed}>Selected weapons</span>
-        {selectedWeapons.length === 0 ? (
-          <span className={styles.dimmed}>No weapons selected</span>
-        ) : (
-          selectedWeapons.map((sw, idx) => (
-            <WeaponRecord
-              key={sw.profile.id}
-              weapon={sw.profile}
-              weaponType={weaponType}
-              isSelected={true}
-              onToggle={() => onToggle(sw.profile.id)}
-              selectionProps={{
-                modelCount: sw.entry.modelCount ?? defaultModelCount,
-                onCountChange: (val) => onCountChange(sw.profile.id, val),
-                onMoveUp: () => onMoveUp(sw.profile.id),
-                onMoveDown: () => onMoveDown(sw.profile.id),
-                isFirst: idx === 0,
-                isLast: idx === selectedWeapons.length - 1,
-              }}
-            />
-          ))
-        )}
-      </Stack>
-      <Stack gap="xs">
-        <span className={styles.dimmed}>Available weapons</span>
-        {availableWeapons.length === 0 ? (
-          <span className={styles.dimmed}>No weapons available</span>
-        ) : (
-          availableWeapons.map((w) => (
-            <WeaponRecord
-              key={w.id}
-              weapon={w}
-              weaponType={weaponType}
-              isSelected={false}
-              onToggle={() => onToggle(w.id)}
-            />
-          ))
-        )}
-      </Stack>
+      <Paper withBorder p="xs">
+        <Stack gap="xs">
+          <span className={styles.dimmed}>Selected weapons</span>
+          {selectedWeapons.length === 0 ? (
+            <span className={styles.dimmed}>No weapons selected</span>
+          ) : (
+            selectedWeapons.map((sw, idx) => (
+              <WeaponRecord
+                key={sw.profile.id}
+                weapon={sw.profile}
+                weaponType={weaponType}
+                isSelected={true}
+                onToggle={() => onToggle(sw.profile.id)}
+                selectionProps={{
+                  modelCount: sw.entry.modelCount ?? defaultModelCount,
+                  onCountChange: (val) => onCountChange(sw.profile.id, val),
+                  onMoveUp: () => onMoveUp(sw.profile.id),
+                  onMoveDown: () => onMoveDown(sw.profile.id),
+                  isFirst: idx === 0,
+                  isLast: idx === selectedWeapons.length - 1,
+                }}
+              />
+            ))
+          )}
+        </Stack>
+      </Paper>
+      <Paper withBorder p="xs">
+        <Stack gap="xs">
+          <span className={styles.dimmed}>Available weapons</span>
+          {availableWeapons.length === 0 ? (
+            <span className={styles.dimmed}>No weapons available</span>
+          ) : (
+            <ScrollAreaAutosize mah={270} withFadeGradient>
+              <Stack gap="xs">
+                {availableWeapons.map((w) => (
+                  <WeaponRecord
+                    key={w.id}
+                    weapon={w}
+                    weaponType={weaponType}
+                    isSelected={false}
+                    onToggle={() => onToggle(w.id)}
+                  />
+                ))}
+              </Stack>
+            </ScrollAreaAutosize>
+          )}
+        </Stack>
+      </Paper>
     </Stack>
   );
 };
