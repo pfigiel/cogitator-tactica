@@ -29,7 +29,12 @@ describe("shouldShowGradient", () => {
   });
 
   it("returns true when just outside the 8px threshold", () => {
-    // scrollTop(192) + clientHeight(200) = 392, scrollHeight(400) - 8 = 392 — boundary
+    // scrollTop(191) + clientHeight(200) = 391 < scrollHeight(400) - 8(392), outside threshold
     expect(shouldShowGradient(400, 200, 191)).toBe(true);
+  });
+
+  it("returns false at exact 8px threshold boundary", () => {
+    // scrollTop(192) + clientHeight(200) = 392 >= scrollHeight(400) - 8(392)
+    expect(shouldShowGradient(400, 200, 192)).toBe(false);
   });
 });
