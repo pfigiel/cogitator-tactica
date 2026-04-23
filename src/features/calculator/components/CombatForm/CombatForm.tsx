@@ -15,6 +15,7 @@ import {
   Stack,
   Group,
 } from "@/ui";
+import { IconCrosshair, IconSword } from "@tabler/icons-react";
 import { WeaponSelector } from "./components/WeaponSelector/WeaponSelector";
 import {
   AttackerContextSection,
@@ -191,21 +192,24 @@ const CombatForm = ({
   return (
     <Stack gap="md">
       {/* Phase selector */}
-      <div>
-        <label className={styles.sectionLabel}>Phase</label>
-        <Group gap="xs">
-          {(["shooting", "melee"] as Phase[]).map((p) => (
-            <Button
-              key={p}
-              variant={state.phase === p ? "filled" : "default"}
-              onClick={() => handlePhaseChange(p)}
-              className={styles.capitalizeButton}
-            >
-              {p}
-            </Button>
-          ))}
-        </Group>
-      </div>
+      <Group gap="xs" justify="center" grow>
+        <Button
+          variant={state.phase === "shooting" ? "filled" : "default"}
+          color={state.phase === "shooting" ? "yellow" : undefined}
+          onClick={() => handlePhaseChange("shooting")}
+          leftSection={<IconCrosshair size={16} />}
+        >
+          Shooting
+        </Button>
+        <Button
+          variant={state.phase === "melee" ? "filled" : "default"}
+          color={state.phase === "melee" ? "yellow" : undefined}
+          onClick={() => handlePhaseChange("melee")}
+          leftSection={<IconSword size={16} />}
+        >
+          Melee
+        </Button>
+      </Group>
 
       <div className={styles.grid}>
         {/* Attacker */}
@@ -336,14 +340,8 @@ const CombatForm = ({
         </div>
       )}
 
-      <Button
-        fullWidth
-        size="lg"
-        color="green"
-        onClick={onCalculate}
-        className={styles.calculateButton}
-      >
-        Calculate
+      <Button fullWidth size="lg" color="yellow" onClick={onCalculate}>
+        Engage Cogitator
       </Button>
     </Stack>
   );

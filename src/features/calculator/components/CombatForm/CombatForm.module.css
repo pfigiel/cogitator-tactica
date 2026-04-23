@@ -36,12 +36,3 @@
   font-size: 12px;
   color: var(--mantine-color-dimmed);
 }
-
-.capitalizeButton {
-  text-transform: capitalize;
-}
-
-.calculateButton {
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
