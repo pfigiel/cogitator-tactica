@@ -65,19 +65,25 @@ export const ScrollArea = ({
     [withFadeGradient, check, onScrollPositionChange],
   );
 
-  return (
-    <div className={withFadeGradient ? styles.wrapper : undefined}>
+  if (!withFadeGradient) {
+    return (
       <MantineScrollArea
-        viewportRef={withFadeGradient ? viewportRef : undefined}
-        onScrollPositionChange={
-          withFadeGradient ? handleScroll : onScrollPositionChange
-        }
+        onScrollPositionChange={onScrollPositionChange}
+        classNames={classNames as ScrollAreaProps["classNames"]}
+        {...props}
+      />
+    );
+  }
+
+  return (
+    <div className={styles.wrapper}>
+      <MantineScrollArea
+        viewportRef={viewportRef}
+        onScrollPositionChange={handleScroll}
         classNames={mantineClassNames as ScrollAreaProps["classNames"]}
         {...props}
       />
-      {withFadeGradient && show && (
-        <div className={clsx(styles.gradient, gradientClass)} />
-      )}
+      {show && <div className={clsx(styles.gradient, gradientClass)} />}
     </div>
   );
 };
@@ -100,19 +106,25 @@ export const ScrollAreaAutosize = ({
     [withFadeGradient, check, onScrollPositionChange],
   );
 
-  return (
-    <div className={withFadeGradient ? styles.wrapper : undefined}>
+  if (!withFadeGradient) {
+    return (
       <MantineScrollArea.Autosize
-        viewportRef={withFadeGradient ? viewportRef : undefined}
-        onScrollPositionChange={
-          withFadeGradient ? handleScroll : onScrollPositionChange
-        }
+        onScrollPositionChange={onScrollPositionChange}
+        classNames={classNames as ScrollAreaAutosizeProps["classNames"]}
+        {...props}
+      />
+    );
+  }
+
+  return (
+    <div className={styles.wrapper}>
+      <MantineScrollArea.Autosize
+        viewportRef={viewportRef}
+        onScrollPositionChange={handleScroll}
         classNames={mantineClassNames as ScrollAreaAutosizeProps["classNames"]}
         {...props}
       />
-      {withFadeGradient && show && (
-        <div className={clsx(styles.gradient, gradientClass)} />
-      )}
+      {show && <div className={clsx(styles.gradient, gradientClass)} />}
     </div>
   );
 };
