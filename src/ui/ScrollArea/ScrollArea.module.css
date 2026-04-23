@@ -7,11 +7,17 @@
   bottom: 0;
   left: 0;
   right: 0;
-  height: 52px;
+  height: 80px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 150ms ease;
   background: linear-gradient(
     to bottom,
     transparent,
-    var(--mantine-color-body)
+    var(--scroll-gradient-color, var(--mantine-color-body))
   );
-  pointer-events: none;
+}
+
+.visible {
+  opacity: 1;
 }

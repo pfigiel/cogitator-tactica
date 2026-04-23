@@ -74,7 +74,11 @@ export const WeaponSelector = ({
           {availableWeapons.length === 0 ? (
             <span className={styles.dimmed}>No weapons available</span>
           ) : (
-            <ScrollAreaAutosize mah={270} withFadeGradient>
+            <ScrollAreaAutosize
+              mah={270}
+              withFadeGradient
+              gradientColor="var(--mantine-color-dark-8)"
+            >
               <Stack gap="xs">
                 {availableWeapons.map((w) => (
                   <WeaponRecord

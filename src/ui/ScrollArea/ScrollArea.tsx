@@ -19,11 +19,13 @@ type AutosizeClassNames = NonNullable<ScrollAreaAutosizeProps["classNames"]> & {
 type Props = Omit<ScrollAreaProps, "classNames"> & {
   classNames?: ScrollAreaClassNames;
   withFadeGradient?: boolean;
+  gradientColor?: string;
 };
 
 type AutosizeProps = Omit<ScrollAreaAutosizeProps, "classNames"> & {
   classNames?: AutosizeClassNames;
   withFadeGradient?: boolean;
+  gradientColor?: string;
 };
 
 const useGradient = (enabled: boolean) => {
@@ -52,6 +54,7 @@ const useGradient = (enabled: boolean) => {
 
 export const ScrollArea = ({
   withFadeGradient,
+  gradientColor,
   classNames,
   onScrollPositionChange,
   ...props
@@ -79,25 +82,33 @@ export const ScrollArea = ({
   }
 
   return (
-    <div className={styles.wrapper}>
+    <div
+      className={styles.wrapper}
+      style={
+        gradientColor
+          ? ({
+              "--scroll-gradient-color": gradientColor,
+            } as React.CSSProperties)
+          : undefined
+      }
+    >
       <MantineScrollArea
         viewportRef={viewportRef}
         onScrollPositionChange={handleScroll}
         classNames={mantineClassNames as ScrollAreaProps["classNames"]}
         {...props}
       />
-      {show && (
-        <div
-          aria-hidden="true"
-          className={clsx(styles.gradient, gradientClass)}
-        />
-      )}
+      <div
+        aria-hidden="true"
+        className={clsx(styles.gradient, gradientClass, show && styles.visible)}
+      />
     </div>
   );
 };
 
 export const ScrollAreaAutosize = ({
   withFadeGradient,
+  gradientColor,
   classNames,
   onScrollPositionChange,
   ...props
@@ -125,19 +136,26 @@ export const ScrollAreaAutosize = ({
   }
 
   return (
-    <div className={styles.wrapper}>
+    <div
+      className={styles.wrapper}
+      style={
+        gradientColor
+          ? ({
+              "--scroll-gradient-color": gradientColor,
+            } as React.CSSProperties)
+          : undefined
+      }
+    >
       <MantineScrollArea.Autosize
         viewportRef={viewportRef}
         onScrollPositionChange={handleScroll}
         classNames={mantineClassNames as ScrollAreaAutosizeProps["classNames"]}
         {...props}
       />
-      {show && (
-        <div
-          aria-hidden="true"
-          className={clsx(styles.gradient, gradientClass)}
-        />
-      )}
+      <div
+        aria-hidden="true"
+        className={clsx(styles.gradient, gradientClass, show && styles.visible)}
+      />
     </div>
   );
 };
