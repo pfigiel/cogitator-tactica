@@ -194,10 +194,11 @@ const Home = () => {
       <Stack gap="xl">
         {/* Header */}
         <header className={styles.header}>
-          <h1 className={styles.title}>Cogitator Tactica</h1>
-          <p className={styles.subtitle}>
-            Statistics calculator for Warhammer 40,000 10th Edition
-          </p>
+          <span className={styles.appName}>Cogitator Tactica</span>
+          {" · "}
+          <span className={styles.appDesc}>
+            Statistics Calculator — Warhammer 40,000 10th Edition
+          </span>
         </header>
 
         {/* Prompt input */}

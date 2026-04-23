@@ -5,22 +5,18 @@
 }
 
 .header {
-  text-align: center;
-}
-
-.title {
-  font-size: 36px;
-  font-weight: 900;
+  font-size: 11px;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--mantine-color-yellow-4);
-  margin: 0;
 }
 
-.subtitle {
+.appName {
+  font-weight: 700;
+  color: var(--mantine-color-yellow-4);
+}
+
+.appDesc {
   color: var(--mantine-color-dimmed);
-  font-size: 14px;
-  margin: 0;
 }
 
 .error {
