@@ -86,9 +86,11 @@ No `Paper` wrapper. Remove any background or border from the current container.
 
 ---
 
-## 6. New UI Component
+## 6. New UI Components
 
 **`src/ui/Accordion/`** — thin Mantine `Accordion` wrapper, consistent with existing `src/ui/` wrappers (Paper, Button, etc.).
+
+**`src/ui/Textarea/`** — thin Mantine `Textarea` wrapper, consistent with the existing `TextInput` wrapper.
 
 ---
 
