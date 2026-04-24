@@ -42,11 +42,7 @@ export const WeaponSelector = ({
 
   return (
     <Stack gap="xs">
-      <Paper
-        withBorder
-        p="xs"
-        style={{ background: "var(--mantine-color-dark-9)" }}
-      >
+      <Paper className={styles.container} withBorder p="xs">
         <Stack gap="xs">
           <span className={styles.dimmed}>Selected weapons</span>
           {selectedWeapons.length === 0 ? (
@@ -72,20 +68,16 @@ export const WeaponSelector = ({
           )}
         </Stack>
       </Paper>
-      <Paper
-        withBorder
-        p="xs"
-        style={{ background: "var(--mantine-color-dark-9)" }}
-      >
+      <Paper className={styles.container} withBorder p="xs">
         <Stack gap="xs">
           <span className={styles.dimmed}>Available weapons</span>
           {availableWeapons.length === 0 ? (
             <span className={styles.dimmed}>No weapons available</span>
           ) : (
             <ScrollAreaAutosize
+              classNames={{ gradient: styles.gradient }}
               mah={270}
               withFadeGradient
-              gradientColor="var(--mantine-color-dark-9)"
             >
               <Stack gap="xs">
                 {availableWeapons.map((w) => (

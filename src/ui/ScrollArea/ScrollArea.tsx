@@ -8,25 +8,29 @@ import clsx from "clsx";
 import { shouldShowGradient } from "./gradientVisibility";
 import styles from "./ScrollArea.module.css";
 
-type ScrollAreaClassNames = NonNullable<ScrollAreaProps["classNames"]> & {
+type GradientClassNames = {
   gradient?: string;
 };
 
-type AutosizeClassNames = NonNullable<ScrollAreaAutosizeProps["classNames"]> & {
-  gradient?: string;
+type ScrollAreaClassNames = NonNullable<ScrollAreaProps["classNames"]> &
+  GradientClassNames;
+
+type AutosizeClassNames = NonNullable<ScrollAreaAutosizeProps["classNames"]> &
+  GradientClassNames;
+
+type GradientProps = {
+  withFadeGradient?: boolean;
 };
 
-type Props = Omit<ScrollAreaProps, "classNames"> & {
-  classNames?: ScrollAreaClassNames;
-  withFadeGradient?: boolean;
-  gradientColor?: string;
-};
+type Props = GradientProps &
+  Omit<ScrollAreaProps, "classNames"> & {
+    classNames?: ScrollAreaClassNames;
+  };
 
-type AutosizeProps = Omit<ScrollAreaAutosizeProps, "classNames"> & {
-  classNames?: AutosizeClassNames;
-  withFadeGradient?: boolean;
-  gradientColor?: string;
-};
+type AutosizeProps = GradientProps &
+  Omit<ScrollAreaAutosizeProps, "classNames"> & {
+    classNames?: AutosizeClassNames;
+  };
 
 const useGradient = (enabled: boolean) => {
   const viewportRef = useRef<HTMLDivElement>(null);
@@ -54,7 +58,6 @@ const useGradient = (enabled: boolean) => {
 
 export const ScrollArea = ({
   withFadeGradient,
-  gradientColor,
   classNames,
   onScrollPositionChange,
   ...props
@@ -82,16 +85,7 @@ export const ScrollArea = ({
   }
 
   return (
-    <div
-      className={styles.wrapper}
-      style={
-        gradientColor
-          ? ({
-              "--scroll-gradient-color": gradientColor,
-            } as React.CSSProperties)
-          : undefined
-      }
-    >
+    <div className={styles.wrapper}>
       <MantineScrollArea
         viewportRef={viewportRef}
         onScrollPositionChange={handleScroll}
@@ -108,7 +102,6 @@ export const ScrollArea = ({
 
 export const ScrollAreaAutosize = ({
   withFadeGradient,
-  gradientColor,
   classNames,
   onScrollPositionChange,
   ...props
@@ -136,16 +129,7 @@ export const ScrollAreaAutosize = ({
   }
 
   return (
-    <div
-      className={styles.wrapper}
-      style={
-        gradientColor
-          ? ({
-              "--scroll-gradient-color": gradientColor,
-            } as React.CSSProperties)
-          : undefined
-      }
-    >
+    <div className={styles.wrapper}>
       <MantineScrollArea.Autosize
         viewportRef={viewportRef}
         onScrollPositionChange={handleScroll}

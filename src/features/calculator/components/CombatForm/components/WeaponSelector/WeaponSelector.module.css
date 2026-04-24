@@ -1,4 +1,12 @@
+.container {
+  background: var(--mantine-color-dark-9);
+}
+
 .dimmed {
   font-size: 12px;
   color: var(--mantine-color-dimmed);
+}
+
+.gradient {
+  --scroll-gradient-color: var(--mantine-color-dark-9);
 }
