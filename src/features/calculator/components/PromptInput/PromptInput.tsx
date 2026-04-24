@@ -1,3 +1,4 @@
+// src/features/calculator/components/PromptInput/PromptInput.tsx
 "use client";
 
 import { useState } from "react";
@@ -7,12 +8,20 @@ import styles from "./PromptInput.module.css";
 
 type Props = {
   className?: string;
-  onParsed: (state: CombatFormState) => void;
-  onSimulate: (state: CombatFormState) => void;
+  compact?: boolean;
+  initialPrompt?: string;
+  onParsed: (state: CombatFormState, prompt: string) => void;
+  onSimulate: (state: CombatFormState, prompt: string) => void;
 };
 
-const PromptInput = ({ className, onParsed, onSimulate }: Props) => {
-  const [prompt, setPrompt] = useState("");
+const PromptInput = ({
+  className,
+  compact,
+  initialPrompt,
+  onParsed,
+  onSimulate,
+}: Props) => {
+  const [prompt, setPrompt] = useState(initialPrompt ?? "");
   const [loadingAction, setLoadingAction] = useState<
     "parse" | "simulate" | null
   >(null);
@@ -43,20 +52,22 @@ const PromptInput = ({ className, onParsed, onSimulate }: Props) => {
 
   const handleParse = async () => {
     const state = await parse("parse");
-    if (state) onParsed(state);
+    if (state) onParsed(state, prompt);
   };
 
   const handleSimulate = async () => {
     const state = await parse("simulate");
-    if (state) onSimulate(state);
+    if (state) onSimulate(state, prompt);
   };
 
   return (
-    <Stack className={className} gap="md" align="center">
-      <p className={styles.tagline}>
-        Describe the engagement parameters. Probability matrices will be
-        computed and rendered for your strategic calculus.
-      </p>
+    <Stack className={className} gap={compact ? "xs" : "md"} align="center">
+      {!compact && (
+        <p className={styles.tagline}>
+          Describe the engagement parameters. Probability matrices will be
+          computed and rendered for your strategic calculus.
+        </p>
+      )}
       <div className={styles.inputWrap}>
         <Textarea
           className={styles.textArea}
@@ -64,7 +75,7 @@ const PromptInput = ({ className, onParsed, onSimulate }: Props) => {
           onChange={(e) => setPrompt(e.target.value)}
           placeholder="e.g. 10 intercessors with bolt rifles shoot at 20 ork boyz in cover"
           error={error}
-          minRows={3}
+          minRows={compact ? 1 : 3}
           autosize
         />
         <div className={styles.buttons}>
@@ -75,7 +86,7 @@ const PromptInput = ({ className, onParsed, onSimulate }: Props) => {
             loading={loadingAction === "parse"}
             fullWidth
           >
-            Parse report
+            {compact ? "Parse" : "Parse report"}
           </Button>
           <Button
             color="yellow"
@@ -84,7 +95,7 @@ const PromptInput = ({ className, onParsed, onSimulate }: Props) => {
             loading={loadingAction === "simulate"}
             fullWidth
           >
-            Engage cogitator
+            {compact ? "Engage" : "Engage cogitator"}
           </Button>
         </div>
       </div>
