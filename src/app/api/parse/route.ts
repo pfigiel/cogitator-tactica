@@ -12,7 +12,7 @@ export const POST = async (req: NextRequest) => {
     const result = await parsePrompt(prompt);
     return NextResponse.json(result);
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Unknown error";
-    return NextResponse.json({ error: message }, { status: 500 });
+    const error = err instanceof Error ? err.message : "Unknown error";
+    return NextResponse.json({ error }, { status: 500 });
   }
 };

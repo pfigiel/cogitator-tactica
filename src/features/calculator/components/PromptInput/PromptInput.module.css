@@ -1,22 +1,25 @@
 .tagline {
-  font-size: 15px;
+  font-size: 14px;
   letter-spacing: 0.04em;
   text-align: center;
   color: var(--mantine-color-dimmed);
   font-style: italic;
-  max-width: 480px;
   line-height: 1.6;
   margin: 0;
 }
 
 .inputWrap {
-  width: 80%;
+  width: 100%;
   display: flex;
-  flex-direction: column;
   gap: 10px;
+}
+
+.textArea {
+  flex: 1;
 }
 
 .buttons {
   display: flex;
+  flex-direction: column;
   gap: 10px;
 }

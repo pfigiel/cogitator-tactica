@@ -1,3 +1,21 @@
 .body {
   background-color: var(--mantine-color-dark-9);
 }
+
+.header {
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+  padding: 16px var(--content-padding-x);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.appName {
+  font-weight: 700;
+  color: var(--mantine-color-yellow-4);
+}
+
+.appDesc {
+  color: var(--mantine-color-dimmed);
+}

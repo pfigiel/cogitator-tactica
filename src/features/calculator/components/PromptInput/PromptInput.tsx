@@ -6,11 +6,12 @@ import { Textarea, Button, Stack } from "@/ui";
 import styles from "./PromptInput.module.css";
 
 type Props = {
+  className?: string;
   onParsed: (state: CombatFormState) => void;
   onSimulate: (state: CombatFormState) => void;
 };
 
-const PromptInput = ({ onParsed, onSimulate }: Props) => {
+const PromptInput = ({ className, onParsed, onSimulate }: Props) => {
   const [prompt, setPrompt] = useState("");
   const [loadingAction, setLoadingAction] = useState<
     "parse" | "simulate" | null
@@ -51,13 +52,14 @@ const PromptInput = ({ onParsed, onSimulate }: Props) => {
   };
 
   return (
-    <Stack gap="md" align="center">
+    <Stack className={className} gap="md" align="center">
       <p className={styles.tagline}>
         Describe the engagement parameters. Probability matrices will be
         computed and rendered for your strategic calculus.
       </p>
       <div className={styles.inputWrap}>
         <Textarea
+          className={styles.textArea}
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           placeholder="e.g. 10 intercessors with bolt rifles shoot at 20 ork boyz in cover"
@@ -73,7 +75,7 @@ const PromptInput = ({ onParsed, onSimulate }: Props) => {
             loading={loadingAction === "parse"}
             fullWidth
           >
-            PARSE REPORT
+            Parse report
           </Button>
           <Button
             color="yellow"
@@ -82,7 +84,7 @@ const PromptInput = ({ onParsed, onSimulate }: Props) => {
             loading={loadingAction === "simulate"}
             fullWidth
           >
-            INITIATE SIMULATION
+            Engage cogitator
           </Button>
         </div>
       </div>

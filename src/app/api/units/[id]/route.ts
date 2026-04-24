@@ -7,8 +7,10 @@ export const GET = async (
 ) => {
   const { id } = await params;
   const unit = await getUnit(id);
+
   if (!unit) {
     return NextResponse.json({ error: "Unit not found" }, { status: 404 });
   }
+
   return NextResponse.json(unit);
 };

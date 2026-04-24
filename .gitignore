@@ -37,3 +37,6 @@ secrets.md
 # Backups
 backups/
 /src/generated/prisma
+
+# Superpowers
+.superpowers

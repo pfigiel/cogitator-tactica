@@ -227,15 +227,8 @@ const Home = () => {
   return (
     <main className={styles.main}>
       <Stack gap="xl">
-        <header className={styles.header}>
-          <span className={styles.appName}>Cogitator Tactica</span>
-          {" · "}
-          <span className={styles.appDesc}>
-            Statistics Calculator — Warhammer 40,000 10th Edition
-          </span>
-        </header>
-
         <PromptInput
+          className={styles.promptInput}
           onParsed={handleParsedFromPrompt}
           onSimulate={handleSimulateFromPrompt}
         />
