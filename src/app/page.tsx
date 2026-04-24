@@ -180,6 +180,12 @@ const Home = () => {
   };
 
   useEffect(() => {
+    if (accordionValue) {
+      accordionRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [accordionValue]);
+
+  useEffect(() => {
     if (result) {
       resultsRef.current?.scrollIntoView({ behavior: "smooth" });
     }
@@ -190,7 +196,7 @@ const Home = () => {
   };
 
   const handleFormChange = useCallback(
-    async (next: CombatFormState) => {
+    (next: CombatFormState) => {
       if (next.attackerUnitId !== form.attackerUnitId) {
         ensureUnit(next.attackerUnitId);
       }
@@ -203,10 +209,9 @@ const Home = () => {
   );
 
   const handleParsedFromPrompt = useCallback(
-    async (nextForm: CombatFormState) => {
+    (nextForm: CombatFormState) => {
       handleFormChange(nextForm);
       setAccordionValue(ACCORDION_VALUE);
-      accordionRef.current?.scrollIntoView({ behavior: "smooth" });
     },
     [handleFormChange],
   );
