@@ -47,21 +47,7 @@ const ResultsPage = () => {
   const [calculating, setCalculating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [accordionValue, setAccordionValue] = useState<string | null>(null);
-  const [unitList, setUnitList] = useState<Array<{ id: string; name: string }>>(
-    [],
-  );
   const unitsRef = useRef<Record<string, UnitProfile>>({});
-  const [units, setUnits] = useState<Record<string, UnitProfile>>({});
-
-  const setUnitsAndRef = (
-    updater: (prev: Record<string, UnitProfile>) => Record<string, UnitProfile>,
-  ) => {
-    setUnits((prev) => {
-      const next = updater(prev);
-      unitsRef.current = next;
-      return next;
-    });
-  };
 
   const ensureUnit = useCallback(
     async (id: string): Promise<UnitProfile | null> => {
@@ -70,7 +56,7 @@ const ResultsPage = () => {
         const res = await fetch(`/api/units/${id}`);
         if (!res.ok) return null;
         const unit: UnitProfile = await res.json();
-        setUnitsAndRef((prev) => ({ ...prev, [id]: unit }));
+        unitsRef.current = { ...unitsRef.current, [id]: unit };
         return unit;
       } catch {
         return null;
@@ -78,13 +64,6 @@ const ResultsPage = () => {
     },
     [],
   );
-
-  useEffect(() => {
-    fetch("/api/units")
-      .then((r) => r.json())
-      .then((list: Array<{ id: string; name: string }>) => setUnitList(list))
-      .catch(() => {});
-  }, []);
 
   const runCalculation = useCallback(
     async (formState: CombatFormState) => {
@@ -182,16 +161,9 @@ const ResultsPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleFormChange = useCallback(
-    (next: CombatFormState) => {
-      if (form && next.attackerUnitId !== form.attackerUnitId)
-        ensureUnit(next.attackerUnitId);
-      if (form && next.defenderUnitId !== form.defenderUnitId)
-        ensureUnit(next.defenderUnitId);
-      setForm(next);
-    },
-    [form, ensureUnit],
-  );
+  const handleFormChange = useCallback((next: CombatFormState) => {
+    setForm(next);
+  }, []);
 
   const handleCalculate = useCallback(async () => {
     if (form) await runCalculation(form);
@@ -235,8 +207,6 @@ const ResultsPage = () => {
                   state={form}
                   onChange={handleFormChange}
                   onCalculate={handleCalculate}
-                  units={units}
-                  unitList={unitList}
                 />
               </Accordion.Panel>
             </Accordion.Item>

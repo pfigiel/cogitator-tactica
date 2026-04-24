@@ -1,5 +1,7 @@
+// src/features/calculator/components/CombatForm/CombatForm.tsx
 "use client";
 
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   CombatFormState,
   Phase,
@@ -27,22 +29,59 @@ type Props = {
   state: CombatFormState;
   onChange: (state: CombatFormState) => void;
   onCalculate: () => void;
-  units: Record<string, UnitProfile>;
-  unitList: Array<{ id: string; name: string }>;
 };
 
-const CombatForm = ({
-  state,
-  onChange,
-  onCalculate,
-  units,
-  unitList,
-}: Props) => {
+const CombatForm = ({ state, onChange, onCalculate }: Props) => {
+  const [unitList, setUnitList] = useState<Array<{ id: string; name: string }>>(
+    [],
+  );
+  const unitsRef = useRef<Record<string, UnitProfile>>({});
+  const [units, setUnits] = useState<Record<string, UnitProfile>>({});
+
+  const setUnitsAndRef = (
+    updater: (prev: Record<string, UnitProfile>) => Record<string, UnitProfile>,
+  ) => {
+    setUnits((prev) => {
+      const next = updater(prev);
+      unitsRef.current = next;
+      return next;
+    });
+  };
+
+  const ensureUnit = useCallback(
+    async (id: string): Promise<UnitProfile | null> => {
+      if (unitsRef.current[id]) return unitsRef.current[id];
+      try {
+        const res = await fetch(`/api/units/${id}`);
+        if (!res.ok) return null;
+        const unit: UnitProfile = await res.json();
+        setUnitsAndRef((prev) => ({ ...prev, [id]: unit }));
+        return unit;
+      } catch {
+        return null;
+      }
+    },
+    [],
+  );
+
+  useEffect(() => {
+    fetch("/api/units")
+      .then((r) => r.json())
+      .then((list: Array<{ id: string; name: string }>) => setUnitList(list))
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    ensureUnit(state.attackerUnitId);
+    ensureUnit(state.defenderUnitId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const UNIT_DATA = unitList.map((u) => ({ value: u.id, label: u.name }));
 
   const handlePhaseChange = (phase: Phase) => {
-    const attackerUnit = units[state.attackerUnitId];
-    const defenderUnit = units[state.defenderUnitId];
+    const attackerUnit = unitsRef.current[state.attackerUnitId];
+    const defenderUnit = unitsRef.current[state.defenderUnitId];
     const attackerPool = attackerUnit
       ? phase === "shooting"
         ? attackerUnit.shootingWeapons
@@ -60,7 +99,8 @@ const CombatForm = ({
   };
 
   const handleAttackerUnitChange = (unitId: string) => {
-    const unit = units[unitId];
+    ensureUnit(unitId);
+    const unit = unitsRef.current[unitId];
     const pool = unit
       ? state.phase === "shooting"
         ? unit.shootingWeapons
@@ -74,7 +114,8 @@ const CombatForm = ({
   };
 
   const handleDefenderUnitChange = (unitId: string) => {
-    const unit = units[unitId];
+    ensureUnit(unitId);
+    const unit = unitsRef.current[unitId];
     const meleeWeapons = unit ? unit.meleeWeapons : [];
     onChange({
       ...state,
