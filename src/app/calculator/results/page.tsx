@@ -193,30 +193,33 @@ const ResultsPage = () => {
     [form, ensureUnit],
   );
 
-  const handleCalculate = async () => {
+  const handleCalculate = useCallback(async () => {
     if (form) await runCalculation(form);
-  };
+  }, [form, runCalculation]);
 
-  const handleParsed = (nextForm: CombatFormState, nextPrompt: string) => {
-    setForm(nextForm);
-    setPrompt(nextPrompt);
-    setResult(null);
-    setAccordionValue(ACCORDION_VALUE);
-    setHandoff({ form: nextForm, prompt: nextPrompt, autoSubmit: false });
-    ensureUnit(nextForm.attackerUnitId);
-    ensureUnit(nextForm.defenderUnitId);
-  };
+  const handleParsed = useCallback(
+    (nextForm: CombatFormState, nextPrompt: string) => {
+      setForm(nextForm);
+      setPrompt(nextPrompt);
+      setResult(null);
+      setAccordionValue(ACCORDION_VALUE);
+      setHandoff({ form: nextForm, prompt: nextPrompt, autoSubmit: false });
+      ensureUnit(nextForm.attackerUnitId);
+      ensureUnit(nextForm.defenderUnitId);
+    },
+    [setHandoff, ensureUnit],
+  );
 
-  const handleSimulate = async (
-    nextForm: CombatFormState,
-    nextPrompt: string,
-  ) => {
-    setForm(nextForm);
-    setPrompt(nextPrompt);
-    setResult(null);
-    setHandoff({ form: nextForm, prompt: nextPrompt, autoSubmit: true });
-    await runCalculation(nextForm);
-  };
+  const handleSimulate = useCallback(
+    async (nextForm: CombatFormState, nextPrompt: string) => {
+      setForm(nextForm);
+      setPrompt(nextPrompt);
+      setResult(null);
+      setHandoff({ form: nextForm, prompt: nextPrompt, autoSubmit: true });
+      await runCalculation(nextForm);
+    },
+    [setHandoff, runCalculation],
+  );
 
   if (!form) return null;
 
@@ -235,10 +238,11 @@ const ResultsPage = () => {
                   units={units}
                   unitList={unitList}
                 />
-                {error && <p className={styles.error}>Error: {error}</p>}
               </Accordion.Panel>
             </Accordion.Item>
           </Accordion>
+
+          {error && <p className={styles.error}>Error: {error}</p>}
 
           {calculating ? (
             <div className={styles.emptyState}>
