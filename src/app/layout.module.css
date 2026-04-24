@@ -1,5 +1,8 @@
 .body {
   background-color: var(--mantine-color-dark-9);
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
 }
 
 .header {
