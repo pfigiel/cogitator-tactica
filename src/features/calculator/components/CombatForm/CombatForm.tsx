@@ -38,15 +38,20 @@ const CombatForm = ({ state, onChange, onCalculate }: Props) => {
   const unitsRef = useRef<Record<string, UnitProfile>>({});
   const [units, setUnits] = useState<Record<string, UnitProfile>>({});
 
-  const setUnitsAndRef = (
-    updater: (prev: Record<string, UnitProfile>) => Record<string, UnitProfile>,
-  ) => {
-    setUnits((prev) => {
-      const next = updater(prev);
-      unitsRef.current = next;
-      return next;
-    });
-  };
+  const setUnitsAndRef = useCallback(
+    (
+      updater: (
+        prev: Record<string, UnitProfile>,
+      ) => Record<string, UnitProfile>,
+    ) => {
+      setUnits((prev) => {
+        const next = updater(prev);
+        unitsRef.current = next;
+        return next;
+      });
+    },
+    [],
+  );
 
   const ensureUnit = useCallback(
     async (id: string): Promise<UnitProfile | null> => {
@@ -74,8 +79,8 @@ const CombatForm = ({ state, onChange, onCalculate }: Props) => {
   useEffect(() => {
     ensureUnit(state.attackerUnitId);
     ensureUnit(state.defenderUnitId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    // state IDs intentionally read only on mount
+  }, [ensureUnit]);
 
   const UNIT_DATA = unitList.map((u) => ({ value: u.id, label: u.name }));
 
@@ -98,9 +103,8 @@ const CombatForm = ({ state, onChange, onCalculate }: Props) => {
     });
   };
 
-  const handleAttackerUnitChange = (unitId: string) => {
-    ensureUnit(unitId);
-    const unit = unitsRef.current[unitId];
+  const handleAttackerUnitChange = async (unitId: string) => {
+    const unit = unitsRef.current[unitId] ?? (await ensureUnit(unitId));
     const pool = unit
       ? state.phase === "shooting"
         ? unit.shootingWeapons
@@ -113,9 +117,8 @@ const CombatForm = ({ state, onChange, onCalculate }: Props) => {
     });
   };
 
-  const handleDefenderUnitChange = (unitId: string) => {
-    ensureUnit(unitId);
-    const unit = unitsRef.current[unitId];
+  const handleDefenderUnitChange = async (unitId: string) => {
+    const unit = unitsRef.current[unitId] ?? (await ensureUnit(unitId));
     const meleeWeapons = unit ? unit.meleeWeapons : [];
     onChange({
       ...state,
