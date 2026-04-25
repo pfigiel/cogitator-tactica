@@ -158,8 +158,7 @@ const ResultsPage = () => {
     if (handoff.autoSubmit) {
       runCalculation(handoff.form);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [ensureUnit, runCalculation]);
 
   const handleFormChange = useCallback((next: CombatFormState) => {
     setForm(next);
@@ -187,6 +186,7 @@ const ResultsPage = () => {
       setForm(nextForm);
       setPrompt(nextPrompt);
       setResult(null);
+      setAccordionValue(null);
       setHandoff({ form: nextForm, prompt: nextPrompt, autoSubmit: true });
       await runCalculation(nextForm);
     },
