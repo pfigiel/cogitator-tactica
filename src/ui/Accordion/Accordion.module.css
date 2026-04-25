@@ -1,14 +1,11 @@
 .item {
   background-color: var(--mantine-color-dark-8);
   overflow: hidden;
+  border-bottom: none;
 }
 
 .item:only-child {
   border-radius: var(--mantine-radius-md);
-}
-
-.item:only-child .control {
-  border-bottom: none;
 }
 
 .item:first-child:not(:only-child) {

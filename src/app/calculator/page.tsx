@@ -23,6 +23,7 @@ const CalculatorPage = () => {
   return (
     <main className={styles.page}>
       <div className={styles.promptWrap}>
+        <h1 className={styles.banner}>Cogitator awaiting input query_</h1>
         <PromptInput onParsed={handleParsed} onSimulate={handleSimulate} />
       </div>
     </main>

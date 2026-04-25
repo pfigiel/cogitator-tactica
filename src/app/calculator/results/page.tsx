@@ -15,7 +15,7 @@ import { useCalculator } from "@/features/calculator/context/CalculatorContext";
 import PromptInput from "@/features/calculator/components/PromptInput/PromptInput";
 import CombatForm from "@/features/calculator/components/CombatForm/CombatForm";
 import ResultsDisplay from "@/features/calculator/components/ResultsDisplay/ResultsDisplay";
-import { Accordion, Paper, Stack } from "@/ui";
+import { Accordion, Paper, ScrollArea, Stack } from "@/ui";
 import styles from "./page.module.css";
 
 const ACCORDION_VALUE = "combat-parameters";
@@ -196,45 +196,46 @@ const ResultsPage = () => {
   if (!form) return null;
 
   return (
-    <div className={styles.page}>
-      <div className={styles.content}>
-        <Stack gap="xl">
-          <Accordion value={accordionValue} onChange={setAccordionValue}>
-            <Accordion.Item value={ACCORDION_VALUE}>
-              <Accordion.Control>Combat Parameters</Accordion.Control>
-              <Accordion.Panel>
-                <CombatForm
-                  state={form}
-                  onChange={handleFormChange}
-                  onCalculate={handleCalculate}
-                />
-              </Accordion.Panel>
-            </Accordion.Item>
-          </Accordion>
+    <>
+      <ScrollArea className={styles.page}>
+        <div className={styles.content}>
+          <Stack gap="xl">
+            <Accordion value={accordionValue} onChange={setAccordionValue}>
+              <Accordion.Item value={ACCORDION_VALUE}>
+                <Accordion.Control>Combat Parameters</Accordion.Control>
+                <Accordion.Panel className={styles.panel}>
+                  <CombatForm
+                    state={form}
+                    onChange={handleFormChange}
+                    onCalculate={handleCalculate}
+                  />
+                </Accordion.Panel>
+              </Accordion.Item>
+            </Accordion>
 
-          {error && <p className={styles.error}>Error: {error}</p>}
+            {error && <p className={styles.error}>Error: {error}</p>}
 
-          {calculating ? (
-            <div className={styles.emptyState}>
-              <span className={styles.emptyHeading}>Computing…</span>
-            </div>
-          ) : result ? (
-            <Paper>
-              <ResultsDisplay result={result} />
-            </Paper>
-          ) : (
-            <div className={styles.emptyState}>
-              <span className={styles.emptyIcon}>⚙</span>
-              <p className={styles.emptyHeading}>Awaiting calculation</p>
-              <p className={styles.emptyHint}>
-                Review the parameters above, then hit Calculate or use the
-                Engage button below.
-              </p>
-            </div>
-          )}
-        </Stack>
-      </div>
-
+            {calculating ? (
+              <div className={styles.emptyState}>
+                <span className={styles.emptyHeading}>Computing…</span>
+              </div>
+            ) : result ? (
+              <Paper>
+                <ResultsDisplay result={result} />
+              </Paper>
+            ) : (
+              <div className={styles.emptyState}>
+                <span className={styles.emptyIcon}>⚙</span>
+                <p className={styles.emptyHeading}>Awaiting calculation</p>
+                <p className={styles.emptyHint}>
+                  Review the parameters above, then hit Calculate or use the
+                  Engage button below.
+                </p>
+              </div>
+            )}
+          </Stack>
+        </div>
+      </ScrollArea>
       <div className={styles.bottomBar}>
         <div className={styles.bottomBarInner}>
           <PromptInput
@@ -245,7 +246,7 @@ const ResultsPage = () => {
           />
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

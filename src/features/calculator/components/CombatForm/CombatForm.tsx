@@ -17,7 +17,7 @@ import {
   Stack,
   Group,
 } from "@/ui";
-import { IconCrosshair, IconSword } from "@tabler/icons-react";
+import { IconCrosshair, IconShield, IconSword } from "@tabler/icons-react";
 import { WeaponSelector } from "./components/WeaponSelector/WeaponSelector";
 import {
   AttackerContextSection,
@@ -254,7 +254,29 @@ const CombatForm = ({ state, onChange, onCalculate }: Props) => {
           Melee
         </Button>
       </Group>
-
+      {state.phase === "melee" && (
+        <Group gap="xs" justify="center" grow>
+          {(["attacker", "defender"] as FirstFighter[]).map((f) => (
+            <Button
+              key={f}
+              variant={state.firstFighter === f ? "filled" : "default"}
+              color={state.firstFighter === f ? "yellow" : undefined}
+              leftSection={
+                f === "attacker" ? (
+                  <IconSword size={16} />
+                ) : (
+                  <IconShield size={16} />
+                )
+              }
+              onClick={() => onChange({ ...state, firstFighter: f })}
+            >
+              {f === "attacker"
+                ? "Attacker fights first"
+                : "Defender fights first"}
+            </Button>
+          ))}
+        </Group>
+      )}
       <div className={styles.grid}>
         {/* Attacker */}
         <Paper>
@@ -368,24 +390,6 @@ const CombatForm = ({ state, onChange, onCalculate }: Props) => {
           </Stack>
         </Paper>
       </div>
-
-      {/* First fighter (melee only) */}
-      {state.phase === "melee" && (
-        <div>
-          <label className={styles.sectionLabel}>Who Fights First?</label>
-          <Group gap="xs">
-            {(["attacker", "defender"] as FirstFighter[]).map((f) => (
-              <Button
-                key={f}
-                variant={state.firstFighter === f ? "filled" : "default"}
-                onClick={() => onChange({ ...state, firstFighter: f })}
-              >
-                {f}
-              </Button>
-            ))}
-          </Group>
-        </div>
-      )}
 
       <Button fullWidth size="lg" color="yellow" onClick={onCalculate}>
         Engage Cogitator

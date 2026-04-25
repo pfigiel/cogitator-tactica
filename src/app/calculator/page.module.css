@@ -9,4 +9,18 @@
 .promptWrap {
   width: 100%;
   max-width: var(--content-max-width);
+  margin-top: -5rem;
+}
+
+.banner {
+  font-family: monospace;
+  color: var(--mantine-color-yellow-4);
+  font-size: 2rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.bannerStatus {
+  color: var(--mantine-color-red-6);
 }

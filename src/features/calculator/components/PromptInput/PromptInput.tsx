@@ -5,6 +5,7 @@ import { useState } from "react";
 import { CombatFormState } from "@/lib/calculator/types";
 import { Textarea, Button, Stack } from "@/ui";
 import styles from "./PromptInput.module.css";
+import clsx from "clsx";
 
 type Props = {
   className?: string;
@@ -73,12 +74,12 @@ const PromptInput = ({
           className={styles.textArea}
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
-          placeholder="e.g. 10 intercessors with bolt rifles shoot at 20 ork boyz in cover"
+          placeholder="10 intercessors with bolt rifles shoot at 20 ork boyz in cover"
           error={error}
           minRows={compact ? 1 : 3}
           autosize
         />
-        <div className={styles.buttons}>
+        <div className={clsx(styles.buttons, compact && styles.buttonsCompact)}>
           <Button
             variant="default"
             onClick={handleParse}
