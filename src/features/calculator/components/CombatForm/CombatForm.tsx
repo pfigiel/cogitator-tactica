@@ -66,7 +66,7 @@ const CombatForm = ({ state, onChange, onCalculate }: Props) => {
         return null;
       }
     },
-    [],
+    [setUnitsAndRef],
   );
 
   useEffect(() => {
@@ -77,8 +77,8 @@ const CombatForm = ({ state, onChange, onCalculate }: Props) => {
   }, []);
 
   useEffect(() => {
-    ensureUnit(state.attackerUnitId);
-    ensureUnit(state.defenderUnitId);
+    void ensureUnit(state.attackerUnitId);
+    void ensureUnit(state.defenderUnitId);
     // state IDs intentionally read only on mount
   }, [ensureUnit]);
 
@@ -265,7 +265,9 @@ const CombatForm = ({ state, onChange, onCalculate }: Props) => {
               searchable
               minSearchLength={3}
               value={state.attackerUnitId}
-              onChange={(value) => value && handleAttackerUnitChange(value)}
+              onChange={(value) => {
+                if (value) void handleAttackerUnitChange(value);
+              }}
               data={UNIT_DATA}
             />
             <NumberInput
@@ -308,7 +310,9 @@ const CombatForm = ({ state, onChange, onCalculate }: Props) => {
               searchable
               minSearchLength={3}
               value={state.defenderUnitId}
-              onChange={(value) => value && handleDefenderUnitChange(value)}
+              onChange={(value) => {
+                if (value) void handleDefenderUnitChange(value);
+              }}
               data={UNIT_DATA}
             />
             <NumberInput
