@@ -9,11 +9,11 @@ Split the single-page calculator into two routes with a ChatGPT-style flow: a la
 
 ## Routing
 
-| Route                 | Purpose                                                  |
-| --------------------- | -------------------------------------------------------- |
-| `/`                   | Permanent redirect → `/calculator`                       |
-| `/calculator`         | Landing — prompt input, vertically centred               |
-| `/calculator/results` | Results — form accordion + results + fixed bottom prompt |
+| Route                 | Purpose                                                     |
+| --------------------- | ----------------------------------------------------------- |
+| `/`                   | Permanent redirect → `/calculator`                          |
+| `/calculator`         | Landing — prompt input, vertically and horizontally centred |
+| `/calculator/results` | Results — form accordion + results + fixed bottom prompt    |
 
 ## File Structure
 
@@ -28,12 +28,15 @@ src/app/
         └── page.tsx                # Results page
 
 src/features/calculator/
-└── CalculatorContext.tsx           # Context + provider + hook
+└── context/
+    └── CalculatorContext/
+        ├── CalculatorContext.tsx   # Context + provider + hook
+        └── index.ts                # Barrel — named re-exports
 ```
 
 ## CalculatorContext
 
-Lives in `src/features/calculator/CalculatorContext.tsx`. Wraps both child routes via `src/app/calculator/layout.tsx`.
+Lives in `src/features/calculator/context/CalculatorContext/CalculatorContext.tsx`. Barrel file at `index.ts` re-exports all named exports. Wraps both child routes via `src/app/calculator/layout.tsx`.
 
 ```ts
 type CalculatorHandoff = {
@@ -52,7 +55,7 @@ Context is a one-time handoff. After the results page mounts and reads it, all s
 
 ## /calculator — Landing Page
 
-- Vertically centred on the full viewport height (below the header)
+- Vertically and horizontally centred on the full viewport height (below the header)
 - Renders `<PromptInput>` (default variant)
 - No large app name banner; tagline only
 - On `onParsed`: calls `setHandoff({ form, prompt, autoSubmit: false })` → `router.push('/calculator/results')`
