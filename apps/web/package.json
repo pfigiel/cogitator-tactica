@@ -1,0 +1,46 @@
+{
+  "name": "@cogitator-tactica/web",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint src",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "import-units": "tsx scripts/import-wahapedia/index.ts",
+    "generate-embeddings": "tsx scripts/generate-embeddings/index.ts",
+    "db:setup": "prisma migrate deploy && prisma generate",
+    "db:dump": "dotenv -- sh -c 'mkdir -p backups && pg_dump \"$DATABASE_URL\" -Fc -f \"backups/$(date -u +%Y-%m-%dT%H-%M-%S).dump\"'"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.80.0",
+    "@cogitator-tactica/ui-kit": "workspace:*",
+    "@tabler/icons-react": "^3.41.1",
+    "@prisma/client": "^6.19.3",
+    "clsx": "^2.1.1",
+    "@types/node": "^25.5.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "fuse.js": "^7.3.0",
+    "next": "^16.2.1",
+    "postcss": "^8.5.8",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "typescript": "^6.0.2",
+    "voyageai": "^0.2.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.2.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prefer-arrow": "^1.2.3",
+    "prettier": "^3.8.2",
+    "prisma": "^6.19.3",
+    "tsx": "^4.21.0",
+    "typescript-eslint": "^8.58.1",
+    "vitest": "^4.1.4"
+  }
+}
