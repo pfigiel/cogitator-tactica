@@ -31,7 +31,7 @@ A combat statistics calculator for Warhammer 40,000 10th Edition. Describe a com
 ### 1. Install dependencies
 
 ```bash
-npm install
+pnpm install
 ```
 
 ### 2. Configure environment
@@ -57,7 +57,7 @@ docker compose up -d
 ### 4. Apply migrations
 
 ```bash
-npx prisma migrate deploy
+pnpm prisma migrate deploy
 ```
 
 ### 5. Import unit data
@@ -65,31 +65,31 @@ npx prisma migrate deploy
 Unit and weapon data is sourced from Wahapedia. Import the factions you want:
 
 ```bash
-npm run import-units
-npm run generate-embeddings
+pnpm import-units
+pnpm generate-embeddings
 ```
 
 ### 6. Start the dev server
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
 
 ## Scripts
 
-| Command                       | Description                                |
-| ----------------------------- | ------------------------------------------ |
-| `npm run dev`                 | Start development server with Turbopack    |
-| `npm run build`               | Production build                           |
-| `npm start`                   | Start production server                    |
-| `npm test`                    | Run tests (Vitest)                         |
-| `npm run lint`                | Lint                                       |
-| `npm run format`              | Format with Prettier                       |
-| `npm run import-units`        | Import units from Wahapedia                |
-| `npm run generate-embeddings` | Generate semantic embeddings for all units |
-| `npm run db:dump`             | Dump the database to `backups/`            |
+| Command                    | Description                                |
+| -------------------------- | ------------------------------------------ |
+| `pnpm dev`                 | Start development server with Turbopack    |
+| `pnpm build`               | Production build                           |
+| `pnpm start`               | Start production server                    |
+| `pnpm test`                | Run tests (Vitest)                         |
+| `pnpm lint`                | Lint                                       |
+| `pnpm format`              | Format with Prettier                       |
+| `pnpm import-units`        | Import units from Wahapedia                |
+| `pnpm generate-embeddings` | Generate semantic embeddings for all units |
+| `pnpm db:dump`             | Dump the database to `backups/`            |
 
 ## Database
 
