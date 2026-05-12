@@ -1,4 +1,3 @@
-// src/features/calculator/components/PromptInput/PromptInput.tsx
 "use client";
 
 import { useState } from "react";

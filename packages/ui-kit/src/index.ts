@@ -13,3 +13,5 @@ export { ScrollArea, ScrollAreaAutosize } from "./ScrollArea";
 export { Accordion } from "./Accordion";
 export { UIProvider } from "./Provider";
 export { ColorSchemeScript } from "@mantine/core";
+export { breakpoints, mq } from "./breakpoints";
+export type { Breakpoint } from "./breakpoints";
