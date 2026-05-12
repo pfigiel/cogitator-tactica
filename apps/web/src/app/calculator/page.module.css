@@ -15,10 +15,14 @@
 .banner {
   font-family: monospace;
   color: var(--mantine-color-yellow-4);
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: 700;
   text-align: center;
   margin-bottom: 0.5rem;
+
+  @media (--bp-sm) {
+    font-size: 2rem;
+  }
 }
 
 .bannerStatus {

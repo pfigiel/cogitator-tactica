@@ -4,6 +4,7 @@
   "private": true,
   "packageManager": "pnpm@10.13.1",
   "scripts": {
+    "backlog": "backlog browser",
     "dev": "turbo dev",
     "build": "turbo build",
     "lint": "turbo lint",
@@ -13,7 +14,8 @@
     "format:check": "prettier --check ."
   },
   "devDependencies": {
-    "prettier": "^3.8.2",
-    "turbo": "^2.0.0"
+    "backlog.md": "1.45.1",
+    "prettier": "3.8.2",
+    "turbo": "2.0.0"
   }
 }
