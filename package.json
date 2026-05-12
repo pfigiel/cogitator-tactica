@@ -2,7 +2,7 @@
   "name": "cogitator-tactica",
   "version": "1.0.0",
   "private": true,
-  "packageManager": "pnpm@10",
+  "packageManager": "pnpm@10.13.1",
   "scripts": {
     "dev": "turbo dev",
     "build": "turbo build",
