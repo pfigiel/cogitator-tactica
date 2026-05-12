@@ -40,3 +40,6 @@ backups/
 
 # Superpowers
 .superpowers
+
+# Monorepo
+.turbo
