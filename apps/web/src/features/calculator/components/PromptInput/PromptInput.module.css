@@ -44,4 +44,8 @@
 
 .buttonsCompact {
   flex-direction: row;
+
+  @media (--bp-sm) {
+    gap: 10px;
+  }
 }
