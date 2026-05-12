@@ -75,6 +75,7 @@ const PromptInput = ({
           onChange={(e) => setPrompt(e.target.value)}
           placeholder="10 intercessors with bolt rifles shoot at 20 ork boyz in cover"
           error={error}
+          rows={compact ? 1 : 3}
           minRows={compact ? 1 : 3}
           autosize
         />

@@ -33,6 +33,8 @@
 
   @media (--bp-sm) {
     flex-direction: column;
+    justify-content: space-between;
+    gap: 0;
   }
 
   button {
