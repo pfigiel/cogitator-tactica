@@ -2,6 +2,8 @@
 
 A combat statistics calculator for Warhammer 40,000 10th Edition. Describe a combat scenario in plain English and get detailed statistical breakdowns of expected hits, wounds, damage, and model casualties — powered by Monte Carlo simulation and Claude AI.
 
+🚀 **Live app**: [cogitator-tactica.vercel.app/calculator](https://cogitator-tactica.vercel.app/calculator)
+
 ## Features
 
 - **Natural language input** — describe a fight in plain text (e.g. _"10 intercessors with bolt rifles shoot at 20 ork boyz in cover"_)
