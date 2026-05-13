@@ -44,6 +44,6 @@
     "prisma": "6.19.3",
     "tsx": "4.21.0",
     "typescript-eslint": "catalog:lint",
-    "vitest": "catalog:"
+    "vitest": "catalog:test"
   }
 }

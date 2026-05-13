@@ -29,6 +29,6 @@
     "eslint-plugin-prefer-arrow": "catalog:lint",
     "typescript": "catalog:",
     "typescript-eslint": "catalog:lint",
-    "vitest": "catalog:"
+    "vitest": "catalog:test"
   }
 }
