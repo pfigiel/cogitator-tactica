@@ -52,9 +52,9 @@ export const parseContextFromJson = (text: string): ParsedContext => {
   const jsonMatch = text.match(/\{[\s\S]*\}/);
   if (!jsonMatch) throw new Error(`No JSON object found in: ${text}`);
 
-  let parsed: any;
+  let parsed: Record<string, unknown>;
   try {
-    parsed = JSON.parse(jsonMatch[0]);
+    parsed = JSON.parse(jsonMatch[0]) as Record<string, unknown>;
   } catch {
     throw new Error(`Invalid JSON: ${text}`);
   }

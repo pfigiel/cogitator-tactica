@@ -11,10 +11,19 @@
     "typecheck": "turbo typecheck",
     "test": "turbo test",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "prepare": "husky"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@prisma/client",
+      "prisma"
+    ]
   },
   "devDependencies": {
     "backlog.md": "1.45.1",
+    "husky": "9.1.7",
+    "lint-staged": "16.4.0",
     "prettier": "3.8.2",
     "turbo": "2.0.0"
   }
