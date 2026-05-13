@@ -13,22 +13,22 @@
   "dependencies": {
     "@mantine/core": "9.0.1",
     "@mantine/hooks": "9.0.1",
-    "@tabler/icons-react": "3.41.1",
-    "clsx": "2.1.1"
+    "@tabler/icons-react": "catalog:react",
+    "clsx": "catalog:"
   },
   "peerDependencies": {
     "react": ">=19.0.0",
     "react-dom": ">=19.0.0"
   },
   "devDependencies": {
-    "@eslint/js": "10.0.1",
-    "@types/react": "19.2.14",
-    "@types/react-dom": "19.2.3",
-    "eslint": "10.2.0",
-    "eslint-config-prettier": "10.1.8",
-    "eslint-plugin-prefer-arrow": "1.2.3",
-    "typescript": "6.0.2",
-    "typescript-eslint": "8.58.1",
-    "vitest": "4.1.4"
+    "@eslint/js": "catalog:lint",
+    "@types/react": "catalog:react",
+    "@types/react-dom": "catalog:react",
+    "eslint": "catalog:lint",
+    "eslint-config-prettier": "catalog:lint",
+    "eslint-plugin-prefer-arrow": "catalog:lint",
+    "typescript": "catalog:",
+    "typescript-eslint": "catalog:lint",
+    "vitest": "catalog:"
   }
 }
