@@ -1,13 +1,13 @@
 ---
 id: TASK-7
 title: Add eslint package
-status: In Progress
+status: Done
 assignee: []
 created_date: "2026-05-13 14:40"
-updated_date: "2026-05-13 14:40"
+updated_date: "2026-05-13 14:55"
 labels: []
 dependencies: []
-ordinal: 1000
+ordinal: 3000
 ---
 
 ## Description
