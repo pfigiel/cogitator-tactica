@@ -4,26 +4,29 @@ A combat statistics calculator for Warhammer 40,000 10th Edition. Describe a com
 
 🚀 **Live app**: [cogitator-tactica.vercel.app/calculator](https://cogitator-tactica.vercel.app/calculator)
 
-## Features
+## Monorepo Structure
 
-- **Natural language input** — describe a fight in plain text (e.g. _"10 intercessors with bolt rifles shoot at 20 ork boyz in cover"_)
-- **Manual combat form** — pick attacker/defender units, weapons, and tactical modifiers directly
-- **Monte Carlo simulation** — runs 10,000 combat rounds to produce accurate probability distributions
-- **Full 10th Edition rules** — sustained hits, lethal hits, devastating wounds, anti-, blast, cover, invulnerable saves, and more
-- **Shooting and melee phases** both supported
-- **Semantic unit/weapon search** — finds units even with fuzzy or partial names
+```
+apps/
+  web/       # Next.js frontend + calculator logic + AI integration
+  backend/   # NestJS API deployed as AWS Lambda
+packages/
+  ui-kit/        # Shared Mantine-based component library
+  eslint-plugin/ # Custom ESLint rules
+```
 
 ## Tech Stack
 
-- **Frontend/Backend**: Next.js 16 with TypeScript
-- **Database**: PostgreSQL 17 with pgvector
-- **ORM**: Prisma
+- **Monorepo**: pnpm workspaces + Turborepo
+- **Frontend**: Next.js 16, TypeScript, Mantine v9
+- **Backend**: NestJS 11, deployed via Serverless Framework to AWS Lambda
+- **Database**: PostgreSQL 17 with pgvector (via Prisma)
 - **AI**: Claude (natural language parsing) + Voyage AI (semantic embeddings)
-- **UI**: Mantine v9
 
 ## Prerequisites
 
 - Node.js 20+
+- pnpm 10+
 - Docker (for the database) or PostgreSQL 17 with the pgvector extension
 - [Anthropic API key](https://console.anthropic.com/)
 - [Voyage AI API key](https://www.voyageai.com/)
@@ -39,16 +42,10 @@ pnpm install
 ### 2. Configure environment
 
 ```bash
-cp .env.example .env
+cp apps/web/.env.example apps/web/.env
 ```
 
-Edit `.env` and fill in your API keys and database URL:
-
-```env
-DATABASE_URL="postgresql://cogitator_tactica:cogitator_tactica@localhost:5432/cogitator_tactica"
-ANTHROPIC_API_KEY=your_key_here
-VOYAGE_API_KEY=your_key_here
-```
+Fill in your API keys and database URL.
 
 ### 3. Start the database
 
@@ -56,50 +53,26 @@ VOYAGE_API_KEY=your_key_here
 docker compose up -d
 ```
 
-### 4. Apply migrations
-
-```bash
-pnpm prisma migrate deploy
-```
-
-### 5. Import unit data
-
-Unit and weapon data is sourced from Wahapedia. Import the factions you want:
-
-```bash
-pnpm import-units
-pnpm generate-embeddings
-```
-
-### 6. Start the dev server
+### 4. Start dev servers
 
 ```bash
 pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+This starts all apps in parallel via Turborepo. See individual app READMEs for app-specific setup (database migrations, unit data import, etc.).
 
-## Scripts
+## Root Scripts
 
-| Command                    | Description                                |
-| -------------------------- | ------------------------------------------ |
-| `pnpm dev`                 | Start development server with Turbopack    |
-| `pnpm build`               | Production build                           |
-| `pnpm start`               | Start production server                    |
-| `pnpm test`                | Run tests (Vitest)                         |
-| `pnpm lint`                | Lint                                       |
-| `pnpm format`              | Format with Prettier                       |
-| `pnpm import-units`        | Import units from Wahapedia                |
-| `pnpm generate-embeddings` | Generate semantic embeddings for all units |
-| `pnpm db:dump`             | Dump the database to `backups/`            |
-
-## Database
-
-### Restore from dump
-
-```bash
-pg_restore -h localhost -p 5432 -U cogitator_tactica -d cogitator_tactica -1 ./backups/<backup-name>.dump
-```
+| Command             | Description                        |
+| ------------------- | ---------------------------------- |
+| `pnpm dev`          | Start all apps in development mode |
+| `pnpm build`        | Build all apps and packages        |
+| `pnpm lint`         | Lint all apps and packages         |
+| `pnpm typecheck`    | Type-check all apps and packages   |
+| `pnpm test`         | Run all tests                      |
+| `pnpm format`       | Format all files with Prettier     |
+| `pnpm format:check` | Check formatting without writing   |
+| `pnpm backlog`      | Open backlog browser               |
 
 ## License
 
