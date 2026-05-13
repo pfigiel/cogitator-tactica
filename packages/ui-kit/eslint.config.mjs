@@ -8,6 +8,11 @@ export default tseslint.config(
   tseslint.configs.recommended,
   prettierConfig,
   {
+    languageOptions: {
+      parserOptions: {
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
     plugins: { "prefer-arrow": preferArrow },
     rules: {
       "@typescript-eslint/consistent-type-definitions": ["error", "type"],
