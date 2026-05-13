@@ -1,0 +1,27 @@
+{
+  "name": "@cogitator-tactica/eslint-plugin",
+  "version": "1.0.0",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@typescript-eslint/parser": "8.58.1",
+    "eslint-plugin-react": "7.37.5",
+    "eslint-plugin-react-hooks": "7.1.1"
+  },
+  "peerDependencies": {
+    "eslint": ">=9.0.0"
+  },
+  "devDependencies": {
+    "@typescript-eslint/parser": "8.58.1",
+    "@types/eslint": "9.6.1",
+    "eslint": "catalog:lint",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}
