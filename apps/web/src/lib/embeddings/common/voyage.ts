@@ -29,6 +29,5 @@ export const embedText = async (text: string): Promise<number[]> => {
   return results[0];
 };
 
-export const embedTexts = async (texts: string[]): Promise<number[][]> => {
-  return embed(texts);
-};
+export const embedTexts = async (texts: string[]): Promise<number[][]> =>
+  embed(texts);

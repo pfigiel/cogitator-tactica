@@ -1,0 +1,12 @@
+{
+  "apps/web/**/*.{js,jsx,ts,tsx}": [
+    "pnpm -C apps/web exec eslint --config eslint.config.mjs --fix",
+    "prettier --write"
+  ],
+  "packages/ui-kit/**/*.{ts,tsx}": [
+    "pnpm -C packages/ui-kit exec eslint --config eslint.config.mjs --fix",
+    "prettier --write"
+  ],
+  "**/*.{json,md}": ["prettier --write"],
+  "**/*.{ts,tsx}": ["bash -c 'pnpm typecheck'"]
+}
