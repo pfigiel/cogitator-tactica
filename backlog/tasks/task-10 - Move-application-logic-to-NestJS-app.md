@@ -13,12 +13,24 @@ ordinal: 9000
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
 
-Move existing backend logic from the Next app to the NestJS one. This includes the endpoints and the underlying business logic.
+Move existing backend logic from the Next app to the NestJS one. The Next backend was written quickly as a PoC and should be cleaned up and implemented properly during migration — proper separation of concerns, best practices throughout.
 
-The Next backend logic was written quickly, as a PoC. During the migration however, we should clean it up and implement properly. This includes proper separation of concerns, following all the best practices. Special care should be taken to clean up the simulation logic - it should be readable and testable.
+The infrastructure services for embeddings (TASK-11) and LLM communication (TASK-12) are handled separately and can be treated as prerequisites or developed in parallel.
 
-There should definitely be serparate services for embeddings generation and communication with LLM. These should be domain-agnostic, reusable clients for communicating with external providers. Additional domain-specific services and functionalities can be built on top of these. Splitting the existing logic into further services etc. should be decided during planning.
+**What needs to move:**
 
-Do not remove the existing Next logic yet, NestJS should for now mirror its functionality.
+**Endpoints** — three Next API routes to migrate:
+
+- `POST /api/parse` — accepts a natural language prompt, returns a populated `CombatFormState`
+- `GET /api/units` — returns all units (id + name)
+- `GET /api/units/:id` — returns a full `UnitProfile` for a given unit
+
+**Database layer** (`lib/db/`) — Prisma client singleton, unit and faction queries (`listUnits`, `getUnit`, `searchUnitsByEmbedding`, `searchUnitsByFuzzyNameMatch`, `getAllFactions`), and DB-to-domain mappers. The NestJS app will need its own Prisma setup.
+
+**Prompt parsing / context resolution** (`lib/llm/parser.ts`) — the most complex piece. `parsePrompt` orchestrates two LLM calls (context extraction and weapon resolution) and a unit resolution step that combines vector search and fuzzy name matching. It is tightly coupled to domain concepts and will need to be split into well-structured, testable services built on top of TASK-11 and TASK-12.
+
+**Combat calculator** (`lib/calculator/`) — pure TypeScript simulation logic with no framework dependencies. Runs 10,000 Monte Carlo trials per weapon to compute average damage/models slain. The logic itself is reasonably clean but should be wrapped in a proper NestJS service. Special care should be taken to ensure the simulation code remains readable and well-tested.
+
+**Do not remove the existing Next logic yet** — NestJS should mirror functionality first.
 
 <!-- SECTION:DESCRIPTION:END -->
