@@ -3,12 +3,16 @@ Generate a concise, technically precise PR description. Target: senior developer
 ## Steps
 
 1. `git fetch origin main`
-2. `git diff origin/main...HEAD` — get full diff
-3. `git log origin/main..HEAD --oneline` — review commits
-4. Generate description in format below
-5. Output raw MD code block (copyable). No file. Inline only.
+2. `git rev-parse --abbrev-ref HEAD` — extract task ID from branch name (e.g. `feature/task-11` → `task-11`)
+3. Find matching task file: `ls backlog/tasks/ | grep -i "<task-id>"` — read it for context (title, requirements, acceptance criteria)
+4. Find related docs: `ls docs/superpowers/specs/ docs/superpowers/plans/` — grep by keywords from task title for matching spec/plan files, read relevant ones
+5. `git diff origin/main...HEAD` — get full diff
+6. `git log origin/main..HEAD --oneline` — review commits
+7. Generate description in format below using task + docs context to explain the "why"
+8. Output raw MD code block (copyable). No file. Inline only.
 
 If user specifies different base branch, use that instead of `origin/main`.
+If branch has no task ID, skip steps 3–4.
 
 ## Output Format
 
