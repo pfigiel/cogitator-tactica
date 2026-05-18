@@ -42,7 +42,7 @@ Public API:
 - `embedText(text: string): Promise<number[]>`
 - `embedTexts(texts: string[]): Promise<number[][]>`
 
-Implementation: HTTP POST to `https://api.voyageai.com/v1/embeddings`. Response sorted by index before returning. Non-ok responses throw `Error('Voyage AI error <status>: <body>')`. Logic ported verbatim from `apps/web/src/lib/embeddings/common/voyage.ts`.
+Implementation: calls Voyage AI API at `https://api.voyageai.com/v1/embeddings` (internal outgoing fetch — no REST endpoint exposed). Response sorted by index before returning. Non-ok responses throw `Error('Voyage AI error <status>: <body>')`. Logic ported verbatim from `apps/web/src/lib/embeddings/common/voyage.ts`.
 
 ## Module
 
