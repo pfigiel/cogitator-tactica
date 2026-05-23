@@ -18,7 +18,7 @@ llm.module.ts       — ConfigModule.forFeature(llmConfig), provides + exports L
 llm.service.spec.ts — MSW intercepts api.anthropic.com/v1/messages
 ```
 
-`AppModule` imports `LlmModule`.
+`LlmModule` is not imported by `AppModule` directly — future domain modules will import it as needed.
 
 ## Service Interface
 
