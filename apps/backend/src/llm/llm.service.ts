@@ -24,10 +24,7 @@ export class LlmService {
     @Inject(llmConfig.KEY)
     private readonly config: ConfigType<typeof llmConfig>,
   ) {
-    this.client = new Anthropic({
-      apiKey: this.config.apiKey,
-      baseURL: "https://api.anthropic.com",
-    });
+    this.client = new Anthropic({ apiKey: this.config.apiKey });
   }
 
   async createMessage(params: CreateMessageParams): Promise<string> {

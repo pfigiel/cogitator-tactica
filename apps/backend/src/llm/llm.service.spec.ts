@@ -19,6 +19,7 @@ describe("LlmService", () => {
 
   beforeEach(async () => {
     process.env.ANTHROPIC_API_KEY = "test-key";
+    delete process.env.ANTHROPIC_BASE_URL;
 
     const module: TestingModule = await Test.createTestingModule({
       imports: [ConfigModule.forFeature(llmConfig)],
