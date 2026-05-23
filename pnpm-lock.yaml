@@ -77,6 +77,9 @@ importers:
 
   apps/backend:
     dependencies:
+      '@anthropic-ai/sdk':
+        specifier: 0.80.0
+        version: 0.80.0(zod@4.4.3)
       '@codegenie/serverless-express':
         specifier: 5.0.0
         version: 5.0.0
