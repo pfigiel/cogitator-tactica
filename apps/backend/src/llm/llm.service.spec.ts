@@ -11,7 +11,10 @@ describe("LlmService", () => {
   let service: LlmService;
 
   beforeAll(() => server.listen());
-  afterEach(() => server.resetHandlers());
+  afterEach(() => {
+    server.resetHandlers();
+    delete process.env.ANTHROPIC_API_KEY;
+  });
   afterAll(() => server.close());
 
   beforeEach(async () => {
@@ -87,7 +90,7 @@ describe("LlmService", () => {
     ).rejects.toThrow();
   });
 
-  it("should pass system prompt when provided", async () => {
+  it("should pass system prompt to API when createMessage is called with system param", async () => {
     let capturedBody: unknown;
 
     server.use(
