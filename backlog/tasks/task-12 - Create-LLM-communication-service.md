@@ -1,12 +1,13 @@
 ---
 id: TASK-12
 title: Create LLM communication service
-status: To Do
+status: In Progress
 assignee: []
 created_date: "2026-05-14"
+updated_date: "2026-05-23 09:38"
 labels: []
 dependencies: []
-ordinal: 9200
+ordinal: 1000
 ---
 
 ## Description

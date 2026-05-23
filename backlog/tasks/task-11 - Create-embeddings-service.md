@@ -1,13 +1,13 @@
 ---
 id: TASK-11
 title: Create embeddings service
-status: In Progress
+status: Done
 assignee: []
 created_date: "2026-05-14"
-updated_date: "2026-05-14 09:36"
+updated_date: "2026-05-23 09:38"
 labels: []
 dependencies: []
-ordinal: 1000
+ordinal: 5000
 ---
 
 ## Description
