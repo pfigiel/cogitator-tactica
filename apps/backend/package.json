@@ -22,6 +22,7 @@
     "rxjs": "7.8.0"
   },
   "devDependencies": {
+    "@cogitator-tactica/eslint-plugin": "workspace:*",
     "@eslint/js": "catalog:lint",
     "@nestjs/testing": "11.0.0",
     "@swc/core": "1.10.0",

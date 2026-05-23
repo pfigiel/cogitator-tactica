@@ -11,12 +11,6 @@ describe("LlmService", () => {
   let service: LlmService;
 
   beforeAll(() => server.listen());
-  afterEach(() => {
-    server.resetHandlers();
-    delete process.env.ANTHROPIC_API_KEY;
-  });
-  afterAll(() => server.close());
-
   beforeEach(async () => {
     process.env.ANTHROPIC_API_KEY = "test-key";
     delete process.env.ANTHROPIC_BASE_URL;
@@ -28,6 +22,11 @@ describe("LlmService", () => {
 
     service = module.get<LlmService>(LlmService);
   });
+  afterEach(() => {
+    server.resetHandlers();
+    delete process.env.ANTHROPIC_API_KEY;
+  });
+  afterAll(() => server.close());
 
   it("should return joined text when createMessage is called", async () => {
     server.use(

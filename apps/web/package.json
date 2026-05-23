@@ -36,6 +36,7 @@
     "voyageai": "0.2.1"
   },
   "devDependencies": {
+    "@cogitator-tactica/eslint-plugin": "workspace:*",
     "@eslint/js": "catalog:lint",
     "eslint": "catalog:lint",
     "eslint-config-prettier": "catalog:lint",

@@ -21,6 +21,7 @@
     "react-dom": ">=19.0.0"
   },
   "devDependencies": {
+    "@cogitator-tactica/eslint-plugin": "workspace:*",
     "@eslint/js": "catalog:lint",
     "@types/react": "catalog:react",
     "@types/react-dom": "catalog:react",
