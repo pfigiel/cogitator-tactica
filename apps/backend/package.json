@@ -8,7 +8,7 @@
     "dev": "ts-node main.ts",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "jest --passWithNoTests",
+    "test": "vitest run",
     "clean": "rm -rf dist"
   },
   "dependencies": {
@@ -26,17 +26,17 @@
     "@swc/core": "1.10.0",
     "@swc/helpers": "0.5.0",
     "@types/aws-lambda": "8.10.0",
-    "@types/jest": "catalog:test",
     "@types/node": "22.0.0",
     "eslint": "catalog:lint",
     "eslint-config-prettier": "catalog:lint",
     "eslint-plugin-prefer-arrow": "catalog:lint",
-    "jest": "catalog:test",
+    "msw": "catalog:test",
     "serverless": "3.40.0",
     "serverless-esbuild": "1.52.0",
-    "ts-jest": "catalog:test",
     "ts-node": "10.9.2",
     "typescript": "catalog:",
-    "typescript-eslint": "catalog:lint"
+    "typescript-eslint": "catalog:lint",
+    "unplugin-swc": "1.5.9",
+    "vitest": "catalog:test"
   }
 }

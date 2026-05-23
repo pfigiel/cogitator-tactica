@@ -11,7 +11,7 @@
     "sourceMap": true,
     "outDir": "dist",
     "noEmit": true,
-    "types": ["node", "jest"]
+    "types": ["node", "vitest/globals"]
   },
   "include": ["src/**/*.ts", "main.ts", "lambda.ts"]
 }

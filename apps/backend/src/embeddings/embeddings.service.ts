@@ -2,8 +2,6 @@ import { Inject, Injectable } from "@nestjs/common";
 import { ConfigType } from "@nestjs/config";
 import { embeddingsConfig } from "./embeddings.config";
 
-const API_URL = "https://api.voyageai.com/v1/embeddings";
-
 type EmbedResponse = {
   data: Array<{ embedding: number[]; index: number }>;
 };
@@ -25,7 +23,7 @@ export class EmbeddingsService {
   }
 
   private async embed(input: string[]): Promise<number[][]> {
-    const res = await fetch(API_URL, {
+    const res = await fetch(this.config.apiUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
