@@ -20,7 +20,9 @@ describe("PrismaService", () => {
     const connectSpy = vi
       .spyOn(service, "$connect")
       .mockResolvedValue(undefined);
+
     await service.onModuleInit();
+
     expect(connectSpy).toHaveBeenCalledOnce();
   });
 
@@ -28,7 +30,9 @@ describe("PrismaService", () => {
     const disconnectSpy = vi
       .spyOn(service, "$disconnect")
       .mockResolvedValue(undefined);
+
     await service.onModuleDestroy();
+
     expect(disconnectSpy).toHaveBeenCalledOnce();
   });
 });
