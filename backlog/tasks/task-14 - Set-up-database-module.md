@@ -1,14 +1,14 @@
 ---
 id: TASK-14
 title: Set up database module
-status: In Progress
+status: Done
 assignee: []
 created_date: "2026-05-24"
-updated_date: "2026-05-24 19:26"
+updated_date: "2026-05-24 20:02"
 labels: []
 milestone: m-0
 dependencies: []
-ordinal: 2000
+ordinal: 5000
 ---
 
 ## Description

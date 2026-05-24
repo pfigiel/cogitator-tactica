@@ -1,14 +1,14 @@
 ---
 id: TASK-15
 title: Set up common domain types
-status: To Do
+status: In Progress
 assignee: []
 created_date: "2026-05-24"
-updated_date: "2026-05-24"
+updated_date: "2026-05-24 20:02"
 labels: []
 milestone: m-0
 dependencies: []
-ordinal: 2500
+ordinal: 2000
 ---
 
 ## Description
