@@ -50,14 +50,6 @@ Requires `DATABASE_URL` set to a PostgreSQL connection string:
 DATABASE_URL=postgresql://user:password@localhost:5432/cogitator_tactica
 ```
 
-### Working with migrations
-
-| Command                             | Description                                   |
-| ----------------------------------- | --------------------------------------------- |
-| `pnpm db:generate`                  | Regenerate Prisma client after schema changes |
-| `pnpm db:migrate:dev --name <name>` | Create and apply a new migration (dev only)   |
-| `pnpm db:migrate:deploy`            | Apply pending migrations (CI/prod)            |
-
 To add a migration:
 
 1. Edit `prisma/schema.prisma`
