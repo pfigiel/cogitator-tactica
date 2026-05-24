@@ -27,7 +27,7 @@ describe("FactionsService", () => {
       { id: "f1", name: "Space Marines" },
       { id: "f2", name: "Orks" },
     ];
-    vi.spyOn(prisma.faction, "findMany").mockResolvedValue(factions as never);
+    vi.spyOn(prisma.faction, "findMany").mockResolvedValue(factions);
 
     const result = await service.getAllFactions();
 

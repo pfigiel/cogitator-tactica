@@ -2,6 +2,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { vi } from "vitest";
 import { UnitsService } from "./units.service";
 import { PrismaService } from "../database/prisma.service";
+import { DbUnit } from "../database/types";
 
 const makeDbUnit = (overrides = {}) => ({
   id: "unit-1",
@@ -45,7 +46,9 @@ describe("UnitsService", () => {
         { id: "unit-1", name: "Intercessors" },
         { id: "unit-2", name: "Tactical Marines" },
       ];
-      vi.spyOn(prisma.unit, "findMany").mockResolvedValue(units as never);
+      vi.spyOn(prisma.unit, "findMany").mockResolvedValue(
+        units as unknown as DbUnit[], // TODO: Add mock creators
+      );
 
       const result = await service.listUnits();
 
@@ -59,7 +62,16 @@ describe("UnitsService", () => {
 
   describe("getUnit", () => {
     it("should return UnitProfile when unit exists", async () => {
-      const db = makeDbUnit({
+      const dbUnit = makeDbUnit({
+        id: "unit-1",
+        name: "Intercessors",
+        toughness: 4,
+        save: 3,
+        invuln: null,
+        wounds: 2,
+        keywords: ["Infantry"],
+        factionId: "f1",
+        altNames: [],
         unitWeapons: [
           {
             weapon: {
@@ -74,21 +86,32 @@ describe("UnitsService", () => {
               abilities: [],
             },
           },
-        ] as never,
+        ],
       });
-      vi.spyOn(prisma.unit, "findUnique").mockResolvedValue(db as never);
+      vi.spyOn(prisma.unit, "findUnique").mockResolvedValue(dbUnit);
 
       const result = await service.getUnit("unit-1");
 
-      expect(result).toMatchObject({
+      expect(result).toEqual({
         id: "unit-1",
-        name: "Intercessors",
-        toughness: 4,
-        save: 3,
-        wounds: 2,
         keywords: ["Infantry"],
-        shootingWeapons: [{ id: "w1", name: "Bolt Rifle" }],
         meleeWeapons: [],
+        name: "Intercessors",
+        save: 3,
+        shootingWeapons: [
+          {
+            abilities: [],
+            ap: -1,
+            attacks: 1,
+            damage: 1,
+            id: "w1",
+            name: "Bolt Rifle",
+            skill: 3,
+            strength: 4,
+          },
+        ],
+        toughness: 4,
+        wounds: 2,
       });
       expect(prisma.unit.findUnique).toHaveBeenCalledWith({
         where: { id: "unit-1" },

@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../database/prisma.service";
 
-export type FactionRecord = { id: string; name: string };
+type FactionRecord = { id: string; name: string };
 
 @Injectable()
 export class FactionsService {

@@ -3,21 +3,6 @@ import { NotFoundException } from "@nestjs/common";
 import { vi } from "vitest";
 import { UnitsController } from "./units.controller";
 import { UnitsService } from "./units.service";
-import type { UnitProfile } from "../common/types";
-
-const makeUnitProfile = (
-  overrides: Partial<UnitProfile> = {},
-): UnitProfile => ({
-  id: "unit-1",
-  name: "Intercessors",
-  toughness: 4,
-  save: 3,
-  wounds: 2,
-  keywords: ["Infantry"],
-  shootingWeapons: [],
-  meleeWeapons: [],
-  ...overrides,
-});
 
 describe("UnitsController", () => {
   let controller: UnitsController;
@@ -53,8 +38,17 @@ describe("UnitsController", () => {
   });
 
   describe("getUnit", () => {
-    it("should return UnitProfile when unit exists", async () => {
-      const profile = makeUnitProfile();
+    it("should return unit profile when unit exists", async () => {
+      const profile = {
+        id: "unit-1",
+        name: "Intercessors",
+        toughness: 4,
+        save: 3,
+        wounds: 2,
+        keywords: ["Infantry"],
+        shootingWeapons: [],
+        meleeWeapons: [],
+      };
       vi.spyOn(unitsService, "getUnit").mockResolvedValue(profile);
 
       const result = await controller.getUnit("unit-1");

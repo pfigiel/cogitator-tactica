@@ -10,39 +10,7 @@ import type {
   WeaponAbility,
 } from "../common/types";
 
-export type UnitSearchResult = { id: string; name: string; altNames: string[] };
-
-const parseDiceExpr = (s: string): DiceExpression => {
-  const n = Number(s);
-  return Number.isFinite(n) ? n : s;
-};
-
-const toWeaponProfile = (db: DbWeapon): WeaponProfile => ({
-  id: db.id,
-  name: db.name,
-  attacks: parseDiceExpr(db.attacks),
-  skill: db.skill,
-  strength: parseDiceExpr(db.strength),
-  ap: db.ap,
-  damage: parseDiceExpr(db.damage),
-  abilities: db.abilities as WeaponAbility[],
-});
-
-const toUnitProfile = (db: DbUnitWithWeapons): UnitProfile => ({
-  id: db.id,
-  name: db.name,
-  toughness: db.toughness,
-  save: db.save,
-  ...(db.invuln !== null && { invuln: db.invuln }),
-  wounds: db.wounds,
-  keywords: db.keywords,
-  shootingWeapons: db.unitWeapons
-    .filter((uw) => uw.weapon.type === "shooting")
-    .map((uw) => toWeaponProfile(uw.weapon)),
-  meleeWeapons: db.unitWeapons
-    .filter((uw) => uw.weapon.type === "melee")
-    .map((uw) => toWeaponProfile(uw.weapon)),
-});
+type UnitSearchResult = { id: string; name: string; altNames: string[] };
 
 @Injectable()
 export class UnitsService {
@@ -56,11 +24,12 @@ export class UnitsService {
   }
 
   async getUnit(id: string): Promise<UnitProfile | null> {
-    const db = await this.prisma.unit.findUnique({
-      where: { id },
-      include: { unitWeapons: { include: { weapon: true } } },
-    });
-    return db ? toUnitProfile(db) : null;
+    return this.toUnitProfile(
+      await this.prisma.unit.findUnique({
+        where: { id },
+        include: { unitWeapons: { include: { weapon: true } } },
+      }),
+    );
   }
 
   searchUnitsByEmbedding(
@@ -107,5 +76,43 @@ export class UnitsService {
     );
 
     return candidates.find((u) => u.id === best.item.unitId) ?? candidates[0];
+  }
+
+  private parseDiceExpr(s: string): DiceExpression {
+    const n = Number(s);
+    return Number.isFinite(n) ? n : s;
+  }
+
+  private toWeaponProfile(db: DbWeapon): WeaponProfile {
+    return {
+      id: db.id,
+      name: db.name,
+      attacks: this.parseDiceExpr(db.attacks),
+      skill: db.skill,
+      strength: this.parseDiceExpr(db.strength),
+      ap: db.ap,
+      damage: this.parseDiceExpr(db.damage),
+      abilities: db.abilities as WeaponAbility[],
+    };
+  }
+
+  private toUnitProfile(db: DbUnitWithWeapons | null): UnitProfile | null {
+    return !db
+      ? null
+      : {
+          id: db.id,
+          name: db.name,
+          toughness: db.toughness,
+          save: db.save,
+          ...(db.invuln !== null && { invuln: db.invuln }),
+          wounds: db.wounds,
+          keywords: db.keywords,
+          shootingWeapons: db.unitWeapons
+            .filter((uw) => uw.weapon.type === "shooting")
+            .map((uw) => this.toWeaponProfile(uw.weapon)),
+          meleeWeapons: db.unitWeapons
+            .filter((uw) => uw.weapon.type === "melee")
+            .map((uw) => this.toWeaponProfile(uw.weapon)),
+        };
   }
 }
