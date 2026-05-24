@@ -31,7 +31,9 @@ apps/backend/src/units/
 
 ## DB Types & Mappers
 
-`DbUnit`, `DbWeapon`, `DbUnitWithWeapons` (Prisma payload types) and `toUnitProfile`, `toWeaponProfile`, `parseDiceExpr` are **private** to `units.service.ts`. No external consumer needs them.
+`DbUnit`, `DbWeapon`, `DbUnitWithWeapons` (Prisma payload types) are defined in `apps/backend/src/database/types.ts` and exported from `DatabaseModule`. Feature services import them from there.
+
+Mappers (`toUnitProfile`, `toWeaponProfile`, `parseDiceExpr`) are **private** to `units.service.ts` — units-specific, no other module needs them.
 
 `FactionRecord` type (`{ id: string; name: string }`) is defined in `factions.service.ts`.
 
