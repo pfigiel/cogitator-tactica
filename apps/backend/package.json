@@ -9,10 +9,14 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "db:generate": "prisma generate",
+    "db:migrate:deploy": "prisma migrate deploy",
+    "db:migrate:dev": "prisma migrate dev"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "0.80.0",
+    "@prisma/client": "6.19.3",
     "@codegenie/serverless-express": "5.0.0",
     "@nestjs/common": "11.0.0",
     "@nestjs/config": "4.0.4",
@@ -33,6 +37,7 @@
     "eslint-config-prettier": "catalog:lint",
     "eslint-plugin-prefer-arrow": "catalog:lint",
     "msw": "catalog:test",
+    "prisma": "6.19.3",
     "serverless": "3.40.0",
     "serverless-esbuild": "1.52.0",
     "ts-node": "10.9.2",

@@ -1,0 +1,71 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [vector]
+}
+
+enum WeaponType {
+  shooting
+  melee
+}
+
+model Faction {
+  id    String @id
+  name  String
+  units Unit[]
+
+  @@map("factions")
+}
+
+model Unit {
+  id          String     @id
+  name        String
+  factionId   String     @map("faction_id")
+  faction     Faction    @relation(fields: [factionId], references: [id])
+  toughness   Int
+  save        Int
+  invuln      Int?
+  wounds      Int
+  keywords    String[]
+  altNames    String[]   @default([]) @map("alt_names")
+  embedding   Unsupported("vector(1024)")?
+  unitWeapons UnitWeapon[]
+
+  @@map("units")
+}
+
+model Weapon {
+  id          String     @id
+  name        String
+  type        WeaponType
+  attacks     String
+  skill       Int
+  strength    String
+  ap          Int
+  damage      String
+  abilities   Json
+
+  unitWeapons UnitWeapon[]
+
+  // abilities is excluded from the unique constraint because Postgres cannot index Json columns.
+  // Two weapons with identical stats but different abilities will share a row; the last upsert wins.
+  // The import pipeline's deriveWeaponId uses the same stat fingerprint, so this is intentional.
+  @@unique([name, type, attacks, skill, strength, ap, damage])
+  @@map("weapons")
+}
+
+model UnitWeapon {
+  unitId   String @map("unit_id")
+  weaponId String @map("weapon_id")
+
+  unit   Unit   @relation(fields: [unitId], references: [id])
+  weapon Weapon @relation(fields: [weaponId], references: [id])
+
+  @@id([unitId, weaponId])
+  @@map("unit_weapons")
+}
