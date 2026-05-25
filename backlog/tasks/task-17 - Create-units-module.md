@@ -1,16 +1,16 @@
 ---
 id: TASK-17
 title: Create units module
-status: In Progress
+status: Done
 assignee: []
 created_date: "2026-05-24"
-updated_date: "2026-05-24 20:07"
+updated_date: "2026-05-25 08:07"
 labels: []
 milestone: m-0
 dependencies:
   - TASK-14
   - TASK-15
-ordinal: 2000
+ordinal: 7000
 ---
 
 ## Description
