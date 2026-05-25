@@ -23,6 +23,7 @@ export class ParsePromptService {
       phase === "shooting"
         ? attackerUnit.shootingWeapons
         : attackerUnit.meleeWeapons;
+    // defenders always fight back in melee regardless of phase
     const defaultDefenderPool = defenderUnit.meleeWeapons;
 
     let attackerWeapons: SelectedWeapon[] =
