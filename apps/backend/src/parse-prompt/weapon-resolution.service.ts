@@ -59,7 +59,6 @@ export class WeaponResolutionService {
       phase === "shooting"
         ? attackerUnit.shootingWeapons
         : attackerUnit.meleeWeapons;
-    // defenders always fight back in melee regardless of phase
     const defenderPool = defenderUnit.meleeWeapons;
 
     return {

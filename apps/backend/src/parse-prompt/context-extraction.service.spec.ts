@@ -1,40 +1,35 @@
 import { Test, TestingModule } from "@nestjs/testing";
-import { vi } from "vitest";
+import { MockProxy } from "vitest-mock-extended";
 import { ContextExtractionService } from "./context-extraction.service";
 import { LlmService } from "../llm/llm.service";
 import { FactionsService } from "../units/factions.service";
+import { getMockProvider } from "../common/test/utils";
 
 describe("ContextExtractionService", () => {
   let service: ContextExtractionService;
-  let llmService: LlmService;
-  let factionsService: FactionsService;
+  let llmService: MockProxy<LlmService>;
+  let factionsService: MockProxy<FactionsService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ContextExtractionService,
-        {
-          provide: LlmService,
-          useValue: { createMessage: vi.fn() },
-        },
-        {
-          provide: FactionsService,
-          useValue: { getAllFactions: vi.fn() },
-        },
+        getMockProvider(LlmService),
+        getMockProvider(FactionsService),
       ],
     }).compile();
 
     service = module.get<ContextExtractionService>(ContextExtractionService);
-    llmService = module.get<LlmService>(LlmService);
-    factionsService = module.get<FactionsService>(FactionsService);
+    llmService = module.get<MockProxy<LlmService>>(LlmService);
+    factionsService = module.get<MockProxy<FactionsService>>(FactionsService);
   });
 
   describe("extract", () => {
     it("should return ParsedContext when LLM returns valid JSON", async () => {
-      vi.spyOn(factionsService, "getAllFactions").mockResolvedValue([
+      factionsService.getAllFactions.mockResolvedValue([
         { id: "f1", name: "Space Marines" },
       ]);
-      vi.spyOn(llmService, "createMessage").mockResolvedValue(
+      llmService.createMessage.mockResolvedValue(
         JSON.stringify({
           attackerName: "Intercessors",
           defenderName: "Boyz",
@@ -68,30 +63,28 @@ describe("ContextExtractionService", () => {
     });
 
     it("should pass factions context and prompt to LlmService when extract is called", async () => {
-      vi.spyOn(factionsService, "getAllFactions").mockResolvedValue([
+      factionsService.getAllFactions.mockResolvedValue([
         { id: "f1", name: "Space Marines" },
       ]);
-      const createMessage = vi
-        .spyOn(llmService, "createMessage")
-        .mockResolvedValue(
-          JSON.stringify({
-            attackerName: "A",
-            defenderName: "B",
-            attackerCount: 1,
-            defenderCount: 1,
-            phase: "shooting",
-            defenderInCover: false,
-            firstFighter: "attacker",
-            attackerWeaponHints: [],
-            defenderWeaponHints: [],
-            attackerFactionId: null,
-            defenderFactionId: null,
-          }),
-        );
+      llmService.createMessage.mockResolvedValue(
+        JSON.stringify({
+          attackerName: "A",
+          defenderName: "B",
+          attackerCount: 1,
+          defenderCount: 1,
+          phase: "shooting",
+          defenderInCover: false,
+          firstFighter: "attacker",
+          attackerWeaponHints: [],
+          defenderWeaponHints: [],
+          attackerFactionId: null,
+          defenderFactionId: null,
+        }),
+      );
 
       await service.extract("A vs B");
 
-      expect(createMessage).toHaveBeenCalledWith(
+      expect(llmService.createMessage).toHaveBeenCalledWith(
         expect.objectContaining({
           model: "haiku",
           message: "A vs B",
@@ -101,8 +94,8 @@ describe("ContextExtractionService", () => {
     });
 
     it("should parse weapon hints when LLM returns weapon arrays", async () => {
-      vi.spyOn(factionsService, "getAllFactions").mockResolvedValue([]);
-      vi.spyOn(llmService, "createMessage").mockResolvedValue(
+      factionsService.getAllFactions.mockResolvedValue([]);
+      llmService.createMessage.mockResolvedValue(
         JSON.stringify({
           attackerName: "Intercessors",
           defenderName: "Boyz",
@@ -127,8 +120,8 @@ describe("ContextExtractionService", () => {
     });
 
     it("should throw when LLM returns response without attackerName", async () => {
-      vi.spyOn(factionsService, "getAllFactions").mockResolvedValue([]);
-      vi.spyOn(llmService, "createMessage").mockResolvedValue(
+      factionsService.getAllFactions.mockResolvedValue([]);
+      llmService.createMessage.mockResolvedValue(
         JSON.stringify({ defenderName: "Boyz" }),
       );
 
@@ -138,8 +131,8 @@ describe("ContextExtractionService", () => {
     });
 
     it("should throw when LLM returns response with no JSON object", async () => {
-      vi.spyOn(factionsService, "getAllFactions").mockResolvedValue([]);
-      vi.spyOn(llmService, "createMessage").mockResolvedValue(
+      factionsService.getAllFactions.mockResolvedValue([]);
+      llmService.createMessage.mockResolvedValue(
         "Sorry, I cannot help with that.",
       );
 
@@ -149,8 +142,8 @@ describe("ContextExtractionService", () => {
     });
 
     it("should default phase to shooting when LLM returns unknown phase value", async () => {
-      vi.spyOn(factionsService, "getAllFactions").mockResolvedValue([]);
-      vi.spyOn(llmService, "createMessage").mockResolvedValue(
+      factionsService.getAllFactions.mockResolvedValue([]);
+      llmService.createMessage.mockResolvedValue(
         JSON.stringify({
           attackerName: "A",
           defenderName: "B",

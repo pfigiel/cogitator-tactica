@@ -29,7 +29,7 @@ export class LlmService {
   }
 
   async createMessage(params: CreateMessageParams): Promise<string> {
-    const systemParam =
+    const system =
       params.system && params.cacheControl
         ? [
             {
@@ -43,7 +43,7 @@ export class LlmService {
     const response = await this.client.messages.create({
       model: MODEL_MAP[params.model],
       max_tokens: params.maxTokens,
-      ...(systemParam ? { system: systemParam } : {}),
+      system,
       messages: [{ role: "user", content: params.message }],
     });
 

@@ -16,12 +16,12 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "0.80.0",
-    "@prisma/client": "6.19.3",
     "@codegenie/serverless-express": "5.0.0",
     "@nestjs/common": "11.0.0",
     "@nestjs/config": "4.0.4",
     "@nestjs/core": "11.0.0",
     "@nestjs/platform-express": "11.0.0",
+    "@prisma/client": "6.19.3",
     "fuse.js": "7.3.0",
     "reflect-metadata": "0.2.2",
     "rxjs": "7.8.0"
@@ -45,6 +45,7 @@
     "typescript": "catalog:",
     "typescript-eslint": "catalog:lint",
     "unplugin-swc": "1.5.9",
-    "vitest": "catalog:test"
+    "vitest": "catalog:test",
+    "vitest-mock-extended": "4.0.0"
   }
 }

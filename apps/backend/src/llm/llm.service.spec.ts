@@ -121,7 +121,6 @@ describe("LlmService", () => {
 
   it("should send system as array block with cache_control when cacheControl is true", async () => {
     let capturedBody: unknown;
-
     server.use(
       http.post(
         "https://api.anthropic.com/v1/messages",

@@ -1,54 +1,35 @@
 import { Test, TestingModule } from "@nestjs/testing";
-import { vi } from "vitest";
+import { mockDeep, DeepMockProxy } from "vitest-mock-extended";
 import { UnitsService } from "./units.service";
 import { PrismaService } from "../database/prisma.service";
-import { DbUnit } from "../database/types";
-
-const makeDbUnit = (overrides = {}) => ({
-  id: "unit-1",
-  name: "Intercessors",
-  toughness: 4,
-  save: 3,
-  invuln: null,
-  wounds: 2,
-  keywords: ["Infantry"],
-  factionId: "f1",
-  altNames: [],
-  unitWeapons: [],
-  ...overrides,
-});
+import {
+  getMockDbUnit,
+  getMockDbUnitWithWeapons,
+} from "../database/test/mocks";
 
 describe("UnitsService", () => {
   let service: UnitsService;
-  let prisma: PrismaService;
+  let prisma: DeepMockProxy<PrismaService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UnitsService,
-        {
-          provide: PrismaService,
-          useValue: {
-            unit: { findMany: vi.fn(), findUnique: vi.fn() },
-            $queryRaw: vi.fn(),
-          },
-        },
+        { provide: PrismaService, useValue: mockDeep<PrismaService>() },
       ],
     }).compile();
 
     service = module.get<UnitsService>(UnitsService);
-    prisma = module.get<PrismaService>(PrismaService);
+    prisma = module.get<DeepMockProxy<PrismaService>>(PrismaService);
   });
 
   describe("listUnits", () => {
     it("should return id and name array when listUnits is called", async () => {
       const units = [
-        { id: "unit-1", name: "Intercessors" },
-        { id: "unit-2", name: "Tactical Marines" },
+        getMockDbUnit({ id: "unit-1", name: "Intercessors" }),
+        getMockDbUnit({ id: "unit-2", name: "Tactical Marines" }),
       ];
-      vi.spyOn(prisma.unit, "findMany").mockResolvedValue(
-        units as unknown as DbUnit[], // TODO: Add mock creators
-      );
+      prisma.unit.findMany.mockResolvedValue(units);
 
       const result = await service.listUnits();
 
@@ -62,7 +43,7 @@ describe("UnitsService", () => {
 
   describe("getUnit", () => {
     it("should return UnitProfile when unit exists", async () => {
-      const dbUnit = makeDbUnit({
+      const dbUnit = getMockDbUnitWithWeapons({
         id: "unit-1",
         name: "Intercessors",
         toughness: 4,
@@ -74,6 +55,8 @@ describe("UnitsService", () => {
         altNames: [],
         unitWeapons: [
           {
+            unitId: "unit-1",
+            weaponId: "w1",
             weapon: {
               id: "w1",
               name: "Bolt Rifle",
@@ -88,7 +71,7 @@ describe("UnitsService", () => {
           },
         ],
       });
-      vi.spyOn(prisma.unit, "findUnique").mockResolvedValue(dbUnit);
+      prisma.unit.findUnique.mockResolvedValue(dbUnit);
 
       const result = await service.getUnit("unit-1");
 
@@ -120,7 +103,7 @@ describe("UnitsService", () => {
     });
 
     it("should return null when unit does not exist", async () => {
-      vi.spyOn(prisma.unit, "findUnique").mockResolvedValue(null);
+      prisma.unit.findUnique.mockResolvedValue(null);
 
       const result = await service.getUnit("missing");
 
@@ -131,7 +114,7 @@ describe("UnitsService", () => {
   describe("searchUnitsByEmbedding", () => {
     it("should return query results when searchUnitsByEmbedding is called", async () => {
       const expected = [{ id: "unit-1", name: "Intercessors", altNames: [] }];
-      vi.spyOn(prisma, "$queryRaw").mockResolvedValue(expected);
+      prisma.$queryRaw.mockResolvedValue(expected);
 
       const result = await service.searchUnitsByEmbedding([0.1, 0.2, 0.3]);
 
@@ -140,7 +123,7 @@ describe("UnitsService", () => {
     });
 
     it("should include faction filter when factionId is provided", async () => {
-      vi.spyOn(prisma, "$queryRaw").mockResolvedValue([]);
+      prisma.$queryRaw.mockResolvedValue([]);
 
       await service.searchUnitsByEmbedding([0.1, 0.2], 5, "faction-1");
 

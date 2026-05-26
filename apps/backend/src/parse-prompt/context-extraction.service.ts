@@ -56,7 +56,7 @@ Return only a JSON object, no other text.`;
       if (!item || typeof item !== "object" || typeof item.name !== "string")
         return [];
       const hint: WeaponHint = { name: item.name };
-      if (item.count != null && Number.isFinite(Number(item.count)))
+      if (item.count !== null && Number.isFinite(Number(item.count)))
         hint.count = Math.max(1, Number(item.count));
       return [hint];
     });
