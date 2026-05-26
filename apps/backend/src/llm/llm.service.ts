@@ -13,6 +13,7 @@ export type CreateMessageParams = {
   model: LlmModel;
   maxTokens: number;
   system?: string;
+  cacheControl?: boolean;
   message: string;
 };
 
@@ -28,10 +29,21 @@ export class LlmService {
   }
 
   async createMessage(params: CreateMessageParams): Promise<string> {
+    const system =
+      params.system && params.cacheControl
+        ? [
+            {
+              type: "text" as const,
+              text: params.system,
+              cache_control: { type: "ephemeral" as const },
+            },
+          ]
+        : params.system;
+
     const response = await this.client.messages.create({
       model: MODEL_MAP[params.model],
       max_tokens: params.maxTokens,
-      ...(params.system ? { system: params.system } : {}),
+      system,
       messages: [{ role: "user", content: params.message }],
     });
 

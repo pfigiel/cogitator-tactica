@@ -1,21 +1,23 @@
 ---
 id: TASK-18
 title: Create parser module
-status: To Do
+status: In Progress
 assignee: []
 created_date: "2026-05-24"
-updated_date: "2026-05-24"
+updated_date: "2026-05-25 08:07"
 labels: []
 milestone: m-0
-dependencies: [TASK-15, TASK-17]
-ordinal: 4000
+dependencies:
+  - TASK-15
+  - TASK-17
+ordinal: 2000
 ---
 
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
 
-Migrate `apps/web/src/lib/llm/parser.ts` into a NestJS `ParseModule`, decomposing the monolithic `parsePrompt` function into focused, testable services. This is the most complex piece — it orchestrates two LLM calls and a unit resolution step.
+Migrate `apps/web/src/lib/llm/parser.ts` into a NestJS `ParsePromptModule`, decomposing the monolithic `parsePrompt` function into focused, testable services. This is the most complex piece — it orchestrates two LLM calls and a unit resolution step.
 
 **Current flow in `parsePrompt`:**
 
@@ -36,8 +38,8 @@ Migrate `apps/web/src/lib/llm/parser.ts` into a NestJS `ParseModule`, decomposin
 
 **NestJS wiring:**
 
-- `ParseController` — `POST /parse`, accepts `{ prompt: string }`, returns `CombatFormState`
-- `ParseModule` — declares controller, provides all four services, imports `LlmModule`, `EmbeddingsModule`, `UnitsModule`
+- `ParsePromptController` — `POST /parse-prompt`, accepts `{ prompt: string }`, returns `CombatFormState`
+- `ParsePromptModule` — declares controller, provides all four services, imports `LlmModule`, `EmbeddingsModule`, `UnitsModule`
 
 **Note:** `LlmService.createMessage` currently does not support the `cache_control` parameter used in LLM call 2 (`resolveWeapons`). Extend `LlmService` (TASK-12) as needed when implementing this module.
 

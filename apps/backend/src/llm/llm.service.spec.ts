@@ -118,4 +118,38 @@ describe("LlmService", () => {
       messages: [{ role: "user", content: "Say something" }],
     });
   });
+
+  it("should send system as array block with cache_control when cacheControl is true", async () => {
+    let capturedBody: unknown;
+    server.use(
+      http.post(
+        "https://api.anthropic.com/v1/messages",
+        async ({ request }) => {
+          capturedBody = await request.json();
+          return HttpResponse.json({
+            content: [{ type: "text", text: "Response" }],
+            stop_reason: "end_turn",
+          });
+        },
+      ),
+    );
+
+    await service.createMessage({
+      model: "haiku",
+      maxTokens: 128,
+      system: "You are helpful.",
+      cacheControl: true,
+      message: "Hello",
+    });
+
+    expect(capturedBody).toMatchObject({
+      system: [
+        {
+          type: "text",
+          text: "You are helpful.",
+          cache_control: { type: "ephemeral" },
+        },
+      ],
+    });
+  });
 });

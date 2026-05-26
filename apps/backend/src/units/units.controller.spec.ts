@@ -1,35 +1,28 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { NotFoundException } from "@nestjs/common";
-import { vi } from "vitest";
+import { MockProxy } from "vitest-mock-extended";
 import { UnitsController } from "./units.controller";
 import { UnitsService } from "./units.service";
+import { getMockProvider } from "../common/test/utils";
 
 describe("UnitsController", () => {
   let controller: UnitsController;
-  let unitsService: UnitsService;
+  let unitsService: MockProxy<UnitsService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [UnitsController],
-      providers: [
-        {
-          provide: UnitsService,
-          useValue: {
-            listUnits: vi.fn(),
-            getUnit: vi.fn(),
-          },
-        },
-      ],
+      providers: [getMockProvider(UnitsService)],
     }).compile();
 
     controller = module.get<UnitsController>(UnitsController);
-    unitsService = module.get<UnitsService>(UnitsService);
+    unitsService = module.get<MockProxy<UnitsService>>(UnitsService);
   });
 
   describe("listUnits", () => {
     it("should return units array when GET /units is called", async () => {
       const units = [{ id: "unit-1", name: "Intercessors" }];
-      vi.spyOn(unitsService, "listUnits").mockResolvedValue(units);
+      unitsService.listUnits.mockResolvedValue(units);
 
       const result = await controller.listUnits();
 
@@ -49,7 +42,7 @@ describe("UnitsController", () => {
         shootingWeapons: [],
         meleeWeapons: [],
       };
-      vi.spyOn(unitsService, "getUnit").mockResolvedValue(profile);
+      unitsService.getUnit.mockResolvedValue(profile);
 
       const result = await controller.getUnit("unit-1");
 
@@ -58,7 +51,7 @@ describe("UnitsController", () => {
     });
 
     it("should throw NotFoundException when unit does not exist", async () => {
-      vi.spyOn(unitsService, "getUnit").mockResolvedValue(null);
+      unitsService.getUnit.mockResolvedValue(null);
 
       await expect(controller.getUnit("missing")).rejects.toThrow(
         NotFoundException,
