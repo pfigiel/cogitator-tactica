@@ -3,6 +3,7 @@ import { ConfigModule } from "@nestjs/config";
 import { HealthModule } from "./health/health.module";
 import { UnitsModule } from "./units/units.module";
 import { ParsePromptModule } from "./parse-prompt/parse-prompt.module";
+import { CalculatorModule } from "./calculator/calculator.module";
 
 @Module({
   imports: [
@@ -10,6 +11,7 @@ import { ParsePromptModule } from "./parse-prompt/parse-prompt.module";
     HealthModule,
     UnitsModule,
     ParsePromptModule,
+    CalculatorModule,
   ],
 })
 export class AppModule {}
