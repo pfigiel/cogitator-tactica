@@ -11,16 +11,16 @@ Move the combat calculator from `apps/web/src/lib/calculator/` into a NestJS mod
 
 ```
 apps/backend/src/calculator/
-  calculator.module.ts          registers CalculatorService, SimulationService, controller
+  calculator.module.ts          registers CalculatorService, SimulationService, RngService, controller
   calculator.controller.ts      POST /calculate
   calculator.service.ts         calculate() logic, injects SimulationService
-  simulation.service.ts         runSimulation(), simulateWeaponOnce(), private phase methods
+  simulation.service.ts         runSimulation(), private simulateWeaponOnce(), private phase methods
+  rng.service.ts                RngService — injectable Rng implementation
   modifiers.ts                  ability handler map → Modifier[]
   dtos.ts                       class-validator DTOs for CombatInput
   types.ts                      calculator-specific types
-  rng.ts                        Rng interface + standardRng
   test/
-    mocks.ts                    getMockCalculatorService(), getMockSimulationService()
+    mocks.ts                    getMockCalculatorService(), getMockSimulationService(), getMockRngService()
 ```
 
 ## Types (`types.ts`)
@@ -57,28 +57,32 @@ const abilityHandlers: Partial<Record<string, AbilityHandler>> = {
 
 `resolveWeaponModifiers` iterates abilities, looks up the handler, spreads results. Cover modifier applied separately before iteration (same as current logic). Adding a new ability = one new map entry, no switch fallthrough risk.
 
+## RngService (`rng.service.ts`)
+
+Injectable NestJS service implementing the `Rng` interface (`d6(): number`, `dice(expr: DiceExpression): number`). Wraps `Math.random`. Injected into `SimulationService`. Tests mock it via `getMockRngService()`.
+
 ## SimulationService (`simulation.service.ts`)
 
-Injectable NestJS service. Encapsulates all Monte Carlo simulation logic.
+Injectable NestJS service. Injects `RngService`. Encapsulates all Monte Carlo simulation logic.
 
 **Public methods:**
 
-- `runSimulation(rng, weapon, attackerModelCount, attackerContext, defenderUnit, defenderModelCount, defenderContext): Promise<WeaponResult>` — runs 10,000 iterations, returns averaged `StepCounts` as labeled `CombatStep[]`
-- `simulateWeaponOnce(rng, weapon, attackerModelCount, attackerContext, defenderUnit, defenderModelCount, defenderContext): StepCounts` — single Monte Carlo trial
+- `runSimulation(weapon, attackerModelCount, attackerContext, defenderUnit, defenderModelCount, defenderContext, iterations?: number): Promise<WeaponResult>` — runs `iterations` trials (default 10,000), returns averaged `StepCounts` as labeled `CombatStep[]`. Optional `iterations` allows tests to run fewer trials without mocking the full count.
 
-**Private phase methods** (called by `simulateWeaponOnce`):
+**Private methods:**
 
-- `resolveAttacks(rng, weapon, attackerModelCount, modifiers): number`
-- `resolveHits(rng, totalAttacks, weapon, modifiers): { normalHits, critHits }`
-- `resolveWounds(rng, normalHits, critHits, weapon, defenderUnit, modifiers): { saveableWounds, mortalWounds }` — `saveableWounds` includes normal wounds + lethal-hit auto-wounds (both go to saves); `mortalWounds` are devastating wounds that bypass saves
-- `resolveSaves(rng, saveableWounds, mortalWounds, defenderUnit, defenderContext, modifiers): number` — returns total unsaved wounds (failed saves + mortal wounds)
-- `resolveDamage(rng, unsavedWounds, weapon, defenderUnit, modifiers): { damage, modelsSlain }`
+- `simulateWeaponOnce(weapon, attackerModelCount, attackerContext, defenderUnit, defenderModelCount, defenderContext): StepCounts` — single Monte Carlo trial; orchestrates phase methods in sequence
+- `resolveAttacks(weapon, attackerModelCount, modifiers): number`
+- `resolveHits(totalAttacks, weapon, modifiers): { normalHits, critHits }`
+- `resolveWounds(normalHits, critHits, weapon, defenderUnit, modifiers): { saveableWounds, mortalWounds }` — `saveableWounds` includes normal wounds + lethal-hit auto-wounds (both go to saves); `mortalWounds` are devastating wounds that bypass saves
+- `resolveSaves(saveableWounds, mortalWounds, defenderUnit, defenderContext, modifiers): number` — returns total unsaved wounds (failed saves + mortal wounds)
+- `resolveDamage(unsavedWounds, weapon, defenderUnit, modifiers): { damage, modelsSlain }`
 
-`simulateWeaponOnce` is orchestration only — calls phases in sequence, passing outputs as inputs to next phase. `Rng` is passed as parameter (not injected) so tests can use controlled `alwaysRoll(n)`.
+`RngService` is injected, so tests mock it to control dice outcomes.
 
 ## CalculatorService (`calculator.service.ts`)
 
-Injectable NestJS service. Injects `SimulationService`. Contains the `calculate()` orchestration logic (previously in `index.ts`): resolves weapon results per direction, combines into `CombatResult`. Passes `standardRng` from `rng.ts` to `SimulationService`.
+Injectable NestJS service. Injects `SimulationService`. Contains the `calculate()` orchestration logic (previously in `index.ts`): resolves weapon results per direction, combines into `CombatResult`.
 
 ## CalculatorController (`calculator.controller.ts`)
 
@@ -96,12 +100,12 @@ Class-validator DTOs mirroring `CombatInput` shape. Nested DTOs for `CombatantIn
 
 ## Testing
 
-| File                            | Tests                                                                                                                                                              |
-| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `simulation.service.spec.ts`    | Replaces `pipeline.test.ts` + `runner.test.ts`. Tests phase behavior via `simulateWeaponOnce` with `alwaysRoll(n)`. Tests `runSimulation` averages and step chain. |
-| `rng.test.ts`                   | Migrated verbatim (pure function, no service dependency).                                                                                                          |
-| `calculator.service.spec.ts`    | Tests `calculate()` delegation; mocks `SimulationService`.                                                                                                         |
-| `calculator.controller.spec.ts` | Tests HTTP contract + validation; mocks `CalculatorService` via `getMockCalculatorService()`.                                                                      |
+| File                            | Tests                                                                                                                                                                                                                                   |
+| ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `simulation.service.spec.ts`    | Replaces `pipeline.test.ts` + `runner.test.ts`. Mocks `RngService` to return controlled values. Tests behavior via `runSimulation` with small `iterations` count. Verifies step chain invariant: `step[n].input === step[n-1].average`. |
+| `rng.service.spec.ts`           | Replaces `rng.test.ts`. Tests `d6()` range and `dice()` expression parsing.                                                                                                                                                             |
+| `calculator.service.spec.ts`    | Tests `calculate()` delegation; mocks `SimulationService`.                                                                                                                                                                              |
+| `calculator.controller.spec.ts` | Tests HTTP contract + validation; mocks `CalculatorService` via `getMockCalculatorService()`.                                                                                                                                           |
 
 All test files follow project conventions: `"should ... when ..."` naming, AAA with blank lines between sections, mock creators in `test/mocks.ts`.
 
@@ -110,7 +114,7 @@ All test files follow project conventions: `"should ... when ..."` naming, AAA w
 ```ts
 @Module({
   controllers: [CalculatorController],
-  providers: [CalculatorService, SimulationService],
+  providers: [CalculatorService, SimulationService, RngService],
   exports: [CalculatorService],
 })
 export class CalculatorModule {}
