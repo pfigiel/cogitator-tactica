@@ -1,16 +1,16 @@
 ---
 id: TASK-18
 title: Create parser module
-status: In Progress
+status: Done
 assignee: []
 created_date: "2026-05-24"
-updated_date: "2026-05-25 08:07"
+updated_date: "2026-05-26 11:48"
 labels: []
 milestone: m-0
 dependencies:
   - TASK-15
   - TASK-17
-ordinal: 2000
+ordinal: 8000
 ---
 
 ## Description
