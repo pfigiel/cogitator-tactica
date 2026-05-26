@@ -20,7 +20,7 @@ apps/backend/src/calculator/
   dtos.ts                       class-validator DTOs for CombatInput
   types.ts                      calculator-specific types
   test/
-    mocks.ts                    getMockCalculatorService(), getMockSimulationService(), getMockRngService()
+    mocks.ts                    getMockCombatInput(), getMockCombatResult() — data object creators only
 ```
 
 ## Types (`types.ts`)
@@ -59,7 +59,7 @@ const abilityHandlers: Partial<Record<string, AbilityHandler>> = {
 
 ## RngService (`rng.service.ts`)
 
-Injectable NestJS service implementing the `Rng` interface (`d6(): number`, `dice(expr: DiceExpression): number`). Wraps `Math.random`. Injected into `SimulationService`. Tests mock it via `getMockRngService()`.
+Injectable NestJS service implementing the `Rng` interface (`d6(): number`, `dice(expr: DiceExpression): number`). Wraps `Math.random`. Injected into `SimulationService`. Tests mock it inline via `getMockProvider(RngService)`.
 
 ## SimulationService (`simulation.service.ts`)
 
@@ -105,9 +105,9 @@ Class-validator DTOs mirroring `CombatInput` shape. Nested DTOs for `CombatantIn
 | `simulation.service.spec.ts`    | Replaces `pipeline.test.ts` + `runner.test.ts`. Mocks `RngService` to return controlled values. Tests behavior via `runSimulation` with small `iterations` count. Verifies step chain invariant: `step[n].input === step[n-1].average`. |
 | `rng.service.spec.ts`           | Replaces `rng.test.ts`. Tests `d6()` range and `dice()` expression parsing.                                                                                                                                                             |
 | `calculator.service.spec.ts`    | Tests `calculate()` delegation; mocks `SimulationService`.                                                                                                                                                                              |
-| `calculator.controller.spec.ts` | Tests HTTP contract + validation; mocks `CalculatorService` via `getMockCalculatorService()`.                                                                                                                                           |
+| `calculator.controller.spec.ts` | Tests HTTP contract + validation; mocks `CalculatorService` inline via `getMockProvider(CalculatorService)`.                                                                                                                            |
 
-All test files follow project conventions: `"should ... when ..."` naming, AAA with blank lines between sections, mock creators in `test/mocks.ts`.
+All test files follow project conventions: `"should ... when ..."` naming, AAA with blank lines between sections. Services mocked inline via `getMockProvider(ServiceName)`. `test/mocks.ts` holds data object creators only (`getMockCombatInput()`, `getMockCombatResult()`).
 
 ## Module Registration
 
