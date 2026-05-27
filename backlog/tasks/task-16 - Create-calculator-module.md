@@ -1,15 +1,15 @@
 ---
 id: TASK-16
 title: Create calculator module
-status: In Progress
+status: Done
 assignee: []
 created_date: "2026-05-24"
-updated_date: "2026-05-26 11:48"
+updated_date: "2026-05-27 08:59"
 labels: []
 milestone: m-0
 dependencies:
   - TASK-15
-ordinal: 2000
+ordinal: 9000
 ---
 
 ## Description
