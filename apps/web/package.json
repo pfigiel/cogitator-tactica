@@ -22,6 +22,7 @@
     "@csstools/postcss-global-data": "4.0.0",
     "@prisma/client": "6.19.3",
     "@tabler/icons-react": "catalog:react",
+    "@tanstack/react-query": "5.100.14",
     "@types/node": "25.5.0",
     "@types/react": "catalog:react",
     "@types/react-dom": "catalog:react",
@@ -38,13 +39,16 @@
   "devDependencies": {
     "@cogitator-tactica/eslint-plugin": "workspace:*",
     "@eslint/js": "catalog:lint",
+    "@testing-library/react": "16.3.2",
     "eslint": "catalog:lint",
     "eslint-config-prettier": "catalog:lint",
     "eslint-plugin-prefer-arrow": "catalog:lint",
+    "jsdom": "29.1.1",
     "prettier": "catalog:",
     "prisma": "6.19.3",
     "tsx": "4.21.0",
     "typescript-eslint": "catalog:lint",
+    "msw": "catalog:test",
     "vitest": "catalog:test"
   }
 }
