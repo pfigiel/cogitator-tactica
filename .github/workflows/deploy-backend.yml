@@ -147,4 +147,6 @@ jobs:
 
       - name: Deploy
         working-directory: apps/backend
+        env:
+          npm_config_frozen_lockfile: "false"
         run: pnpm exec serverless deploy --stage prod
