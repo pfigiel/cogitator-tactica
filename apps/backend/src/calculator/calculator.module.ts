@@ -7,6 +7,5 @@ import { RngService } from "./rng.service";
 @Module({
   controllers: [CalculatorController],
   providers: [CalculatorService, SimulationService, RngService],
-  exports: [CalculatorService],
 })
 export class CalculatorModule {}

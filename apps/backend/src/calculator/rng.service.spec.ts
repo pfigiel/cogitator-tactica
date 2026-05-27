@@ -1,5 +1,6 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { RngService } from "./rng.service";
+import { DiceExpression } from "../common/types";
 
 describe("RngService", () => {
   let service: RngService;
@@ -10,18 +11,6 @@ describe("RngService", () => {
     }).compile();
 
     service = module.get<RngService>(RngService);
-  });
-
-  describe("d6", () => {
-    it("should return integer between 1 and 6 inclusive when called", () => {
-      for (let i = 0; i < 200; i++) {
-        const result = service.d6();
-
-        expect(Number.isInteger(result)).toBe(true);
-        expect(result).toBeGreaterThanOrEqual(1);
-        expect(result).toBeLessThanOrEqual(6);
-      }
-    });
   });
 
   describe("dice", () => {
@@ -78,8 +67,10 @@ describe("RngService", () => {
     });
 
     it("should throw when given an invalid dice expression", () => {
-      expect(() => service.dice("D8")).toThrow('Invalid DiceExpression: "D8"');
-      expect(() => service.dice("D10+1")).toThrow();
+      expect(() => service.dice("D8" as DiceExpression)).toThrow(
+        'Invalid DiceExpression: "D8"',
+      );
+      expect(() => service.dice("D10+1" as DiceExpression)).toThrow();
     });
   });
 });

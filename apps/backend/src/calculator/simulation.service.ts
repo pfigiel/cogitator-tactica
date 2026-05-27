@@ -30,14 +30,6 @@ import type {
 
 const DEFAULT_ITERATIONS = 10_000;
 
-const woundThreshold = (strength: number, toughness: number): number => {
-  if (strength >= toughness * 2) return 2;
-  if (strength > toughness) return 3;
-  if (strength === toughness) return 4;
-  if (strength * 2 > toughness) return 5;
-  return 6;
-};
-
 @Injectable()
 export class SimulationService {
   constructor(private readonly rng: RngService) {}
@@ -224,7 +216,7 @@ export class SimulationService {
     modifiers: Modifier[],
   ): { saveableWounds: number; mortalWounds: number } {
     const hasLethalHits = hasModifier(modifiers, "LETHAL_HITS");
-    const baseWoundThresh = woundThreshold(
+    const baseWoundThresh = this.woundThreshold(
       this.rng.dice(weapon.strength),
       defenderUnit.toughness,
     );
@@ -291,7 +283,7 @@ export class SimulationService {
 
     let unsavedNormal = 0;
     for (let i = 0; i < saveableWounds; i++) {
-      if (this.rng.d6() < saveThreshold) {
+      if (this.rng.dice("D6") < saveThreshold) {
         unsavedNormal++;
       }
     }
@@ -347,9 +339,17 @@ export class SimulationService {
   }
 
   private rollWithReroll(reroll: RerollType | null, threshold: number): number {
-    const roll = this.rng.d6();
-    if (reroll === "ALL" && roll < threshold) return this.rng.d6();
-    if (reroll === "ONES" && roll === 1) return this.rng.d6();
+    const roll = this.rng.dice("D6");
+    if (reroll === "ALL" && roll < threshold) return this.rng.dice("D6");
+    if (reroll === "ONES" && roll === 1) return this.rng.dice("D6");
     return roll;
+  }
+
+  private woundThreshold(strength: number, toughness: number): number {
+    if (strength >= toughness * 2) return 2;
+    if (strength > toughness) return 3;
+    if (strength === toughness) return 4;
+    if (strength * 2 > toughness) return 5;
+    return 6;
   }
 }

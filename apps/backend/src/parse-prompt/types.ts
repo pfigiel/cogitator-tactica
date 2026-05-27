@@ -1,4 +1,4 @@
-import type { SelectedWeapon } from "../common/types";
+import type { CombatPhase, CombatSide, SelectedWeapon } from "../common/types";
 
 export type WeaponHint = { name: string; count?: number };
 
@@ -7,9 +7,9 @@ export type ParsedContext = {
   defenderName: string;
   attackerCount: number;
   defenderCount: number;
-  phase: "shooting" | "melee";
+  phase: CombatPhase;
   defenderInCover: boolean;
-  firstFighter: "attacker" | "defender";
+  firstFighter: CombatSide;
   attackerWeaponHints: WeaponHint[];
   defenderWeaponHints: WeaponHint[];
   attackerFactionId?: string;

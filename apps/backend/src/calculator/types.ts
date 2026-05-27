@@ -55,7 +55,7 @@ export type DirectionalResult = {
 };
 
 export type CombatResult = {
-  phase: "shooting" | "melee";
+  phase: CombatPhase;
   primary: DirectionalResult;
   counterattack?: DirectionalResult;
   firstFighterNote?: string;
@@ -66,6 +66,8 @@ import type {
   UnitProfile,
   AttackerContext,
   DefenderContext,
+  CombatPhase,
+  CombatSide,
 } from "../common/types";
 
 export type SelectedWeaponInput = {
@@ -91,7 +93,7 @@ export type MeleeCombatInput = {
   phase: "melee";
   attacker: CombatantInput;
   defender: CombatantInput;
-  firstFighter: "attacker" | "defender";
+  firstFighter: CombatSide;
 };
 
 export type CombatInput = ShootingCombatInput | MeleeCombatInput;

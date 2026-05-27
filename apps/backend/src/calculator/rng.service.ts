@@ -1,21 +1,14 @@
 import { Injectable } from "@nestjs/common";
 import type { DiceExpression } from "../common/types";
 
-export type Rng = {
-  d6(): number;
-  dice(expr: DiceExpression): number;
-};
-
 @Injectable()
-export class RngService implements Rng {
-  d6(): number {
-    return Math.floor(Math.random() * 6) + 1;
-  }
-
+export class RngService {
   dice(expr: DiceExpression): number {
     if (typeof expr === "number") return expr;
+
     const match = expr.match(/^(\d+)?D(3|6)([+-]\d+)?$/i);
     if (!match) throw new Error(`Invalid DiceExpression: "${expr}"`);
+
     const count = match[1] ? parseInt(match[1], 10) : 1;
     const sides = parseInt(match[2], 10);
     const modifier = match[3] ? parseInt(match[3], 10) : 0;
@@ -23,6 +16,7 @@ export class RngService implements Rng {
     for (let i = 0; i < count; i++) {
       total += Math.floor(Math.random() * sides) + 1;
     }
+
     return total + modifier;
   }
 }

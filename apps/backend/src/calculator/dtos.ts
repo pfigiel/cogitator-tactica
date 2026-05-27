@@ -9,8 +9,9 @@ import {
   ValidateNested,
 } from "class-validator";
 import { Type } from "class-transformer";
+import type { CombatPhase, CombatSide } from "../common/types";
 
-class AttackerContextDto {
+export class AttackerContextDto {
   @IsBoolean()
   remainedStationary!: boolean;
 
@@ -24,12 +25,12 @@ class AttackerContextDto {
   atLongRange!: boolean;
 }
 
-class DefenderContextDto {
+export class DefenderContextDto {
   @IsBoolean()
   inCover!: boolean;
 }
 
-class WeaponProfileDto {
+export class WeaponProfileDto {
   @IsString()
   id!: string;
 
@@ -41,18 +42,18 @@ class WeaponProfileDto {
   @IsInt()
   skill!: number;
 
-  strength!: number | string;
+  strength!: number | string; // TODO: Add validation for dice expression
 
   @IsInt()
   ap!: number;
 
-  damage!: number | string;
+  damage!: number | string; // TODO: Add validation for dice expression
 
   @IsArray()
-  abilities!: object[];
+  abilities!: object[]; // TODO: Add stricter validation
 }
 
-class UnitProfileDto {
+export class UnitProfileDto {
   @IsString()
   id!: string;
 
@@ -76,16 +77,20 @@ class UnitProfileDto {
   wounds!: number;
 
   @IsArray()
-  keywords!: string[];
+  keywords!: string[]; // TODO: Add stricter validation
 
   @IsArray()
-  shootingWeapons!: object[];
+  @ValidateNested({ each: true })
+  @Type(() => WeaponProfileDto)
+  shootingWeapons!: WeaponProfileDto[];
 
   @IsArray()
-  meleeWeapons!: object[];
+  @ValidateNested({ each: true })
+  @Type(() => WeaponProfileDto)
+  meleeWeapons!: WeaponProfileDto[];
 }
 
-class SelectedWeaponInputDto {
+export class SelectedWeaponInputDto {
   @ValidateNested()
   @Type(() => WeaponProfileDto)
   weapon!: WeaponProfileDto;
@@ -95,7 +100,7 @@ class SelectedWeaponInputDto {
   modelCount!: number;
 }
 
-class CombatantInputDto {
+export class CombatantInputDto {
   @ValidateNested()
   @Type(() => UnitProfileDto)
   unit!: UnitProfileDto;
@@ -122,7 +127,7 @@ class CombatantInputDto {
 
 export class CalculateDto {
   @IsIn(["shooting", "melee"])
-  phase!: "shooting" | "melee";
+  phase!: CombatPhase;
 
   @ValidateNested()
   @Type(() => CombatantInputDto)
@@ -134,5 +139,5 @@ export class CalculateDto {
 
   @IsOptional()
   @IsIn(["attacker", "defender"])
-  firstFighter?: "attacker" | "defender";
+  firstFighter?: CombatSide;
 }

@@ -1,4 +1,15 @@
-export type DiceExpression = number | string;
+// TODO: Extract RNG module and move types there
+
+type DiceSize = "3" | "6";
+
+type Modifier = "" | `+${number}` | `-${number}`;
+
+export type DiceExpression =
+  | number
+  | `D${DiceSize}`
+  | `${number}D${DiceSize}`
+  | `D${DiceSize}${Modifier}`
+  | `${number}D${DiceSize}${Modifier}`;
 
 export type WeaponAbility =
   | { type: "ANTI"; keyword: string; threshold: number }
@@ -80,8 +91,8 @@ export const DEFAULT_DEFENDER_CONTEXT: DefenderContext = {
   inCover: false,
 };
 
-export type Phase = "shooting" | "melee";
-export type FirstFighter = "attacker" | "defender";
+export type CombatPhase = "shooting" | "melee";
+export type CombatSide = "attacker" | "defender";
 
 export type SelectedWeapon = {
   weaponId: string;
@@ -89,7 +100,7 @@ export type SelectedWeapon = {
 };
 
 export type CombatFormState = {
-  phase: Phase;
+  phase: CombatPhase;
   attackerUnitId: string;
   attackerCount: number;
   attackerWeapons: SelectedWeapon[];
@@ -99,5 +110,5 @@ export type CombatFormState = {
   defenderInCover: boolean;
   defenderWeapons: SelectedWeapon[];
   defenderContext: AttackerContext;
-  firstFighter: FirstFighter;
+  firstFighter: CombatSide;
 };

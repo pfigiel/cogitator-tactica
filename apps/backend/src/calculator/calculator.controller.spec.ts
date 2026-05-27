@@ -4,7 +4,6 @@ import { CalculatorController } from "./calculator.controller";
 import { CalculatorService } from "./calculator.service";
 import { getMockProvider } from "../common/test/utils";
 import { getMockCombatInput, getMockCombatResult } from "./test/mocks";
-import type { CalculateDto } from "./dtos";
 
 describe("CalculatorController", () => {
   let controller: CalculatorController;
@@ -29,9 +28,7 @@ describe("CalculatorController", () => {
       const expected = getMockCombatResult();
       calculatorService.calculate.mockResolvedValue(expected);
 
-      const result = await controller.calculate(
-        input as unknown as CalculateDto,
-      );
+      const result = await controller.calculate(input);
 
       expect(result).toEqual(expected);
       expect(calculatorService.calculate).toHaveBeenCalledWith(input);
@@ -41,7 +38,7 @@ describe("CalculatorController", () => {
       const input = getMockCombatInput();
       calculatorService.calculate.mockResolvedValue(getMockCombatResult());
 
-      await controller.calculate(input as unknown as CalculateDto);
+      await controller.calculate(input);
 
       expect(calculatorService.calculate).toHaveBeenCalledTimes(1);
     });

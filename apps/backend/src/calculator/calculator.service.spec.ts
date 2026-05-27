@@ -32,14 +32,20 @@ describe("CalculatorService", () => {
         averageModelsSlain: 1,
       };
       simulationService.runSimulation.mockResolvedValue(weaponResult);
-
       const input = getMockCombatInput({ phase: "shooting" });
 
       const result = await service.calculate(input);
 
-      expect(result.phase).toBe("shooting");
-      expect(result.primary).toBeDefined();
-      expect(result.counterattack).toBeUndefined();
+      expect(result).toEqual({
+        phase: "shooting",
+        primary: {
+          attackerName: "unit-name (5)",
+          defenderName: "unit-name",
+          totalAverageDamage: 2,
+          totalAverageModelsSlain: 1,
+          weaponResults: [weaponResult],
+        },
+      });
     });
 
     it("should call runSimulation once per selected weapon when phase is shooting", async () => {
@@ -51,7 +57,6 @@ describe("CalculatorService", () => {
         averageModelsSlain: 1,
       };
       simulationService.runSimulation.mockResolvedValue(weaponResult);
-
       const weapon1 = getMockWeaponProfile({ id: "w1" });
       const weapon2 = getMockWeaponProfile({ id: "w2" });
       const input = getMockCombatInput({
@@ -64,7 +69,7 @@ describe("CalculatorService", () => {
             { weapon: weapon2, modelCount: 3 },
           ],
         },
-      } as unknown as typeof input);
+      });
 
       await service.calculate(input);
 
@@ -80,7 +85,6 @@ describe("CalculatorService", () => {
         averageModelsSlain: 1,
       };
       simulationService.runSimulation.mockResolvedValue(weaponResult);
-
       const attacker = getMockUnitProfile({ name: "Attacker" });
       const defender = getMockUnitProfile({ name: "Defender" });
       const input = getMockCombatInput({
@@ -96,17 +100,32 @@ describe("CalculatorService", () => {
           selectedWeapons: [{ weapon: getMockWeaponProfile(), modelCount: 10 }],
         },
         firstFighter: "attacker",
-      } as unknown as typeof input);
+      });
 
       const result = await service.calculate(input);
 
-      expect(result.phase).toBe("melee");
-      expect(result.primary).toBeDefined();
-      expect(result.counterattack).toBeDefined();
-      expect(result.firstFighterNote).toContain("Attacker");
+      expect(result).toEqual({
+        phase: "melee",
+        firstFighterNote:
+          "Attacker fights first. Casualties from the primary attack are not yet reflected in the counterattack counts.",
+        primary: {
+          attackerName: "Attacker (5)",
+          defenderName: "Defender",
+          totalAverageDamage: 3,
+          totalAverageModelsSlain: 1,
+          weaponResults: [weaponResult],
+        },
+        counterattack: {
+          attackerName: "Defender (10)",
+          defenderName: "Attacker",
+          totalAverageDamage: 3,
+          totalAverageModelsSlain: 1,
+          weaponResults: [weaponResult],
+        },
+      });
     });
 
-    it("should include defender name in firstFighterNote when firstFighter is defender", async () => {
+    it("should return melee CombatResult with defender firstFighterNote when firstFighter is defender", async () => {
       const weaponResult = {
         weaponName: "Sword",
         modelCount: 5,
@@ -115,7 +134,6 @@ describe("CalculatorService", () => {
         averageModelsSlain: 1,
       };
       simulationService.runSimulation.mockResolvedValue(weaponResult);
-
       const attacker = getMockUnitProfile({ name: "Marines" });
       const defender = getMockUnitProfile({ name: "Orks" });
       const input = getMockCombatInput({
@@ -131,11 +149,29 @@ describe("CalculatorService", () => {
           selectedWeapons: [{ weapon: getMockWeaponProfile(), modelCount: 10 }],
         },
         firstFighter: "defender",
-      } as unknown as typeof input);
+      });
 
       const result = await service.calculate(input);
 
-      expect(result.firstFighterNote).toContain("Orks");
+      expect(result).toEqual({
+        phase: "melee",
+        firstFighterNote:
+          "Orks fights first. Their counterattack resolves before Marines attacks. Casualties from the counterattack are not yet reflected in the primary attack (full model counts used).",
+        primary: {
+          attackerName: "Marines (5)",
+          defenderName: "Orks",
+          totalAverageDamage: 3,
+          totalAverageModelsSlain: 1,
+          weaponResults: [weaponResult],
+        },
+        counterattack: {
+          attackerName: "Orks (10)",
+          defenderName: "Marines",
+          totalAverageDamage: 3,
+          totalAverageModelsSlain: 1,
+          weaponResults: [weaponResult],
+        },
+      });
     });
   });
 });

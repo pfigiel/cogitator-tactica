@@ -78,9 +78,10 @@ export class UnitsService {
     return candidates.find((u) => u.id === best.item.unitId) ?? candidates[0];
   }
 
+  // TODO: Add validation
   private parseDiceExpr(s: string): DiceExpression {
     const n = Number(s);
-    return Number.isFinite(n) ? n : s;
+    return Number.isFinite(n) ? n : (s as DiceExpression);
   }
 
   private toWeaponProfile(db: DbWeapon): WeaponProfile {

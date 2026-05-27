@@ -8,17 +8,19 @@ import type {
 import { DEFAULT_ATTACKER_CONTEXT } from "../common/types";
 import type { Modifier, ModifierEffect, RerollType } from "./types";
 
-type AbilityHandler = (
-  ability: WeaponAbility,
-  weapon: WeaponProfile,
-  attackerContext: AttackerContext,
-  defenderUnit: UnitProfile,
-  defenderContext: DefenderContext,
-  defenderModelCount: number,
-) => Modifier[];
+type AbilityHandlerArgs = {
+  ability: WeaponAbility;
+  weapon: WeaponProfile;
+  attackerContext: AttackerContext;
+  defenderUnit: UnitProfile;
+  defenderContext: DefenderContext;
+  defenderModelCount: number;
+};
+
+type AbilityHandler = (args: AbilityHandlerArgs) => Modifier[];
 
 const abilityHandlers: Partial<Record<string, AbilityHandler>> = {
-  ANTI: (ability, _, __, defenderUnit) => {
+  ANTI: ({ ability, defenderUnit }) => {
     const a = ability as Extract<WeaponAbility, { type: "ANTI" }>;
     const defKeywords = defenderUnit.keywords.map((k) => k.toUpperCase());
     if (!defKeywords.includes(a.keyword.toUpperCase())) return [];
@@ -30,7 +32,7 @@ const abilityHandlers: Partial<Record<string, AbilityHandler>> = {
     ];
   },
 
-  BLAST: (_, __, ___, ____, _____, defenderModelCount) => [
+  BLAST: ({ defenderModelCount }) => [
     {
       source: "Blast",
       effect: {
@@ -40,7 +42,7 @@ const abilityHandlers: Partial<Record<string, AbilityHandler>> = {
     },
   ],
 
-  CONVERSION: (_, __, attackerContext) => {
+  CONVERSION: ({ attackerContext }) => {
     if (!attackerContext.atLongRange) return [];
     return [
       {
@@ -54,7 +56,7 @@ const abilityHandlers: Partial<Record<string, AbilityHandler>> = {
     { source: "Devastating Wounds", effect: { type: "DEVASTATING_WOUNDS" } },
   ],
 
-  HEAVY: (_, __, attackerContext) => {
+  HEAVY: ({ attackerContext }) => {
     if (!attackerContext.remainedStationary) return [];
     return [
       { source: "Heavy", effect: { type: "HIT_THRESHOLD_DELTA", value: -1 } },
@@ -65,7 +67,7 @@ const abilityHandlers: Partial<Record<string, AbilityHandler>> = {
     { source: "Ignores Cover", effect: { type: "IGNORE_COVER" } },
   ],
 
-  INDIRECT_FIRE: (_, weapon) => {
+  INDIRECT_FIRE: ({ weapon }) => {
     const hasIgnoresCover = weapon.abilities.some(
       (a) => a.type === "IGNORES_COVER",
     );
@@ -84,7 +86,7 @@ const abilityHandlers: Partial<Record<string, AbilityHandler>> = {
     return mods;
   },
 
-  LANCE: (_, __, attackerContext) => {
+  LANCE: ({ attackerContext }) => {
     if (!attackerContext.charged) return [];
     return [
       { source: "Lance", effect: { type: "WOUND_THRESHOLD_DELTA", value: -1 } },
@@ -95,7 +97,7 @@ const abilityHandlers: Partial<Record<string, AbilityHandler>> = {
     { source: "Lethal Hits", effect: { type: "LETHAL_HITS" } },
   ],
 
-  MELTA: (ability, __, attackerContext) => {
+  MELTA: ({ ability, attackerContext }) => {
     if (!attackerContext.atHalfRange) return [];
     const a = ability as Extract<WeaponAbility, { type: "MELTA" }>;
     return [
@@ -106,7 +108,7 @@ const abilityHandlers: Partial<Record<string, AbilityHandler>> = {
     ];
   },
 
-  RAPID_FIRE: (ability, __, attackerContext) => {
+  RAPID_FIRE: ({ ability, attackerContext }) => {
     if (!attackerContext.atHalfRange) return [];
     const a = ability as Extract<WeaponAbility, { type: "RAPID_FIRE" }>;
     if (typeof a.value !== "number") return [];
@@ -118,7 +120,7 @@ const abilityHandlers: Partial<Record<string, AbilityHandler>> = {
     ];
   },
 
-  SUSTAINED_HITS: (ability) => {
+  SUSTAINED_HITS: ({ ability }) => {
     const a = ability as Extract<WeaponAbility, { type: "SUSTAINED_HITS" }>;
     if (typeof a.value !== "number") return [];
     return [
@@ -138,7 +140,7 @@ const abilityHandlers: Partial<Record<string, AbilityHandler>> = {
 
 export const resolveWeaponModifiers = (
   weapon: WeaponProfile,
-  context: AttackerContext = DEFAULT_ATTACKER_CONTEXT,
+  attackerContext: AttackerContext = DEFAULT_ATTACKER_CONTEXT,
   defenderUnit: UnitProfile,
   defenderContext: DefenderContext,
   defenderModelCount: number,
@@ -159,14 +161,14 @@ export const resolveWeaponModifiers = (
     const handler = abilityHandlers[ability.type];
     if (handler) {
       modifiers.push(
-        ...handler(
+        ...handler({
           ability,
           weapon,
-          context,
+          attackerContext,
           defenderUnit,
           defenderContext,
           defenderModelCount,
-        ),
+        }),
       );
     }
   }
