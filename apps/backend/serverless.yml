@@ -2,7 +2,7 @@ service: cogitator-tactica-backend
 
 provider:
   name: aws
-  runtime: nodejs22.x
+  runtime: nodejs20.x
   region: eu-central-1
   environment:
     NODE_ENV: production
@@ -15,7 +15,7 @@ custom:
     bundle: true
     minify: false
     sourcemap: false
-    target: node22
+    target: node20
     platform: node
     packager: npm
     plugins: esbuild-plugins.cjs
