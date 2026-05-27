@@ -4,6 +4,7 @@ import type {
   UnitProfile,
   WeaponProfile,
   SelectedWeapon,
+  CombatPhase,
 } from "../common/types";
 import type { ParsedContext, WeaponResolution } from "./types";
 
@@ -15,7 +16,7 @@ export class WeaponResolutionService {
     ctx: ParsedContext,
     attackerUnit: UnitProfile,
     defenderUnit: UnitProfile,
-    phase: "shooting" | "melee",
+    phase: CombatPhase,
   ): Promise<WeaponResolution> {
     const system = this.buildWeaponSystemPrompt(
       attackerUnit,
@@ -83,7 +84,7 @@ export class WeaponResolutionService {
   private buildWeaponSystemPrompt(
     attackerUnit: UnitProfile,
     defenderUnit: UnitProfile,
-    phase: "shooting" | "melee",
+    phase: CombatPhase,
   ): string {
     const attackerPool =
       phase === "shooting"
