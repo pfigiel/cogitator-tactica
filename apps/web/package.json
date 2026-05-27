@@ -10,6 +10,8 @@
     "lint": "eslint src",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "format": "prettier -w .",
+    "format:check": "prettier --check .",
     "test:watch": "vitest",
     "import-units": "tsx scripts/import-wahapedia/index.ts",
     "generate-embeddings": "tsx scripts/generate-embeddings/index.ts",

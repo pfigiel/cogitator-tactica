@@ -29,4 +29,12 @@ export default tseslint.config(
     },
   },
   ...plugin.configs.test,
+  {
+    files: ["**/*.cjs"],
+    rules: {
+      "@typescript-eslint/no-require-imports": "off",
+      "no-undef": "off",
+      "prefer-arrow/prefer-arrow-functions": "off",
+    },
+  },
 );

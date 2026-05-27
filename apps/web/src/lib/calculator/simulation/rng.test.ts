@@ -61,7 +61,9 @@ describe("standardRng.dice", () => {
   });
 
   it("throws on an invalid dice expression", () => {
-    expect(() => standardRng.dice("D8")).toThrow('Invalid DiceExpression: "D8"');
+    expect(() => standardRng.dice("D8")).toThrow(
+      'Invalid DiceExpression: "D8"',
+    );
     expect(() => standardRng.dice("D10+1")).toThrow();
   });
 });

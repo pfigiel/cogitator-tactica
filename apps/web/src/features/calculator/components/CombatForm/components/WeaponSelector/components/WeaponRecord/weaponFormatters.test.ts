@@ -1,10 +1,18 @@
 import { describe, it, expect } from "vitest";
-import { formatAbilityLabel, formatAbilities, formatStats } from "./weaponFormatters";
+import {
+  formatAbilityLabel,
+  formatAbilities,
+  formatStats,
+} from "./weaponFormatters";
 import type { WeaponAbility, WeaponProfile } from "@/lib/calculator/types";
 
 describe("formatAbilityLabel", () => {
   it("formats ANTI ability", () => {
-    const ability: WeaponAbility = { type: "ANTI", keyword: "VEHICLE", threshold: 4 };
+    const ability: WeaponAbility = {
+      type: "ANTI",
+      keyword: "VEHICLE",
+      threshold: 4,
+    };
     expect(formatAbilityLabel(ability)).toBe("Anti-VEHICLE 4+");
   });
 
@@ -50,7 +58,7 @@ describe("formatAbilities", () => {
 
   it("returns comma-separated labels for multiple abilities", () => {
     expect(
-      formatAbilities([{ type: "LETHAL_HITS" }, { type: "TWIN_LINKED" }])
+      formatAbilities([{ type: "LETHAL_HITS" }, { type: "TWIN_LINKED" }]),
     ).toBe("Lethal Hits, Twin-linked");
   });
 });

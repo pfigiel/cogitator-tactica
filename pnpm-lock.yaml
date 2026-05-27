@@ -150,6 +150,9 @@ importers:
       msw:
         specifier: catalog:test
         version: 2.11.6(@types/node@22.0.0)(typescript@6.0.2)
+      prettier:
+        specifier: 'catalog:'
+        version: 3.8.2
       nodemon:
         specifier: 3.1.14
         version: 3.1.14
@@ -302,6 +305,9 @@ importers:
       eslint:
         specifier: catalog:lint
         version: 10.2.0(jiti@2.7.0)
+      prettier:
+        specifier: 'catalog:'
+        version: 3.8.2
       typescript:
         specifier: 'catalog:'
         version: 6.0.2
@@ -351,6 +357,9 @@ importers:
       eslint-plugin-prefer-arrow:
         specifier: catalog:lint
         version: 1.2.3(eslint@10.2.0(jiti@2.7.0))
+      prettier:
+        specifier: 'catalog:'
+        version: 3.8.2
       typescript:
         specifier: 'catalog:'
         version: 6.0.2

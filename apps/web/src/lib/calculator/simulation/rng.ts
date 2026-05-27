@@ -3,7 +3,7 @@ import { DiceExpression } from "../types";
 export type Rng = {
   d6(): number;
   dice(expr: DiceExpression): number;
-}
+};
 
 export const standardRng: Rng = {
   d6: (): number => Math.floor(Math.random() * 6) + 1,

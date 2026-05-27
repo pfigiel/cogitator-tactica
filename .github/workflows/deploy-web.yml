@@ -1,0 +1,168 @@
+name: Deploy Web
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - apps/web/**
+  pull_request:
+    paths:
+      - apps/web/**
+
+permissions:
+  pull-requests: write
+
+jobs:
+  setup:
+    name: Install dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.13.1
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+  typecheck:
+    name: Typecheck
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.13.1
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm turbo typecheck --filter=@cogitator-tactica/web
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.13.1
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm turbo lint --filter=@cogitator-tactica/web
+
+  format:
+    name: Format
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.13.1
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Format check
+        run: pnpm turbo format:check --filter=@cogitator-tactica/web
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.13.1
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Test
+        run: pnpm turbo test --filter=@cogitator-tactica/web
+
+  deploy:
+    name: Deploy to Vercel
+    runs-on: ubuntu-latest
+    needs: [typecheck, lint, format, test]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.13.1
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Deploy to Vercel
+        id: deploy
+        run: |
+          pnpm dlx vercel pull --yes --token=${{ secrets.VERCEL_TOKEN }}
+          pnpm dlx vercel build ${{ github.event_name == 'push' && '--prod' || '' }} --token=${{ secrets.VERCEL_TOKEN }}
+          url=$(pnpm dlx vercel deploy --prebuilt ${{ github.event_name == 'push' && '--prod' || '' }} --token=${{ secrets.VERCEL_TOKEN }})
+          echo "url=$url" >> $GITHUB_OUTPUT
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          VOYAGE_API_KEY: ${{ secrets.VOYAGE_API_KEY }}
+          NEXT_PUBLIC_BACKEND_URL: ${{ vars.NEXT_PUBLIC_BACKEND_URL }}
+
+      - name: Comment preview URL on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `**Preview deploy:** ${{ steps.deploy.outputs.url }}`
+            })
