@@ -8,10 +8,7 @@ type Props = {
   title: string;
 };
 
-export const DirectionTable = ({
-  result,
-  title,
-}: Props) => {
+export const DirectionTable = ({ result, title }: Props) => {
   const multiWeapon = result.weaponResults.length > 1;
 
   return (
@@ -26,9 +23,7 @@ export const DirectionTable = ({
         ))}
       </Stack>
       <div className={styles.totalsSection}>
-        {multiWeapon && (
-          <p className={styles.combinedLabel}>Combined totals</p>
-        )}
+        {multiWeapon && <p className={styles.combinedLabel}>Combined totals</p>}
         <Group gap="xl">
           <div>
             <div className={styles.statLabel}>Avg Damage</div>

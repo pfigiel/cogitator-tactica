@@ -5,7 +5,9 @@ describe("deriveWeaponId", () => {
   it("returns slug of name for the first occurrence", () => {
     const slugToFp = new Map<string, string>();
     const fpToId = new Map<string, string>();
-    expect(deriveWeaponId("Bolt Rifle", "ranged|2|3|4|0|1", slugToFp, fpToId)).toBe("bolt_rifle");
+    expect(
+      deriveWeaponId("Bolt Rifle", "ranged|2|3|4|0|1", slugToFp, fpToId),
+    ).toBe("bolt_rifle");
   });
 
   it("returns the same id when the same fingerprint is seen again (deduplication)", () => {
@@ -13,7 +15,9 @@ describe("deriveWeaponId", () => {
     const fpToId = new Map<string, string>();
     const fp = "ranged|2|3|4|0|1";
     deriveWeaponId("Bolt Rifle", fp, slugToFp, fpToId);
-    expect(deriveWeaponId("Bolt Rifle", fp, slugToFp, fpToId)).toBe("bolt_rifle");
+    expect(deriveWeaponId("Bolt Rifle", fp, slugToFp, fpToId)).toBe(
+      "bolt_rifle",
+    );
   });
 
   it("appends a 6-char hex hash when same name has different stats", () => {

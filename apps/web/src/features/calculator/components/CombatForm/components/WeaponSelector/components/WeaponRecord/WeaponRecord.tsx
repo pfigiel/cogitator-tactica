@@ -1,5 +1,11 @@
 import type { WeaponProfile } from "@/lib/calculator/types";
-import { Paper, Group, Stack, Button, NumberInput } from "@cogitator-tactica/ui-kit";
+import {
+  Paper,
+  Group,
+  Stack,
+  Button,
+  NumberInput,
+} from "@cogitator-tactica/ui-kit";
 import { formatStats, formatAbilities } from "./weaponFormatters";
 import styles from "./WeaponRecord.module.css";
 

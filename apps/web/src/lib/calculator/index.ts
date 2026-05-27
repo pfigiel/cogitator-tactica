@@ -35,12 +35,18 @@ const resolveDirection = async (
         defenderUnit,
         defenderModelCount,
         defenderContext,
-      )
-    )
+      ),
+    ),
   );
 
-  const totalAverageDamage = weaponResults.reduce((sum, r) => sum + r.averageDamage, 0);
-  const totalAverageModelsSlain = weaponResults.reduce((sum, r) => sum + r.averageModelsSlain, 0);
+  const totalAverageDamage = weaponResults.reduce(
+    (sum, r) => sum + r.averageDamage,
+    0,
+  );
+  const totalAverageModelsSlain = weaponResults.reduce(
+    (sum, r) => sum + r.averageModelsSlain,
+    0,
+  );
 
   return {
     attackerName: `${attackerUnit.name} (${attackerModelCount})`,
