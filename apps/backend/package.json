@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "clean": "rm -rf dist",
-    "db:generate": "prisma generate",
+    "db:generate": "prisma generate && node scripts/copy-prisma-engine.cjs",
     "db:migrate:deploy": "prisma migrate deploy",
     "db:migrate:dev": "prisma migrate dev",
     "format:check": "prettier --check ."
