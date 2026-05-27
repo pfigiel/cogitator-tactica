@@ -10,7 +10,9 @@
       "outputs": [".next/**", "!.next/cache/**"],
       "env": ["ANTHROPIC_API_KEY", "DATABASE_URL", "VOYAGE_API_KEY"]
     },
-    "lint": {},
+    "lint": {
+      "dependsOn": ["^build"]
+    },
     "typecheck": {},
     "test": {},
     "format:check": {}
