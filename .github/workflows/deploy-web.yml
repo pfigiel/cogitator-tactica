@@ -142,7 +142,6 @@ jobs:
 
       - name: Deploy to Vercel
         id: deploy
-        working-directory: apps/web
         run: |
           pnpm dlx vercel pull --yes --token=${{ secrets.VERCEL_TOKEN }}
           pnpm dlx vercel build ${{ github.event_name == 'push' && '--prod' || '' }} --token=${{ secrets.VERCEL_TOKEN }}
