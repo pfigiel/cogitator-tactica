@@ -35,9 +35,8 @@ const copyPrismaEnginePlugin = {
         : build.initialOptions.outdir;
       if (!outdir) return;
 
-      const found = execSync(
-        `find ../.. -path "*/node_modules/.prisma/client/${ENGINE}" 2>/dev/null`,
-      )
+      const repoRoot = path.resolve(__dirname, "../..");
+      const found = execSync(`find "${repoRoot}" -name "${ENGINE}" 2>/dev/null`)
         .toString()
         .trim()
         .split("\n")
