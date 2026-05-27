@@ -1,16 +1,17 @@
-// @vitest-environment jsdom
 import { renderHook, waitFor } from "@testing-library/react";
 import { setupServer } from "msw/node";
 import { handlers } from "@/api/tests/handlers";
 import { TestQueryClientProvider } from "@/test/providers/TestQueryClientProvider";
 import { useGetUnitsQuery } from "./useGetUnitsQuery";
-
-const mockUnits = [{ id: "1", name: "Intercessors" }];
-const server = setupServer(
-  handlers.units.getUnits.success({ data: mockUnits }),
-);
+import { getMockUnitProfile } from "@/lib/calculator/test/mocks";
 
 describe("useGetUnitsQuery", () => {
+  const mockUnits = [getMockUnitProfile()];
+
+  const server = setupServer(
+    handlers.units.getUnits.success({ data: mockUnits }),
+  );
+
   beforeAll(() => server.listen({ onUnhandledRequest: "error" }));
   afterEach(() => server.resetHandlers());
   afterAll(() => server.close());

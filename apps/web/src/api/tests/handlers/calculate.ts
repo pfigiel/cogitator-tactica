@@ -1,16 +1,15 @@
 import { http, HttpResponse } from "msw";
 import type { CombatResult } from "@/lib/calculator/types";
-
-const BASE = process.env.NEXT_PUBLIC_BACKEND_URL;
+import { config } from "@/config/config.client";
 
 export const calculate = {
   success: (overrides?: { data?: Partial<CombatResult> }) =>
-    http.post(`${BASE}/calculate`, () =>
+    http.post(`${config.backendUrl}/calculate`, () =>
       HttpResponse.json(overrides?.data ?? {}),
     ),
   error: (overrides?: { status?: number }) =>
     http.post(
-      `${BASE}/calculate`,
+      `${config.backendUrl}/calculate`,
       () => new HttpResponse(null, { status: overrides?.status ?? 500 }),
     ),
 };

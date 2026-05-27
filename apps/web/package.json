@@ -33,6 +33,7 @@
     "postcss-custom-media": "12.0.1",
     "react": "catalog:react",
     "react-dom": "catalog:react",
+    "server-only": "0.0.1",
     "typescript": "catalog:",
     "voyageai": "0.2.1"
   },
@@ -44,11 +45,11 @@
     "eslint-config-prettier": "catalog:lint",
     "eslint-plugin-prefer-arrow": "catalog:lint",
     "jsdom": "29.1.1",
+    "msw": "catalog:test",
     "prettier": "catalog:",
     "prisma": "6.19.3",
     "tsx": "4.21.0",
     "typescript-eslint": "catalog:lint",
-    "msw": "catalog:test",
     "vitest": "catalog:test"
   }
 }

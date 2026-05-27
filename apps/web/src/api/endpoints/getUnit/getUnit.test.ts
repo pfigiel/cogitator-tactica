@@ -1,22 +1,17 @@
 import { setupServer } from "msw/node";
 import { units } from "../../tests/handlers/units";
 import { getUnit } from "./getUnit";
-import type { UnitProfile } from "@/lib/calculator/types";
-
-const mockUnit: UnitProfile = {
-  id: "unit-1",
-  name: "Intercessors",
-  toughness: 4,
-  save: 3,
-  wounds: 2,
-  keywords: ["INFANTRY"],
-  shootingWeapons: [],
-  meleeWeapons: [],
-};
-
-const server = setupServer(units.getUnit.success({ data: mockUnit }));
+import { getMockUnitProfile } from "@/lib/calculator/test/mocks";
 
 describe("getUnit", () => {
+  const mockUnit = getMockUnitProfile({
+    id: "unit-1",
+    name: "Intercessors",
+    keywords: ["INFANTRY"],
+  });
+
+  const server = setupServer(units.getUnit.success({ data: mockUnit }));
+
   beforeAll(() => server.listen({ onUnhandledRequest: "error" }));
   afterEach(() => server.resetHandlers());
   afterAll(() => server.close());

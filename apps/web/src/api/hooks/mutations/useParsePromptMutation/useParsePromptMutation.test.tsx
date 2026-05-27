@@ -1,4 +1,3 @@
-// @vitest-environment jsdom
 import { renderHook, act, waitFor } from "@testing-library/react";
 import { setupServer } from "msw/node";
 import { handlers } from "@/api/tests/handlers";
@@ -6,10 +5,11 @@ import { TestQueryClientProvider } from "@/test/providers/TestQueryClientProvide
 import { useParsePromptMutation } from "./useParsePromptMutation";
 import type { CombatFormState } from "@/lib/calculator/types";
 
-const mockState = { phase: "shooting" } as Partial<CombatFormState>;
-const server = setupServer(handlers.parsePrompt.success({ data: mockState }));
-
 describe("useParsePromptMutation", () => {
+  const mockState = { phase: "shooting" } as Partial<CombatFormState>;
+
+  const server = setupServer(handlers.parsePrompt.success({ data: mockState }));
+
   beforeAll(() => server.listen({ onUnhandledRequest: "error" }));
   afterEach(() => server.resetHandlers());
   afterAll(() => server.close());

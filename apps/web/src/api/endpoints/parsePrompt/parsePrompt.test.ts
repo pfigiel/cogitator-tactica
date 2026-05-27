@@ -1,13 +1,9 @@
 import { setupServer } from "msw/node";
 import { parsePrompt as parsePromptHandler } from "../../tests/handlers/parsePrompt";
 import { parsePrompt } from "./parsePrompt";
-import type { CombatFormState } from "@/lib/calculator/types";
+import { getMockCombatFormState } from "@/lib/calculator/test/mocks";
 
-const mockState: Partial<CombatFormState> = {
-  phase: "shooting",
-  attackerUnitId: "unit-1",
-  defenderUnitId: "unit-2",
-};
+const mockState = getMockCombatFormState();
 
 const server = setupServer(parsePromptHandler.success({ data: mockState }));
 

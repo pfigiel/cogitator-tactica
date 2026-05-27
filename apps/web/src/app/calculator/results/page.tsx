@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { useQueryClient } from "@tanstack/react-query";
 import {
   CombatFormState,
   CombatResult,
@@ -18,7 +17,8 @@ import ResultsDisplay from "@/features/calculator/components/ResultsDisplay/Resu
 import { Accordion, Paper, ScrollArea, Stack } from "@cogitator-tactica/ui-kit";
 import styles from "./page.module.css";
 import { useCalculateMutation } from "@/api/hooks/mutations/useCalculateMutation";
-import { api } from "@/api";
+import { getUnitQueryOptions } from "@/api/hooks/queries/useGetUnitQuery";
+import { useQueryClient } from "@tanstack/react-query";
 
 const ACCORDION_VALUE = "combat-parameters";
 
@@ -41,7 +41,6 @@ const resolveWeapons = (
 
 const ResultsPage = () => {
   const router = useRouter();
-  const queryClient = useQueryClient();
   const { handoff, setHandoff } = useCalculator();
   const { mutateAsync: calculateAsync } = useCalculateMutation();
 
@@ -51,6 +50,7 @@ const ResultsPage = () => {
   const [calculating, setCalculating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [accordionValue, setAccordionValue] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
   const runCalculation = useCallback(
     async (formState: CombatFormState) => {
@@ -58,14 +58,8 @@ const ResultsPage = () => {
       setError(null);
       try {
         const [attacker, defender] = await Promise.all([
-          queryClient.fetchQuery({
-            queryKey: ["unit", formState.attackerUnitId],
-            queryFn: () => api.getUnit(formState.attackerUnitId),
-          }),
-          queryClient.fetchQuery({
-            queryKey: ["unit", formState.defenderUnitId],
-            queryFn: () => api.getUnit(formState.defenderUnitId),
-          }),
+          queryClient.fetchQuery(getUnitQueryOptions(formState.attackerUnitId)),
+          queryClient.fetchQuery(getUnitQueryOptions(formState.defenderUnitId)),
         ]);
         const attackerWeapons = resolveWeapons(
           attacker,
@@ -131,7 +125,7 @@ const ResultsPage = () => {
         setCalculating(false);
       }
     },
-    [queryClient, calculateAsync],
+    [calculateAsync],
   );
 
   useEffect(() => {

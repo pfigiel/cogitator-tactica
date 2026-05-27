@@ -3,7 +3,7 @@ import "@cogitator-tactica/ui-kit/styles.css";
 import { ColorSchemeScript, UIProvider } from "@cogitator-tactica/ui-kit";
 import styles from "./layout.module.css";
 import { ReactNode } from "react";
-import { Providers } from "./providers";
+import { QueryClientProvider } from "@/features/common/providers/QueryClientProvider";
 
 export const metadata: Metadata = {
   title: "Cogitator Tactica",
@@ -20,7 +20,7 @@ const RootLayout = ({ children }: Props) => (
       <ColorSchemeScript defaultColorScheme="dark" />
     </head>
     <body className={styles.body}>
-      <Providers>
+      <QueryClientProvider>
         <UIProvider defaultColorScheme="dark">
           <header className={styles.header}>
             <span className={styles.appName}>Cogitator Tactica</span>
@@ -31,7 +31,7 @@ const RootLayout = ({ children }: Props) => (
           </header>
           {children}
         </UIProvider>
-      </Providers>
+      </QueryClientProvider>
     </body>
   </html>
 );

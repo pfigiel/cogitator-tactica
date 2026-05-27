@@ -1,7 +1,5 @@
-// src/features/calculator/components/CombatForm/CombatForm.tsx
 "use client";
 
-import { useQueryClient } from "@tanstack/react-query";
 import { CombatFormState, Phase, FirstFighter } from "@/lib/calculator/types";
 import {
   Button,
@@ -21,7 +19,6 @@ import {
 import styles from "./CombatForm.module.css";
 import { useGetUnitsQuery } from "@/api/hooks/queries/useGetUnitsQuery";
 import { useGetUnitQuery } from "@/api/hooks/queries/useGetUnitQuery";
-import { api } from "@/api";
 
 type Props = {
   state: CombatFormState;
@@ -30,7 +27,6 @@ type Props = {
 };
 
 const CombatForm = ({ state, onChange, onCalculate }: Props) => {
-  const queryClient = useQueryClient();
   const { data: unitList = [] } = useGetUnitsQuery();
   const { data: attackerUnit } = useGetUnitQuery(state.attackerUnitId);
   const { data: defenderUnit } = useGetUnitQuery(state.defenderUnitId);
@@ -53,33 +49,16 @@ const CombatForm = ({ state, onChange, onCalculate }: Props) => {
   };
 
   const handleAttackerUnitChange = async (unitId: string) => {
-    const unit = await queryClient.fetchQuery({
-      queryKey: ["unit", unitId],
-      queryFn: () => api.getUnit(unitId),
-    });
-    const pool = unit
-      ? state.phase === "shooting"
-        ? unit.shootingWeapons
-        : unit.meleeWeapons
-      : [];
     onChange({
       ...state,
       attackerUnitId: unitId,
-      attackerWeapons: pool.length > 0 ? [{ weaponId: pool[0].id }] : [],
     });
   };
 
   const handleDefenderUnitChange = async (unitId: string) => {
-    const unit = await queryClient.fetchQuery({
-      queryKey: ["unit", unitId],
-      queryFn: () => api.getUnit(unitId),
-    });
-    const meleeWeapons = unit ? unit.meleeWeapons : [];
     onChange({
       ...state,
       defenderUnitId: unitId,
-      defenderWeapons:
-        meleeWeapons.length > 0 ? [{ weaponId: meleeWeapons[0].id }] : [],
     });
   };
 

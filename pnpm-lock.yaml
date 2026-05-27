@@ -231,6 +231,9 @@ importers:
       react-dom:
         specifier: catalog:react
         version: 19.2.4(react@19.2.4)
+      server-only:
+        specifier: 0.0.1
+        version: 0.0.1
       typescript:
         specifier: 'catalog:'
         version: 6.0.2
@@ -4857,6 +4860,9 @@ packages:
   serve-static@2.2.1:
     resolution: {integrity: sha512-xRXBn0pPqQTVQiC8wyQrKs2MOlX24zQ0POGaj0kultvoOCstBQM5yvOhAVSUwOMjQtTvsPWoNCHfPGwaaQJhTw==}
     engines: {node: '>= 18'}
+
+  server-only@0.0.1:
+    resolution: {integrity: sha512-qepMx2JxAa5jjfzxG79yPPq+8BuFToHd1hm7kI+Z4zAq1ftQiP7HcxMhDDItrbtwVeLg/cY2JnKnrcFkmiswNA==}
 
   serverless-esbuild@1.52.0:
     resolution: {integrity: sha512-W/BfdE/0hcH7K+IRfLrtxLgReleUz8gnt0tOMtDfSd0Ndy7z0yj6yTa5wVTk6Q2nLgUkB3mpRsN5CoRdkxSt3Q==}
@@ -11248,6 +11254,8 @@ snapshots:
       send: 1.2.1
     transitivePeerDependencies:
       - supports-color
+
+  server-only@0.0.1: {}
 
   serverless-esbuild@1.52.0(esbuild@0.27.7):
     dependencies:

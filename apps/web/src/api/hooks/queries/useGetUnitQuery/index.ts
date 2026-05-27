@@ -1,1 +1,1 @@
-export { useGetUnitQuery } from "./useGetUnitQuery";
+export { useGetUnitQuery, getUnitQueryOptions } from "./useGetUnitQuery";

@@ -2,11 +2,11 @@ import { setupServer } from "msw/node";
 import { units } from "../../tests/handlers/units";
 import { getUnits } from "./getUnits";
 
-const server = setupServer(
-  units.getUnits.success({ data: [{ id: "1", name: "Intercessors" }] }),
-);
-
 describe("getUnits", () => {
+  const server = setupServer(
+    units.getUnits.success({ data: [{ id: "1", name: "Intercessors" }] }),
+  );
+
   beforeAll(() => server.listen({ onUnhandledRequest: "error" }));
   afterEach(() => server.resetHandlers());
   afterAll(() => server.close());

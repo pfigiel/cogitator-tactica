@@ -1,25 +1,17 @@
-// @vitest-environment jsdom
 import { renderHook, waitFor } from "@testing-library/react";
 import { setupServer } from "msw/node";
 import { handlers } from "@/api/tests/handlers";
 import { TestQueryClientProvider } from "@/test/providers/TestQueryClientProvider";
 import { useGetUnitQuery } from "./useGetUnitQuery";
-import type { UnitProfile } from "@/lib/calculator/types";
-
-const mockUnit: UnitProfile = {
-  id: "unit-1",
-  name: "Intercessors",
-  toughness: 4,
-  save: 3,
-  wounds: 2,
-  keywords: [],
-  shootingWeapons: [],
-  meleeWeapons: [],
-};
-
-const server = setupServer(handlers.units.getUnit.success({ data: mockUnit }));
+import { getMockUnitProfile } from "@/lib/calculator/test/mocks";
 
 describe("useGetUnitQuery", () => {
+  const mockUnit = getMockUnitProfile();
+
+  const server = setupServer(
+    handlers.units.getUnit.success({ data: mockUnit }),
+  );
+
   beforeAll(() => server.listen({ onUnhandledRequest: "error" }));
   afterEach(() => server.resetHandlers());
   afterAll(() => server.close());
