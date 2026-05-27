@@ -239,7 +239,8 @@ const CombatForm = ({ state, onChange, onCalculate }: Props) => {
               minSearchLength={3}
               value={state.attackerUnitId}
               onChange={(value) => {
-                if (value) void handleAttackerUnitChange(value);
+                if (value)
+                  void handleAttackerUnitChange(value).catch(console.error);
               }}
               data={UNIT_DATA}
             />
@@ -283,7 +284,8 @@ const CombatForm = ({ state, onChange, onCalculate }: Props) => {
               minSearchLength={3}
               value={state.defenderUnitId}
               onChange={(value) => {
-                if (value) void handleDefenderUnitChange(value);
+                if (value)
+                  void handleDefenderUnitChange(value).catch(console.error);
               }}
               data={UNIT_DATA}
             />
