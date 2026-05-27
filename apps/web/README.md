@@ -74,6 +74,24 @@ pnpm generate-embeddings
 | `pnpm db:setup`            | Apply migrations and generate Prisma client |
 | `pnpm db:dump`             | Dump the database to `backups/`             |
 
+## Deployment
+
+CD runs via GitHub Actions (`.github/workflows/deploy-web.yml`). Vercel's built-in Git integration is disabled — GitHub Actions is the sole deploy path.
+
+| Trigger                             | Environment | Notes                            |
+| ----------------------------------- | ----------- | -------------------------------- |
+| Push to `main` (apps/web change)    | Production  | —                                |
+| PR opened/updated (apps/web change) | Preview     | Preview URL posted as PR comment |
+
+### Required GitHub Secrets
+
+| Secret              | Where to get it                                        |
+| ------------------- | ------------------------------------------------------ |
+| `VERCEL_TOKEN`      | vercel.com → Account Settings → Tokens                 |
+| `VERCEL_ORG_ID`     | vercel.com → Team Settings → General (Team ID)         |
+| `VERCEL_PROJECT_ID` | vercel.com → Project → Settings → General (Project ID) |
+| `DATABASE_URL`      | Production DB connection string                        |
+
 ## Database Restore
 
 ```bash
