@@ -7,7 +7,8 @@
   "scripts": {
     "build": "tsc",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "@typescript-eslint/parser": "8.58.1",
@@ -23,6 +24,7 @@
     "@types/eslint": "9.6.1",
     "eslint": "catalog:lint",
     "typescript": "catalog:",
+    "prettier": "catalog:",
     "vitest": "catalog:test"
   }
 }
