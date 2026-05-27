@@ -27,10 +27,6 @@ custom:
       - "class-transformer"
       - "class-validator"
 
-package:
-  patterns:
-    - "prisma-engines/**"
-
 functions:
   api:
     handler: lambda.handler
