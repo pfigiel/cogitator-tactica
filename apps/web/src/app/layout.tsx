@@ -3,6 +3,7 @@ import "@cogitator-tactica/ui-kit/styles.css";
 import { ColorSchemeScript, UIProvider } from "@cogitator-tactica/ui-kit";
 import styles from "./layout.module.css";
 import { ReactNode } from "react";
+import { QueryClientProvider } from "@/features/common/providers/QueryClientProvider";
 
 export const metadata: Metadata = {
   title: "Cogitator Tactica",
@@ -19,16 +20,18 @@ const RootLayout = ({ children }: Props) => (
       <ColorSchemeScript defaultColorScheme="dark" />
     </head>
     <body className={styles.body}>
-      <UIProvider defaultColorScheme="dark">
-        <header className={styles.header}>
-          <span className={styles.appName}>Cogitator Tactica</span>
-          {" · "}
-          <span className={styles.appDesc}>
-            Statistics Calculator — Warhammer 40,000 10th Edition
-          </span>
-        </header>
-        {children}
-      </UIProvider>
+      <QueryClientProvider>
+        <UIProvider defaultColorScheme="dark">
+          <header className={styles.header}>
+            <span className={styles.appName}>Cogitator Tactica</span>
+            {" · "}
+            <span className={styles.appDesc}>
+              Statistics Calculator — Warhammer 40,000 10th Edition
+            </span>
+          </header>
+          {children}
+        </UIProvider>
+      </QueryClientProvider>
     </body>
   </html>
 );

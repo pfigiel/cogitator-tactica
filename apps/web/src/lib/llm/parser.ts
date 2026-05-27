@@ -16,7 +16,7 @@ import type { FactionRecord } from "@/lib/db/factions";
 import { embedText } from "@/lib/embeddings/common/voyage";
 import { buildUnitEmbeddingText } from "@/lib/embeddings/units/buildUnitEmbeddingText";
 
-const client = new Anthropic(); // reads ANTHROPIC_API_KEY from env
+const client = new Anthropic({ dangerouslyAllowBrowser: true });
 
 // ─── ParsedContext: Pure JSON parsing helper ────────────────────────────────────
 

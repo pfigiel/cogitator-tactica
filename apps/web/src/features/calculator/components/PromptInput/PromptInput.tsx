@@ -5,6 +5,7 @@ import { CombatFormState } from "@/lib/calculator/types";
 import { Textarea, Button, Stack } from "@cogitator-tactica/ui-kit";
 import styles from "./PromptInput.module.css";
 import clsx from "clsx";
+import { useParsePromptMutation } from "@/api/hooks/mutations/useParsePromptMutation";
 
 type Props = {
   className?: string;
@@ -25,25 +26,16 @@ const PromptInput = ({
   const [loadingAction, setLoadingAction] = useState<
     "parse" | "simulate" | null
   >(null);
-  const [error, setError] = useState<string | null>(null);
+  const parsePromptMutation = useParsePromptMutation();
 
   const parse = async (
     action: "parse" | "simulate",
   ): Promise<CombatFormState | null> => {
     if (!prompt.trim()) return null;
     setLoadingAction(action);
-    setError(null);
     try {
-      const res = await fetch("/api/parse", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Parse failed");
-      return data as CombatFormState;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Unknown error");
+      return await parsePromptMutation.mutateAsync(prompt);
+    } catch {
       return null;
     } finally {
       setLoadingAction(null);
@@ -74,7 +66,7 @@ const PromptInput = ({
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           placeholder="10 intercessors with bolt rifles shoot at 20 ork boyz in cover"
-          error={error}
+          error={parsePromptMutation.error?.message ?? null}
           rows={compact ? 1 : 3}
           minRows={compact ? 1 : 3}
           autosize

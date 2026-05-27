@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import {
   CombatFormState,
@@ -10,13 +10,15 @@ import {
   SelectedWeaponInput,
   UnitProfile,
 } from "@/lib/calculator/types";
-import { calculate } from "@/lib/calculator";
 import { useCalculator } from "@/features/calculator/context/CalculatorContext";
 import PromptInput from "@/features/calculator/components/PromptInput/PromptInput";
 import CombatForm from "@/features/calculator/components/CombatForm/CombatForm";
 import ResultsDisplay from "@/features/calculator/components/ResultsDisplay/ResultsDisplay";
 import { Accordion, Paper, ScrollArea, Stack } from "@cogitator-tactica/ui-kit";
 import styles from "./page.module.css";
+import { useCalculateMutation } from "@/api/hooks/mutations/useCalculateMutation";
+import { getUnitQueryOptions } from "@/api/hooks/queries/useGetUnitQuery";
+import { useQueryClient } from "@tanstack/react-query";
 
 const ACCORDION_VALUE = "combat-parameters";
 
@@ -40,6 +42,7 @@ const resolveWeapons = (
 const ResultsPage = () => {
   const router = useRouter();
   const { handoff, setHandoff } = useCalculator();
+  const { mutateAsync: calculateAsync } = useCalculateMutation();
 
   const [form, setForm] = useState<CombatFormState | null>(null);
   const [prompt, setPrompt] = useState("");
@@ -47,23 +50,7 @@ const ResultsPage = () => {
   const [calculating, setCalculating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [accordionValue, setAccordionValue] = useState<string | null>(null);
-  const unitsRef = useRef<Record<string, UnitProfile>>({});
-
-  const ensureUnit = useCallback(
-    async (id: string): Promise<UnitProfile | null> => {
-      if (unitsRef.current[id]) return unitsRef.current[id];
-      try {
-        const res = await fetch(`/api/units/${id}`);
-        if (!res.ok) return null;
-        const unit: UnitProfile = await res.json();
-        unitsRef.current = { ...unitsRef.current, [id]: unit };
-        return unit;
-      } catch {
-        return null;
-      }
-    },
-    [],
-  );
+  const queryClient = useQueryClient();
 
   const runCalculation = useCallback(
     async (formState: CombatFormState) => {
@@ -71,13 +58,9 @@ const ResultsPage = () => {
       setError(null);
       try {
         const [attacker, defender] = await Promise.all([
-          ensureUnit(formState.attackerUnitId),
-          ensureUnit(formState.defenderUnitId),
+          queryClient.fetchQuery(getUnitQueryOptions(formState.attackerUnitId)),
+          queryClient.fetchQuery(getUnitQueryOptions(formState.defenderUnitId)),
         ]);
-        if (!attacker || !defender) {
-          setError("Unknown unit selected.");
-          return;
-        }
         const attackerWeapons = resolveWeapons(
           attacker,
           formState.phase,
@@ -100,7 +83,7 @@ const ResultsPage = () => {
           );
           return;
         }
-        const combatResult = await calculate(
+        const combatResult = await calculateAsync(
           formState.phase === "shooting"
             ? {
                 phase: "shooting",
@@ -142,7 +125,7 @@ const ResultsPage = () => {
         setCalculating(false);
       }
     },
-    [ensureUnit],
+    [calculateAsync],
   );
 
   useEffect(() => {
@@ -153,12 +136,10 @@ const ResultsPage = () => {
     setForm(handoff.form);
     setPrompt(handoff.prompt);
     setAccordionValue(handoff.autoSubmit ? null : ACCORDION_VALUE);
-    ensureUnit(handoff.form.attackerUnitId);
-    ensureUnit(handoff.form.defenderUnitId);
     if (handoff.autoSubmit) {
       runCalculation(handoff.form);
     }
-  }, [ensureUnit, runCalculation]);
+  }, [runCalculation]);
 
   const handleFormChange = useCallback((next: CombatFormState) => {
     setForm(next);
@@ -175,10 +156,8 @@ const ResultsPage = () => {
       setResult(null);
       setAccordionValue(ACCORDION_VALUE);
       setHandoff({ form: nextForm, prompt: nextPrompt, autoSubmit: false });
-      ensureUnit(nextForm.attackerUnitId);
-      ensureUnit(nextForm.defenderUnitId);
     },
-    [setHandoff, ensureUnit],
+    [setHandoff],
   );
 
   const handleSimulate = useCallback(

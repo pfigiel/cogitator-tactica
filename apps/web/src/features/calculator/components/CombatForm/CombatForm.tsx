@@ -1,13 +1,6 @@
-// src/features/calculator/components/CombatForm/CombatForm.tsx
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
-import {
-  CombatFormState,
-  Phase,
-  FirstFighter,
-  UnitProfile,
-} from "@/lib/calculator/types";
+import { CombatFormState, Phase, FirstFighter } from "@/lib/calculator/types";
 import {
   Button,
   Select,
@@ -24,6 +17,8 @@ import {
   relevantContextFlags,
 } from "./components/AttackerContextSection/AttackerContextSection";
 import styles from "./CombatForm.module.css";
+import { useGetUnitsQuery } from "@/api/hooks/queries/useGetUnitsQuery";
+import { useGetUnitQuery } from "@/api/hooks/queries/useGetUnitQuery";
 
 type Props = {
   state: CombatFormState;
@@ -32,61 +27,11 @@ type Props = {
 };
 
 const CombatForm = ({ state, onChange, onCalculate }: Props) => {
-  const [unitList, setUnitList] = useState<Array<{ id: string; name: string }>>(
-    [],
-  );
-  const unitsRef = useRef<Record<string, UnitProfile>>({});
-  const [units, setUnits] = useState<Record<string, UnitProfile>>({});
-
-  const setUnitsAndRef = useCallback(
-    (
-      updater: (
-        prev: Record<string, UnitProfile>,
-      ) => Record<string, UnitProfile>,
-    ) => {
-      setUnits((prev) => {
-        const next = updater(prev);
-        unitsRef.current = next;
-        return next;
-      });
-    },
-    [],
-  );
-
-  const ensureUnit = useCallback(
-    async (id: string): Promise<UnitProfile | null> => {
-      if (unitsRef.current[id]) return unitsRef.current[id];
-      try {
-        const res = await fetch(`/api/units/${id}`);
-        if (!res.ok) return null;
-        const unit: UnitProfile = await res.json();
-        setUnitsAndRef((prev) => ({ ...prev, [id]: unit }));
-        return unit;
-      } catch {
-        return null;
-      }
-    },
-    [setUnitsAndRef],
-  );
-
-  useEffect(() => {
-    fetch("/api/units")
-      .then((r) => r.json())
-      .then((list: Array<{ id: string; name: string }>) => setUnitList(list))
-      .catch(() => {});
-  }, []);
-
-  useEffect(() => {
-    void ensureUnit(state.attackerUnitId);
-    void ensureUnit(state.defenderUnitId);
-    // state IDs intentionally read only on mount
-  }, [ensureUnit]);
-
-  const UNIT_DATA = unitList.map((u) => ({ value: u.id, label: u.name }));
+  const { data: unitList = [] } = useGetUnitsQuery();
+  const { data: attackerUnit } = useGetUnitQuery(state.attackerUnitId);
+  const { data: defenderUnit } = useGetUnitQuery(state.defenderUnitId);
 
   const handlePhaseChange = (phase: Phase) => {
-    const attackerUnit = unitsRef.current[state.attackerUnitId];
-    const defenderUnit = unitsRef.current[state.defenderUnitId];
     const attackerPool = attackerUnit
       ? phase === "shooting"
         ? attackerUnit.shootingWeapons
@@ -104,27 +49,16 @@ const CombatForm = ({ state, onChange, onCalculate }: Props) => {
   };
 
   const handleAttackerUnitChange = async (unitId: string) => {
-    const unit = unitsRef.current[unitId] ?? (await ensureUnit(unitId));
-    const pool = unit
-      ? state.phase === "shooting"
-        ? unit.shootingWeapons
-        : unit.meleeWeapons
-      : [];
     onChange({
       ...state,
       attackerUnitId: unitId,
-      attackerWeapons: pool.length > 0 ? [{ weaponId: pool[0].id }] : [],
     });
   };
 
   const handleDefenderUnitChange = async (unitId: string) => {
-    const unit = unitsRef.current[unitId] ?? (await ensureUnit(unitId));
-    const meleeWeapons = unit ? unit.meleeWeapons : [];
     onChange({
       ...state,
       defenderUnitId: unitId,
-      defenderWeapons:
-        meleeWeapons.length > 0 ? [{ weaponId: meleeWeapons[0].id }] : [],
     });
   };
 
@@ -216,14 +150,12 @@ const CombatForm = ({ state, onChange, onCalculate }: Props) => {
     onChange({ ...state, defenderWeapons: next });
   };
 
-  const attackerUnit = units[state.attackerUnitId];
-  const defenderUnit = units[state.defenderUnitId];
+  const UNIT_DATA = unitList.map((u) => ({ value: u.id, label: u.name }));
   const attackerWeaponPool = attackerUnit
     ? state.phase === "shooting"
       ? attackerUnit.shootingWeapons
       : attackerUnit.meleeWeapons
     : [];
-
   const attackerContextFlags = relevantContextFlags(
     attackerWeaponPool,
     state.attackerWeapons,
@@ -235,7 +167,6 @@ const CombatForm = ({ state, onChange, onCalculate }: Props) => {
 
   return (
     <Stack gap="md">
-      {/* Phase selector */}
       <Group gap="xs" justify="center" grow>
         <Button
           variant={state.phase === "shooting" ? "filled" : "default"}
@@ -278,7 +209,6 @@ const CombatForm = ({ state, onChange, onCalculate }: Props) => {
         </Group>
       )}
       <div className={styles.grid}>
-        {/* Attacker */}
         <Paper>
           <Stack gap="sm">
             <h3 className={styles.attackerHeading}>Attacker</h3>
@@ -288,7 +218,8 @@ const CombatForm = ({ state, onChange, onCalculate }: Props) => {
               minSearchLength={3}
               value={state.attackerUnitId}
               onChange={(value) => {
-                if (value) void handleAttackerUnitChange(value);
+                if (value)
+                  void handleAttackerUnitChange(value).catch(console.error);
               }}
               data={UNIT_DATA}
             />
@@ -323,7 +254,6 @@ const CombatForm = ({ state, onChange, onCalculate }: Props) => {
           </Stack>
         </Paper>
 
-        {/* Defender */}
         <Paper>
           <Stack gap="sm">
             <h3 className={styles.defenderHeading}>Defender</h3>
@@ -333,7 +263,8 @@ const CombatForm = ({ state, onChange, onCalculate }: Props) => {
               minSearchLength={3}
               value={state.defenderUnitId}
               onChange={(value) => {
-                if (value) void handleDefenderUnitChange(value);
+                if (value)
+                  void handleDefenderUnitChange(value).catch(console.error);
               }}
               data={UNIT_DATA}
             />

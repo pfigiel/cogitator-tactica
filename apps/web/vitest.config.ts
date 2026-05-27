@@ -3,8 +3,11 @@ import { resolve } from "path";
 
 export default defineConfig({
   test: {
-    environment: "node",
+    environment: "jsdom",
     globals: true,
+    env: {
+      NEXT_PUBLIC_BACKEND_URL: "http://localhost:3001",
+    },
   },
   resolve: {
     alias: {

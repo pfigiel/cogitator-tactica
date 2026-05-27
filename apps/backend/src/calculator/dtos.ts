@@ -8,6 +8,7 @@ import {
   Min,
   ValidateNested,
 } from "class-validator";
+import { IsDiceExpression } from "../common/validators";
 import { Type } from "class-transformer";
 import type { CombatPhase, CombatSide } from "../common/types";
 
@@ -37,17 +38,20 @@ export class WeaponProfileDto {
   @IsString()
   name!: string;
 
+  @IsDiceExpression()
   attacks!: number | string;
 
   @IsInt()
   skill!: number;
 
-  strength!: number | string; // TODO: Add validation for dice expression
+  @IsDiceExpression()
+  strength!: number | string;
 
   @IsInt()
   ap!: number;
 
-  damage!: number | string; // TODO: Add validation for dice expression
+  @IsDiceExpression()
+  damage!: number | string;
 
   @IsArray()
   abilities!: object[]; // TODO: Add stricter validation
