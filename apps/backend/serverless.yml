@@ -17,7 +17,7 @@ custom:
     sourcemap: false
     target: node20
     platform: node
-    packager: pnpm
+    packager: npm
     plugins: esbuild-plugins.cjs
     external:
       - "@nestjs/microservices"
