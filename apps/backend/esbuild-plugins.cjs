@@ -48,7 +48,14 @@ const copyPrismaEnginePlugin = {
       try {
         const clientPkg = require.resolve("@prisma/client/package.json");
         candidates.push(
-          path.join(path.dirname(clientPkg), "..", ".prisma", "client", ENGINE),
+          path.join(
+            path.dirname(clientPkg),
+            "..",
+            "..",
+            ".prisma",
+            "client",
+            ENGINE,
+          ),
         );
       } catch (e) {
         console.error(e);
