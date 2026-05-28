@@ -33,26 +33,60 @@ const copyPrismaEnginePlugin = {
       const outdir = outfile
         ? path.dirname(outfile)
         : build.initialOptions.outdir;
-      if (!outdir) return;
+      if (!outdir) {
+        return {
+          errors: [
+            {
+              text: "[copy-prisma-engine] outdir not set — cannot copy engine binary",
+            },
+          ],
+        };
+      }
 
+      // Primary: resolve via @prisma/client package (deterministic in pnpm)
+      const candidates = [];
+      try {
+        const clientPkg = require.resolve("@prisma/client/package.json");
+        candidates.push(
+          path.join(path.dirname(clientPkg), "..", ".prisma", "client", ENGINE),
+        );
+      } catch(e) {console.error(e)}
+      try {
+        const prismaPkg = require.resolve("prisma/package.json");
+        candidates.push(path.join(path.dirname(prismaPkg), ENGINE));
+      } catch(e) {console.error(e)}
+
+      // Fallback: find in repo root
       const repoRoot = path.resolve(__dirname, "../..");
-      const found = execSync(`find "${repoRoot}" -name "${ENGINE}" 2>/dev/null`)
+      const found = execSync(
+        `find "${repoRoot}" -name "${ENGINE}" -not -path "*/prisma-engines/*" 2>/dev/null`,
+      )
         .toString()
         .trim()
         .split("\n")
         .filter(Boolean)[0];
+      if (found) candidates.push(found);
 
-      if (!found) {
-        console.error(
-          `[copy-prisma-engine] Engine binary not found — run prisma generate`,
-        );
-        return;
+      console.log(`[copy-prisma-engine] Searching for ${ENGINE}...`);
+      console.log(
+        `[copy-prisma-engine] Candidates: ${JSON.stringify(candidates)}`,
+      );
+
+      const engineSrc = candidates.find((c) => fsSync.existsSync(c));
+      if (!engineSrc) {
+        return {
+          errors: [
+            {
+              text: `[copy-prisma-engine] ${ENGINE} not found in any of: ${candidates.join(", ")} — run prisma generate`,
+            },
+          ],
+        };
       }
 
       const destDir = path.join(outdir, "prisma-engines");
       fsSync.mkdirSync(destDir, { recursive: true });
-      fsSync.copyFileSync(found, path.join(destDir, ENGINE));
-      console.log(`[copy-prisma-engine] Copied engine to ${destDir}`);
+      fsSync.copyFileSync(engineSrc, path.join(destDir, ENGINE));
+      console.log(`[copy-prisma-engine] Copied ${engineSrc} → ${destDir}`);
     });
   },
 };

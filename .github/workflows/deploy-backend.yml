@@ -149,6 +149,19 @@ jobs:
         working-directory: apps/backend
         run: pnpm exec prisma generate
 
+      - name: Verify Prisma engine binary
+        working-directory: apps/backend
+        run: |
+          ENGINE="libquery_engine-rhel-openssl-3.0.x.so.node"
+          echo "Searching for $ENGINE in pnpm virtual store..."
+          find ../.. -name "$ENGINE" 2>/dev/null
+          COUNT=$(find ../.. -name "$ENGINE" 2>/dev/null | wc -l)
+          if [ "$COUNT" -eq 0 ]; then
+            echo "ERROR: $ENGINE not found — prisma generate may have failed"
+            exit 1
+          fi
+          echo "Found $COUNT instance(s) of $ENGINE"
+
       - name: Deploy
         working-directory: apps/backend
         run: pnpm exec serverless deploy --stage prod
