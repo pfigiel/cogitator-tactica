@@ -9,6 +9,7 @@ on:
   pull_request:
     paths:
       - apps/web/**
+  workflow_dispatch:
 
 permissions:
   pull-requests: write
@@ -144,8 +145,8 @@ jobs:
         id: deploy
         run: |
           pnpm dlx vercel pull --yes --token=${{ secrets.VERCEL_TOKEN }}
-          pnpm dlx vercel build ${{ github.event_name == 'push' && '--prod' || '' }} --token=${{ secrets.VERCEL_TOKEN }}
-          url=$(pnpm dlx vercel deploy --prebuilt ${{ github.event_name == 'push' && '--prod' || '' }} --token=${{ secrets.VERCEL_TOKEN }})
+          pnpm dlx vercel build ${{ (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && '--prod' || '' }} --token=${{ secrets.VERCEL_TOKEN }}
+          url=$(pnpm dlx vercel deploy --prebuilt ${{ (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && '--prod' || '' }} --token=${{ secrets.VERCEL_TOKEN }})
           echo "url=$url" >> $GITHUB_OUTPUT
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
