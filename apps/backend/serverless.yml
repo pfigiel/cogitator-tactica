@@ -6,6 +6,7 @@ provider:
   region: eu-central-1
   environment:
     NODE_ENV: production
+    PRISMA_QUERY_ENGINE_LIBRARY: /var/task/prisma-engines/libquery_engine-rhel-openssl-3.0.x.so.node
 
 plugins:
   - serverless-esbuild
@@ -17,7 +18,7 @@ custom:
     sourcemap: false
     target: node20
     platform: node
-    packager: pnpm
+    packager: npm
     plugins: esbuild-plugins.cjs
     external:
       - "@nestjs/microservices"

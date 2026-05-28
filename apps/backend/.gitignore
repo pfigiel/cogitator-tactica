@@ -1,3 +1,4 @@
 dist/
 .serverless/
 node_modules/
+prisma-engines/
