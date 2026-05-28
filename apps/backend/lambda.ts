@@ -20,6 +20,9 @@ let server: Handler;
 
 const bootstrap = async (): Promise<Handler> => {
   const app = await NestFactory.create(AppModule);
+  app.enableCors({
+    origin: /^https:\/\/cogitator-tactica[\w-]*\.vercel\.app$/,
+  });
   await app.init();
   const expressApp = app.getHttpAdapter().getInstance();
   return serverlessExpress({ app: expressApp });
