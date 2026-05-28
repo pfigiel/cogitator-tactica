@@ -50,11 +50,15 @@ const copyPrismaEnginePlugin = {
         candidates.push(
           path.join(path.dirname(clientPkg), "..", ".prisma", "client", ENGINE),
         );
-      } catch(e) {console.error(e)}
+      } catch (e) {
+        console.error(e);
+      }
       try {
         const prismaPkg = require.resolve("prisma/package.json");
         candidates.push(path.join(path.dirname(prismaPkg), ENGINE));
-      } catch(e) {console.error(e)}
+      } catch (e) {
+        console.error(e);
+      }
 
       // Fallback: find in repo root
       const repoRoot = path.resolve(__dirname, "../..");

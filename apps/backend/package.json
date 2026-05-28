@@ -8,12 +8,13 @@
     "dev": "nodemon --watch src --watch main.ts --ext ts --exec \"ts-node main.ts\"",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
+    "format": "prettier -w .",
+    "format:check": "prettier --check .",
     "test": "vitest run",
     "clean": "rm -rf dist",
     "db:generate": "prisma generate",
     "db:migrate:deploy": "prisma migrate deploy",
-    "db:migrate:dev": "prisma migrate dev",
-    "format:check": "prettier --check ."
+    "db:migrate:dev": "prisma migrate dev"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "0.80.0",
