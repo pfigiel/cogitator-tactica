@@ -89,4 +89,25 @@ describe("WahapediaUpsertService", () => {
       data: [{ unitId: "intercessors", weaponId: "bolt_rifle" }],
     });
   });
+
+  it("should delete unit weapons and skip createMany when upsertAll is called with a unit with no weapons", async () => {
+    prisma.$transaction.mockImplementation(async (fn) =>
+      (fn as (tx: typeof prisma) => Promise<void>)(prisma),
+    );
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    prisma.faction.upsert.mockResolvedValue({} as any);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    prisma.unit.upsert.mockResolvedValue({} as any);
+    prisma.unitWeapon.deleteMany.mockResolvedValue({ count: 0 });
+
+    await service.upsertAll(
+      [makeUnit()],
+      [{ id: "SM", name: "Space Marines" }],
+    );
+
+    expect(prisma.unitWeapon.deleteMany).toHaveBeenCalledWith({
+      where: { unitId: "intercessors" },
+    });
+    expect(prisma.unitWeapon.createMany).not.toHaveBeenCalled();
+  });
 });
