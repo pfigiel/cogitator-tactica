@@ -6,9 +6,7 @@ import { PrismaService } from "../database/prisma.service";
 import type { UnitWithFaction } from "./wahapedia-parser.service";
 
 const makeBatchPayload = (count = 0): PrismaPromise<Prisma.BatchPayload> =>
-  Object.assign(Promise.resolve({ count }), {
-    [Symbol.toStringTag]: "PrismaPromise" as const,
-  });
+  Promise.resolve({ count }) as unknown as PrismaPromise<Prisma.BatchPayload>;
 
 const makeUnit = (overrides?: Partial<UnitWithFaction>): UnitWithFaction => ({
   id: "intercessors",
