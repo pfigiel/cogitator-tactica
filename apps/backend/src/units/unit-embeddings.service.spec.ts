@@ -27,6 +27,7 @@ describe("UnitEmbeddingsService", () => {
   describe("buildEmbeddingText", () => {
     it("should return only unit name line when only name is provided", () => {
       const result = service.buildEmbeddingText({ name: "Intercessors" });
+
       expect(result).toBe("Unit: Intercessors");
     });
 
@@ -38,6 +39,7 @@ describe("UnitEmbeddingsService", () => {
         meleeWeapons: ["Bolt Pistol"],
         rangedWeapons: ["Bolt Rifle"],
       });
+
       expect(result).toBe(
         "Unit: Intercessors\nAlternative names: Intercessor Squad\nFaction: Space Marines\nMelee weapons: Bolt Pistol\nRanged weapons: Bolt Rifle",
       );
@@ -50,6 +52,7 @@ describe("UnitEmbeddingsService", () => {
         meleeWeapons: [],
         rangedWeapons: [],
       });
+
       expect(result).toBe("Unit: Intercessors");
     });
   });

@@ -1,20 +1,27 @@
 import { Test, TestingModule } from "@nestjs/testing";
-import { mockDeep, DeepMockProxy } from "vitest-mock-extended";
+import { DeepMockProxy } from "vitest-mock-extended";
 import { WahapediaAltNamesService } from "./wahapedia-alt-names.service";
 import { LlmService } from "../llm/llm.service";
 import { PrismaService } from "../database/prisma.service";
+import { getMockProvider } from "../common/test/utils";
+import { getMockDbUnit } from "../database/test/mocks";
 
 describe("WahapediaAltNamesService", () => {
   let service: WahapediaAltNamesService;
   let llm: DeepMockProxy<LlmService>;
   let prisma: DeepMockProxy<PrismaService>;
 
+  beforeAll(() => {
+    vi.spyOn(console, "log").mockImplementation(vi.fn());
+    vi.spyOn(console, "warn").mockImplementation(vi.fn());
+  });
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         WahapediaAltNamesService,
-        { provide: LlmService, useValue: mockDeep<LlmService>() },
-        { provide: PrismaService, useValue: mockDeep<PrismaService>() },
+        getMockProvider(LlmService),
+        getMockProvider(PrismaService),
       ],
     }).compile();
 
@@ -27,8 +34,7 @@ describe("WahapediaAltNamesService", () => {
     llm.createMessage.mockResolvedValue(
       '{"intercessors": ["Intercessor Squad"]}',
     );
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    prisma.unit.update.mockResolvedValue({} as any);
+    prisma.unit.update.mockResolvedValue(getMockDbUnit());
 
     await service.generateAndUpdate(
       new Map([["SM", [{ id: "intercessors", name: "Intercessors" }]]]),
@@ -52,8 +58,7 @@ describe("WahapediaAltNamesService", () => {
     llm.createMessage
       .mockRejectedValueOnce(new Error("LLM error"))
       .mockResolvedValueOnce('{"orks_boy": ["Boyz"]}');
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    prisma.unit.update.mockResolvedValue({} as any);
+    prisma.unit.update.mockResolvedValue(getMockDbUnit());
 
     await service.generateAndUpdate(
       new Map([

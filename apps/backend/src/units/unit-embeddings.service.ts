@@ -6,7 +6,7 @@ import type { DbUnitWithWeapons } from "../database/types";
 
 const BATCH_SIZE = 128;
 
-export type UnitEmbeddingParams = {
+type UnitEmbeddingParams = {
   name: string;
   altNames?: string[];
   faction?: string;

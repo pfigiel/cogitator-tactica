@@ -3,34 +3,10 @@ import { mockDeep, DeepMockProxy } from "vitest-mock-extended";
 import { Prisma, type PrismaPromise } from "@prisma/client";
 import { WahapediaUpsertService } from "./wahapedia-upsert.service";
 import { PrismaService } from "../database/prisma.service";
-import type { UnitWithFaction } from "./wahapedia-parser.service";
+import { getMockUnitWithFaction, getMockWeaponWithFaction } from "./test/mocks";
 
 const makeBatchPayload = (count = 0): PrismaPromise<Prisma.BatchPayload> =>
   Promise.resolve({ count }) as unknown as PrismaPromise<Prisma.BatchPayload>;
-
-const makeUnit = (overrides?: Partial<UnitWithFaction>): UnitWithFaction => ({
-  id: "intercessors",
-  name: "Intercessors",
-  factionId: "SM",
-  toughness: 4,
-  save: 3,
-  wounds: 2,
-  keywords: ["INFANTRY"],
-  shootingWeapons: [],
-  meleeWeapons: [],
-  ...overrides,
-});
-
-const makeWeapon = (id: string): UnitWithFaction["shootingWeapons"][0] => ({
-  id,
-  name: "Bolt Rifle",
-  attacks: 2,
-  skill: 3,
-  strength: 4,
-  ap: -1,
-  damage: 1,
-  abilities: [],
-});
 
 describe("WahapediaUpsertService", () => {
   let service: WahapediaUpsertService;
@@ -60,7 +36,7 @@ describe("WahapediaUpsertService", () => {
 
   it("should delete all unit weapons, units, weapons, and factions when upsertAll is called", async () => {
     await service.upsertAll(
-      [makeUnit()],
+      [getMockUnitWithFaction()],
       [{ id: "SM", name: "Space Marines" }],
     );
 
@@ -90,7 +66,7 @@ describe("WahapediaUpsertService", () => {
     });
 
     await service.upsertAll(
-      [makeUnit()],
+      [getMockUnitWithFaction()],
       [{ id: "SM", name: "Space Marines" }],
     );
 
@@ -98,8 +74,8 @@ describe("WahapediaUpsertService", () => {
   });
 
   it("should insert factions, weapons, units, and unit weapons when upsertAll is called with a unit with weapons", async () => {
-    const weapon = makeWeapon("bolt_rifle");
-    const unit = makeUnit({ shootingWeapons: [weapon] });
+    const weapon = getMockWeaponWithFaction({ id: "bolt_rifle" });
+    const unit = getMockUnitWithFaction({ shootingWeapons: [weapon] });
 
     await service.upsertAll([unit], [{ id: "SM", name: "Space Marines" }]);
 
@@ -121,7 +97,7 @@ describe("WahapediaUpsertService", () => {
 
   it("should skip unit weapon insert when upsertAll is called with a unit with no weapons", async () => {
     await service.upsertAll(
-      [makeUnit()],
+      [getMockUnitWithFaction()],
       [{ id: "SM", name: "Space Marines" }],
     );
 
@@ -134,7 +110,10 @@ describe("WahapediaUpsertService", () => {
     const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
     await expect(
-      service.upsertAll([makeUnit()], [{ id: "SM", name: "Space Marines" }]),
+      service.upsertAll(
+        [getMockUnitWithFaction()],
+        [{ id: "SM", name: "Space Marines" }],
+      ),
     ).rejects.toThrow(error);
 
     expect(consoleSpy).toHaveBeenCalledWith(
@@ -151,7 +130,10 @@ describe("WahapediaUpsertService", () => {
     const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
     await expect(
-      service.upsertAll([makeUnit()], [{ id: "SM", name: "Space Marines" }]),
+      service.upsertAll(
+        [getMockUnitWithFaction()],
+        [{ id: "SM", name: "Space Marines" }],
+      ),
     ).rejects.toThrow(error);
 
     expect(consoleSpy).toHaveBeenCalledWith(
