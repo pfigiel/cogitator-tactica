@@ -11,96 +11,114 @@ export class WahapediaUpsertService {
     units: UnitWithFaction[],
     factions: Array<{ id: string; name: string }>,
   ): Promise<void> {
+    const unitMap = new Map<string, UnitWithFaction>();
     const weaponMap = new Map<
       string,
-      { weapon: UnitWithFaction["shootingWeapons"][0]; wtype: WeaponType }
+      { weapon: UnitWithFaction["shootingWeapons"][0]; weaponType: WeaponType }
     >();
     for (const unit of units) {
+      unitMap.set(unit.id, unit);
       for (const w of unit.shootingWeapons) {
-        weaponMap.set(w.id, { weapon: w, wtype: WeaponType.shooting });
+        weaponMap.set(w.id, { weapon: w, weaponType: WeaponType.shooting });
       }
       for (const w of unit.meleeWeapons) {
-        weaponMap.set(w.id, { weapon: w, wtype: WeaponType.melee });
+        weaponMap.set(w.id, { weapon: w, weaponType: WeaponType.melee });
       }
     }
 
-    await this.prisma.$transaction(
-      async (tx) => {
-        for (const faction of factions) {
-          await tx.faction.upsert({
-            where: { id: faction.id },
-            update: { name: faction.name },
-            create: { id: faction.id, name: faction.name },
-          });
-        }
+    const uniqueUnits = Array.from(unitMap.values());
+    await this.prune();
+    await this.seedFactions(factions);
+    await this.seedWeapons(weaponMap);
+    await this.seedUnits(uniqueUnits);
+  }
 
-        for (const { weapon, wtype } of weaponMap.values()) {
-          await tx.weapon.upsert({
-            where: { id: weapon.id },
-            update: {
-              name: weapon.name,
-              type: wtype,
-              attacks: String(weapon.attacks),
-              skill: weapon.skill,
-              strength: String(weapon.strength),
-              ap: weapon.ap,
-              damage: String(weapon.damage),
-              abilities: weapon.abilities as object[],
-            },
-            create: {
-              id: weapon.id,
-              name: weapon.name,
-              type: wtype,
-              attacks: String(weapon.attacks),
-              skill: weapon.skill,
-              strength: String(weapon.strength),
-              ap: weapon.ap,
-              damage: String(weapon.damage),
-              abilities: weapon.abilities as object[],
-            },
-          });
-        }
+  private async prune(): Promise<void> {
+    try {
+      await this.prisma.unitWeapon.deleteMany();
+      await this.prisma.unit.deleteMany();
+      await this.prisma.weapon.deleteMany();
+      await this.prisma.faction.deleteMany();
+    } catch (err) {
+      console.error("[seed] FAILED at prune step — fix and re-run seed.", err);
+      throw err;
+    }
+  }
 
-        for (const unit of units) {
-          await tx.unit.upsert({
-            where: { id: unit.id },
-            update: {
-              name: unit.name,
-              factionId: unit.factionId,
-              toughness: unit.toughness,
-              save: unit.save,
-              invuln: unit.invuln ?? null,
-              wounds: unit.wounds,
-              keywords: unit.keywords,
-            },
-            create: {
-              id: unit.id,
-              name: unit.name,
-              factionId: unit.factionId,
-              toughness: unit.toughness,
-              save: unit.save,
-              invuln: unit.invuln ?? null,
-              wounds: unit.wounds,
-              keywords: unit.keywords,
-            },
-          });
+  private async seedFactions(
+    factions: Array<{ id: string; name: string }>,
+  ): Promise<void> {
+    try {
+      await this.prisma.faction.createMany({
+        data: factions.map((f) => ({ id: f.id, name: f.name })),
+      });
+    } catch (err) {
+      console.error(
+        "[seed] FAILED at factions step — fix and re-run seed.",
+        err,
+      );
+      throw err;
+    }
+  }
 
-          await tx.unitWeapon.deleteMany({ where: { unitId: unit.id } });
-          const allWeaponIds = [
-            ...unit.shootingWeapons.map((w) => w.id),
-            ...unit.meleeWeapons.map((w) => w.id),
-          ];
-          if (allWeaponIds.length > 0) {
-            await tx.unitWeapon.createMany({
-              data: allWeaponIds.map((weaponId) => ({
-                unitId: unit.id,
-                weaponId,
-              })),
-            });
-          }
-        }
-      },
-      { timeout: 120_000 },
-    );
+  private async seedWeapons(
+    weaponMap: Map<
+      string,
+      { weapon: UnitWithFaction["shootingWeapons"][0]; weaponType: WeaponType }
+    >,
+  ): Promise<void> {
+    try {
+      await this.prisma.weapon.createMany({
+        data: Array.from(weaponMap.values()).map(({ weapon, weaponType }) => ({
+          id: weapon.id,
+          name: weapon.name,
+          type: weaponType,
+          attacks: String(weapon.attacks),
+          skill: weapon.skill,
+          strength: String(weapon.strength),
+          ap: weapon.ap,
+          damage: String(weapon.damage),
+          abilities: weapon.abilities as object[],
+        })),
+      });
+    } catch (err) {
+      console.error(
+        "[seed] FAILED at weapons step — fix and re-run seed.",
+        err,
+      );
+      throw err;
+    }
+  }
+
+  private async seedUnits(units: UnitWithFaction[]): Promise<void> {
+    try {
+      await this.prisma.unit.createMany({
+        data: units.map((unit) => ({
+          id: unit.id,
+          name: unit.name,
+          factionId: unit.factionId,
+          toughness: unit.toughness,
+          save: unit.save,
+          invuln: unit.invuln ?? null,
+          wounds: unit.wounds,
+          keywords: unit.keywords,
+        })),
+      });
+
+      const unitWeaponData = units.flatMap((unit) => [
+        ...unit.shootingWeapons.map((w) => ({
+          unitId: unit.id,
+          weaponId: w.id,
+        })),
+        ...unit.meleeWeapons.map((w) => ({ unitId: unit.id, weaponId: w.id })),
+      ]);
+
+      if (unitWeaponData.length > 0) {
+        await this.prisma.unitWeapon.createMany({ data: unitWeaponData });
+      }
+    } catch (err) {
+      console.error("[seed] FAILED at units step — fix and re-run seed.", err);
+      throw err;
+    }
   }
 }
