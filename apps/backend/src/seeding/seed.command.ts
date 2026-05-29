@@ -23,34 +23,40 @@ export class SeedCommand extends CommandRunner {
   }
 
   async run(): Promise<void> {
-    const { units, factions, warnings } = await this.parser.parseAndTransform();
+    try {
+      const { units, factions, warnings } =
+        await this.parser.parseAndTransform();
 
-    for (const w of warnings) {
-      console.warn(`[WARN] ${w.unitName} / ${w.weaponName}: ${w.message}`);
+      for (const w of warnings) {
+        console.warn(`[WARN] ${w.unitName} / ${w.weaponName}: ${w.message}`);
+      }
+
+      console.log(
+        `Upserting ${units.length} units across ${factions.length} factions...`,
+      );
+      await this.upsert.upsertAll(units, factions);
+      console.log("Units upserted.");
+
+      const factionNameById = new Map(factions.map((f) => [f.id, f.name]));
+      const unitsByFaction = new Map<string, { id: string; name: string }[]>();
+      for (const unit of units) {
+        const list = unitsByFaction.get(unit.factionId) ?? [];
+        list.push({ id: unit.id, name: unit.name });
+        unitsByFaction.set(unit.factionId, list);
+      }
+
+      await this.altNames.generateAndUpdate(unitsByFaction, factionNameById);
+      console.log("Alt names generated.");
+
+      const dbUnits = await this.prisma.unit.findMany({
+        include: { unitWeapons: { include: { weapon: true } } },
+      });
+      console.log(`Generating embeddings for ${dbUnits.length} units...`);
+      await this.unitEmbeddings.generateAndStore(dbUnits, factionNameById);
+      console.log("Embeddings generated. Done.");
+    } catch (err) {
+      console.error(`[ERROR] Seed failed: ${err}`);
+      throw err;
     }
-
-    console.log(
-      `Upserting ${units.length} units across ${factions.length} factions...`,
-    );
-    await this.upsert.upsertAll(units, factions);
-    console.log("Units upserted.");
-
-    const factionNameById = new Map(factions.map((f) => [f.id, f.name]));
-    const unitsByFaction = new Map<string, { id: string; name: string }[]>();
-    for (const unit of units) {
-      const list = unitsByFaction.get(unit.factionId) ?? [];
-      list.push({ id: unit.id, name: unit.name });
-      unitsByFaction.set(unit.factionId, list);
-    }
-
-    await this.altNames.generateAndUpdate(unitsByFaction, factionNameById);
-    console.log("Alt names generated.");
-
-    const dbUnits = await this.prisma.unit.findMany({
-      include: { unitWeapons: { include: { weapon: true } } },
-    });
-    console.log(`Generating embeddings for ${dbUnits.length} units...`);
-    await this.unitEmbeddings.generateAndStore(dbUnits, factionNameById);
-    console.log("Embeddings generated. Done.");
   }
 }

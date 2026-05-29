@@ -100,7 +100,7 @@ export class WahapediaUpsertService {
           }
         }
       },
-      { timeout: 1_800_000 },
+      { timeout: 120_000 },
     );
   }
 }
