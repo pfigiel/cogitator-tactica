@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "postinstall": "prisma generate",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
@@ -12,32 +11,23 @@
     "test": "vitest run",
     "format": "prettier -w .",
     "format:check": "prettier --check .",
-    "test:watch": "vitest",
-    "import-units": "tsx scripts/import-wahapedia/index.ts",
-    "generate-embeddings": "tsx scripts/generate-embeddings/index.ts",
-    "db:setup": "prisma migrate deploy && prisma generate",
-    "db:dump": "dotenv -- sh -c 'mkdir -p backups && pg_dump \"$DATABASE_URL\" -Fc -f \"backups/$(date -u +%Y-%m-%dT%H-%M-%S).dump\"'"
+    "test:watch": "vitest"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "0.80.0",
     "@cogitator-tactica/ui-kit": "workspace:*",
     "@csstools/postcss-global-data": "4.0.0",
-    "@prisma/client": "6.19.3",
     "@tabler/icons-react": "catalog:react",
     "@tanstack/react-query": "5.100.14",
     "@types/node": "25.5.0",
     "@types/react": "catalog:react",
     "@types/react-dom": "catalog:react",
     "clsx": "catalog:",
-    "fuse.js": "7.3.0",
     "next": "16.2.1",
     "postcss": "8.5.8",
     "postcss-custom-media": "12.0.1",
     "react": "catalog:react",
     "react-dom": "catalog:react",
-    "server-only": "0.0.1",
-    "typescript": "catalog:",
-    "voyageai": "0.2.1"
+    "typescript": "catalog:"
   },
   "devDependencies": {
     "@cogitator-tactica/eslint-plugin": "workspace:*",
@@ -49,8 +39,6 @@
     "jsdom": "29.1.1",
     "msw": "catalog:test",
     "prettier": "catalog:",
-    "prisma": "6.19.3",
-    "tsx": "4.21.0",
     "typescript-eslint": "catalog:lint",
     "vitest": "catalog:test"
   }

@@ -1,7 +1,7 @@
 import { setupServer } from "msw/node";
 import { parsePrompt as parsePromptHandler } from "../../tests/handlers/parsePrompt";
 import { parsePrompt } from "./parsePrompt";
-import { getMockCombatFormState } from "@/lib/calculator/test/mocks";
+import { getMockCombatFormState } from "@/features/calculator/test/mocks";
 
 const mockState = getMockCombatFormState();
 

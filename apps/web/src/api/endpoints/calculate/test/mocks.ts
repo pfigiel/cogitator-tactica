@@ -2,8 +2,8 @@ import type {
   CombatInput,
   CombatResult,
   DirectionalResult,
-} from "@/lib/calculator/types";
-import { getMockUnitProfile } from "@/lib/calculator/test/mocks";
+} from "@/features/calculator/types";
+import { getMockUnitProfile } from "@/features/calculator/test/mocks";
 
 export const getMockDirectionalResult = (
   overrides: Partial<DirectionalResult> = {},

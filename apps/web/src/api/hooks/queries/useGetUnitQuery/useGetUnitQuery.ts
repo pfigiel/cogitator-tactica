@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/api";
-import type { UnitProfile } from "@/lib/calculator/types";
+import type { UnitProfile } from "@/features/calculator/types";
 
 export const getUnitQueryOptions = (id: string) => ({
   queryKey: ["unit", id] as const,

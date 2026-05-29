@@ -1,7 +1,7 @@
 import { setupServer } from "msw/node";
 import { units } from "../../tests/handlers/units";
 import { getUnit } from "./getUnit";
-import { getMockUnitProfile } from "@/lib/calculator/test/mocks";
+import { getMockUnitProfile } from "@/features/calculator/test/mocks";
 
 describe("getUnit", () => {
   const mockUnit = getMockUnitProfile({

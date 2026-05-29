@@ -1,4 +1,4 @@
-import type { WeaponProfile } from "@/lib/calculator/types";
+import type { WeaponProfile } from "@/features/calculator/types";
 import {
   Paper,
   Group,

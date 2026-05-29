@@ -1,4 +1,4 @@
-import type { CombatFormState } from "@/lib/calculator/types";
+import type { CombatFormState } from "@/features/calculator/types";
 
 export const parsePrompt = async (prompt: string): Promise<CombatFormState> => {
   const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL;

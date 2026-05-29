@@ -4,7 +4,7 @@ import {
   formatAbilities,
   formatStats,
 } from "./weaponFormatters";
-import type { WeaponAbility, WeaponProfile } from "@/lib/calculator/types";
+import type { WeaponAbility, WeaponProfile } from "@/features/calculator/types";
 
 describe("formatAbilityLabel", () => {
   it("formats ANTI ability", () => {

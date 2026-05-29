@@ -1,6 +1,10 @@
 "use client";
 
-import { CombatFormState, Phase, FirstFighter } from "@/lib/calculator/types";
+import {
+  CombatFormState,
+  Phase,
+  FirstFighter,
+} from "@/features/calculator/types";
 import {
   Button,
   Select,

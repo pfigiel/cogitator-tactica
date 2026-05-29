@@ -3,7 +3,7 @@ import { setupServer } from "msw/node";
 import { handlers } from "@/api/tests/handlers";
 import { TestQueryClientProvider } from "@/test/providers/TestQueryClientProvider";
 import { useGetUnitsQuery } from "./useGetUnitsQuery";
-import { getMockUnitProfile } from "@/lib/calculator/test/mocks";
+import { getMockUnitProfile } from "@/features/calculator/test/mocks";
 
 describe("useGetUnitsQuery", () => {
   const mockUnits = [getMockUnitProfile()];

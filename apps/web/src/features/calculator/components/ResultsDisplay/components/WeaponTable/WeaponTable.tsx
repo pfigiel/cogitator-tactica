@@ -1,4 +1,4 @@
-import { WeaponResult } from "@/lib/calculator/types";
+import { WeaponResult } from "@/features/calculator/types";
 import { Table, Stack, Group } from "@cogitator-tactica/ui-kit";
 import styles from "./WeaponTable.module.css";
 

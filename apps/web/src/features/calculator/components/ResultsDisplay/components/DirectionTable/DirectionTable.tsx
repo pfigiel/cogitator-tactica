@@ -1,4 +1,4 @@
-import { DirectionalResult } from "@/lib/calculator/types";
+import { DirectionalResult } from "@/features/calculator/types";
 import { Stack, Group } from "@cogitator-tactica/ui-kit";
 import { WeaponTable } from "../WeaponTable/WeaponTable";
 import styles from "./DirectionTable.module.css";

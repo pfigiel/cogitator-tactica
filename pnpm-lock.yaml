@@ -189,18 +189,12 @@ importers:
 
   apps/web:
     dependencies:
-      '@anthropic-ai/sdk':
-        specifier: 0.80.0
-        version: 0.80.0(zod@4.4.3)
       '@cogitator-tactica/ui-kit':
         specifier: workspace:*
         version: link:../../packages/ui-kit
       '@csstools/postcss-global-data':
         specifier: 4.0.0
         version: 4.0.0(postcss@8.5.8)
-      '@prisma/client':
-        specifier: 6.19.3
-        version: 6.19.3(prisma@6.19.3(typescript@6.0.2))(typescript@6.0.2)
       '@tabler/icons-react':
         specifier: catalog:react
         version: 3.41.1(react@19.2.4)
@@ -219,9 +213,6 @@ importers:
       clsx:
         specifier: 'catalog:'
         version: 2.1.1
-      fuse.js:
-        specifier: 7.3.0
-        version: 7.3.0
       next:
         specifier: 16.2.1
         version: 16.2.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -237,15 +228,9 @@ importers:
       react-dom:
         specifier: catalog:react
         version: 19.2.4(react@19.2.4)
-      server-only:
-        specifier: 0.0.1
-        version: 0.0.1
       typescript:
         specifier: 'catalog:'
         version: 6.0.2
-      voyageai:
-        specifier: 0.2.1
-        version: 0.2.1
     devDependencies:
       '@cogitator-tactica/eslint-plugin':
         specifier: workspace:*
@@ -274,12 +259,6 @@ importers:
       prettier:
         specifier: 'catalog:'
         version: 3.8.2
-      prisma:
-        specifier: 6.19.3
-        version: 6.19.3(typescript@6.0.2)
-      tsx:
-        specifier: 4.21.0
-        version: 4.21.0
       typescript-eslint:
         specifier: catalog:lint
         version: 8.58.1(eslint@10.2.0(jiti@2.7.0))(typescript@6.0.2)
@@ -4942,9 +4921,6 @@ packages:
     resolution: {integrity: sha512-xRXBn0pPqQTVQiC8wyQrKs2MOlX24zQ0POGaj0kultvoOCstBQM5yvOhAVSUwOMjQtTvsPWoNCHfPGwaaQJhTw==}
     engines: {node: '>= 18'}
 
-  server-only@0.0.1:
-    resolution: {integrity: sha512-qepMx2JxAa5jjfzxG79yPPq+8BuFToHd1hm7kI+Z4zAq1ftQiP7HcxMhDDItrbtwVeLg/cY2JnKnrcFkmiswNA==}
-
   serverless-esbuild@1.52.0:
     resolution: {integrity: sha512-W/BfdE/0hcH7K+IRfLrtxLgReleUz8gnt0tOMtDfSd0Ndy7z0yj6yTa5wVTk6Q2nLgUkB3mpRsN5CoRdkxSt3Q==}
     engines: {node: '>=14.18.0'}
@@ -5633,18 +5609,6 @@ packages:
       happy-dom:
         optional: true
       jsdom:
-        optional: true
-
-  voyageai@0.2.1:
-    resolution: {integrity: sha512-ym7Dk6p8Si6lR9wDh58EzxwT0ziD/pqXjzzzceOSySO3Ic3uosHZLOTAsb3Gq+1OaKdEMnni/p8TohKUNvLTkg==}
-    engines: {node: '>=18.0.0'}
-    peerDependencies:
-      '@huggingface/transformers': ^3.8.0
-      onnxruntime-node: '>=1.17.0'
-    peerDependenciesMeta:
-      '@huggingface/transformers':
-        optional: true
-      onnxruntime-node:
         optional: true
 
   w3c-xmlserializer@5.0.0:
@@ -9817,6 +9781,7 @@ snapshots:
   get-tsconfig@4.14.0:
     dependencies:
       resolve-pkg-maps: 1.0.0
+    optional: true
 
   giget@2.0.0:
     dependencies:
@@ -11264,7 +11229,8 @@ snapshots:
 
   resolve-from@4.0.0: {}
 
-  resolve-pkg-maps@1.0.0: {}
+  resolve-pkg-maps@1.0.0:
+    optional: true
 
   resolve@2.0.0-next.6:
     dependencies:
@@ -11410,8 +11376,6 @@ snapshots:
       send: 1.2.1
     transitivePeerDependencies:
       - supports-color
-
-  server-only@0.0.1: {}
 
   serverless-esbuild@1.52.0(esbuild@0.27.7):
     dependencies:
@@ -11994,6 +11958,7 @@ snapshots:
       get-tsconfig: 4.14.0
     optionalDependencies:
       fsevents: 2.3.3
+    optional: true
 
   turbo@2.9.6:
     optionalDependencies:
@@ -12335,12 +12300,6 @@ snapshots:
       jsdom: 29.1.1(@noble/hashes@1.8.0)
     transitivePeerDependencies:
       - msw
-
-  voyageai@0.2.1:
-    dependencies:
-      node-fetch: 2.7.0
-    transitivePeerDependencies:
-      - encoding
 
   w3c-xmlserializer@5.0.0:
     dependencies:
