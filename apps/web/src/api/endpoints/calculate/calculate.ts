@@ -1,4 +1,4 @@
-import type { CombatInput, CombatResult } from "@/lib/calculator/types";
+import type { CombatInput, CombatResult } from "@/features/calculator/types";
 
 export const calculate = async (input: CombatInput): Promise<CombatResult> => {
   const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL;

@@ -1,6 +1,6 @@
 "use client";
 
-import { CombatResult } from "@/lib/calculator/types";
+import { CombatResult } from "@/features/calculator/types";
 import { Alert, Stack } from "@cogitator-tactica/ui-kit";
 import { DirectionTable } from "./components/DirectionTable/DirectionTable";
 import styles from "./ResultsDisplay.module.css";

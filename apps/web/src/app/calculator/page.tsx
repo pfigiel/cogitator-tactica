@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { CombatFormState } from "@/lib/calculator/types";
+import { CombatFormState } from "@/features/calculator/types";
 import { useCalculator } from "@/features/calculator/context/CalculatorContext";
 import PromptInput from "@/features/calculator/components/PromptInput/PromptInput";
 import styles from "./page.module.css";

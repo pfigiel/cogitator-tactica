@@ -1,5 +1,5 @@
-import type { CombatFormState, UnitProfile } from "@/lib/calculator/types";
-import { DEFAULT_ATTACKER_CONTEXT } from "@/lib/calculator/types";
+import type { CombatFormState, UnitProfile } from "@/features/calculator/types";
+import { DEFAULT_ATTACKER_CONTEXT } from "@/features/calculator/types";
 
 export const getMockUnitProfile = (
   overrides: Partial<UnitProfile> = {},

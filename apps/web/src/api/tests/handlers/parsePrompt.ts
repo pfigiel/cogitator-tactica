@@ -1,5 +1,5 @@
 import { http, HttpResponse } from "msw";
-import type { CombatFormState } from "@/lib/calculator/types";
+import type { CombatFormState } from "@/features/calculator/types";
 import { config } from "@/config/config.client";
 
 export const parsePrompt = {

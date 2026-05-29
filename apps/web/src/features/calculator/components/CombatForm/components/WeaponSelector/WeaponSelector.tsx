@@ -1,4 +1,7 @@
-import type { SelectedWeapon, WeaponProfile } from "@/lib/calculator/types";
+import type {
+  SelectedWeapon,
+  WeaponProfile,
+} from "@/features/calculator/types";
 import { Paper, ScrollAreaAutosize, Stack } from "@cogitator-tactica/ui-kit";
 import { WeaponRecord } from "./components/WeaponRecord";
 import styles from "./WeaponSelector.module.css";

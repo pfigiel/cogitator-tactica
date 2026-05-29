@@ -3,7 +3,7 @@ import { setupServer } from "msw/node";
 import { handlers } from "@/api/tests/handlers";
 import { TestQueryClientProvider } from "@/test/providers/TestQueryClientProvider";
 import { useParsePromptMutation } from "./useParsePromptMutation";
-import type { CombatFormState } from "@/lib/calculator/types";
+import type { CombatFormState } from "@/features/calculator/types";
 
 describe("useParsePromptMutation", () => {
   const mockState = { phase: "shooting" } as Partial<CombatFormState>;

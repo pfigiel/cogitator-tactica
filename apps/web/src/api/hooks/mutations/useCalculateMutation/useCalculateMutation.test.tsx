@@ -3,7 +3,7 @@ import { setupServer } from "msw/node";
 import { handlers } from "@/api/tests/handlers";
 import { TestQueryClientProvider } from "@/test/providers/TestQueryClientProvider";
 import { useCalculateMutation } from "./useCalculateMutation";
-import type { CombatInput, CombatResult } from "@/lib/calculator/types";
+import type { CombatInput, CombatResult } from "@/features/calculator/types";
 import {
   getMockCombatInput,
   getMockCombatResult,

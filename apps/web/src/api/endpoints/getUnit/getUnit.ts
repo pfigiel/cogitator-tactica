@@ -1,4 +1,4 @@
-import type { UnitProfile } from "@/lib/calculator/types";
+import type { UnitProfile } from "@/features/calculator/types";
 
 export const getUnit = async (id: string): Promise<UnitProfile> => {
   const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL;

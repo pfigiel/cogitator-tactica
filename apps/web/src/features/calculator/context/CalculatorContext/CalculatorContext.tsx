@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState } from "react";
-import { CombatFormState } from "@/lib/calculator/types";
+import { CombatFormState } from "@/features/calculator/types";
 
 export type CalculatorHandoff = {
   form: CombatFormState;

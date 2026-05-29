@@ -2,7 +2,7 @@ import {
   AttackerContext,
   SelectedWeapon,
   WeaponProfile,
-} from "@/lib/calculator/types";
+} from "@/features/calculator/types";
 import { Checkbox, Stack } from "@cogitator-tactica/ui-kit";
 import styles from "./AttackerContextSection.module.css";
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CombatFormState } from "@/lib/calculator/types";
+import { CombatFormState } from "@/features/calculator/types";
 import { Textarea, Button, Stack } from "@cogitator-tactica/ui-kit";
 import styles from "./PromptInput.module.css";
 import clsx from "clsx";

@@ -1,4 +1,4 @@
-import type { WeaponAbility, WeaponProfile } from "@/lib/calculator/types";
+import type { WeaponAbility, WeaponProfile } from "@/features/calculator/types";
 
 export const formatAbilityLabel = (ability: WeaponAbility): string => {
   switch (ability.type) {

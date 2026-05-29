@@ -9,7 +9,7 @@ import {
   SelectedWeapon,
   SelectedWeaponInput,
   UnitProfile,
-} from "@/lib/calculator/types";
+} from "@/features/calculator/types";
 import { useCalculator } from "@/features/calculator/context/CalculatorContext";
 import PromptInput from "@/features/calculator/components/PromptInput/PromptInput";
 import CombatForm from "@/features/calculator/components/CombatForm/CombatForm";

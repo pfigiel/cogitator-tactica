@@ -1,5 +1,5 @@
 import { http, HttpResponse } from "msw";
-import type { CombatResult } from "@/lib/calculator/types";
+import type { CombatResult } from "@/features/calculator/types";
 import { config } from "@/config/config.client";
 
 export const calculate = {
