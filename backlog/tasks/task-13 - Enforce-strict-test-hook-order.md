@@ -1,12 +1,13 @@
 ---
 id: TASK-13
 title: Enforce strict test hook order
-status: To Do
+status: Done
 assignee: []
 created_date: "2026-05-23 11:01"
+updated_date: "2026-05-27 18:24"
 labels: []
 dependencies: []
-ordinal: 10000
+ordinal: 7000
 ---
 
 ## Description

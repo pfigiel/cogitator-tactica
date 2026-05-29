@@ -1,14 +1,14 @@
 ---
 id: TASK-19
 title: Connect web app to NestJS backend
-status: In Progress
+status: Done
 assignee: []
 created_date: "2026-05-27 09:00"
-updated_date: "2026-05-27 09:01"
+updated_date: "2026-05-29 07:48"
 labels: []
 milestone: m-0
 dependencies: []
-ordinal: 2000
+ordinal: 10000
 ---
 
 ## Description

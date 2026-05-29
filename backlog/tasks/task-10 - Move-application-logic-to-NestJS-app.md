@@ -1,14 +1,14 @@
 ---
 id: TASK-10
 title: Move application logic to NestJS app
-status: In Progress
+status: Done
 assignee: []
 created_date: "2026-05-13 19:10"
-updated_date: "2026-05-24 19:09"
+updated_date: "2026-05-29 07:48"
 labels: []
 milestone: m-0
 dependencies: []
-ordinal: 1000
+ordinal: 11000
 ---
 
 ## Description
