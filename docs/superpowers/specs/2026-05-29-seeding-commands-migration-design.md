@@ -2,13 +2,13 @@
 
 ## Overview
 
-Migrate the database seeding scripts (`import-wahapedia`, `generate-embeddings`) from `apps/web/scripts/` to `apps/backend/` as proper NestJS CLI commands using `nestjs-commander`. Move `wahapedia-data/` CSVs to the backend. Web originals remain untouched for now.
+Migrate the database seeding scripts (`import-wahapedia`, `generate-embeddings`) from `apps/web/scripts/` to `apps/backend/` as a single NestJS CLI command using `nestjs-commander`. The command seeds all factions and generates embeddings in one run. Move `wahapedia-data/` CSVs to the backend. Web originals remain untouched for now.
 
 ## Architecture
 
 ### CLI Entry Point
 
-A new `cli.ts` bootstrap file in `apps/backend/` creates a NestJS application context (no HTTP server) via `nestjs-commander`'s `CommandFactory`. A new npm script `seed:import` and `seed:embeddings` in `apps/backend/package.json` invoke it via `ts-node`.
+A new `cli.ts` bootstrap file in `apps/backend/` creates a NestJS application context (no HTTP server) via `nestjs-commander`'s `CommandFactory`. A new npm script `seed` in `apps/backend/package.json` invokes it via `ts-node`.
 
 ### New: `UnitEmbeddingsService` in `UnitsModule`
 
@@ -18,9 +18,8 @@ Encapsulates the text construction (`buildUnitEmbeddingText`) and calls `Embeddi
 
 Flat structure under `src/seeding/`. Contains:
 
-- **`ImportWahapediaCommand`** — `@Command('import-wahapedia')`, accepts `--factions` option. Orchestrates: parse → transform → upsert → alt-names.
-- **`GenerateEmbeddingsCommand`** — `@Command('generate-embeddings')`, accepts `--factions` option. Queries units from DB, batches embedding generation via `UnitEmbeddingsService`, writes vectors back.
-- **`WahapediaParserService`** — CSV reading and parsing (`parse.ts`), data transformation (`transform.ts`), ability parsing (`abilities.ts`). Resolves `wahapedia-data/` relative to `__dirname` so invocation directory doesn't matter.
+- **`SeedCommand`** — `@Command('seed')`, no options. Orchestrates the full pipeline: parse → transform → upsert → alt-names → generate embeddings.
+- **`WahapediaParserService`** — CSV reading and parsing (`parse.ts`), data transformation (`transform.ts`), ability parsing (`abilities.ts`). Resolves `wahapedia-data/` relative to `__dirname` so invocation directory doesn't matter. Always processes all factions.
 - **`WahapediaUpsertService`** — Upserts factions, weapons, and units via injected `PrismaService`. Extracted from web's `db.ts`.
 - **`WahapediaAltNamesService`** — Generates alt names via injected `LlmService`. Adapted from web's `alt-names.ts` which previously called Anthropic directly.
 
@@ -28,24 +27,15 @@ Flat structure under `src/seeding/`. Contains:
 
 ## Data Flow
 
-### `import-wahapedia`
-
 ```
 cli.ts
-  → ImportWahapediaCommand
-      → WahapediaParserService.parseAndTransform(factionsFilter)
+  → SeedCommand
+      → WahapediaParserService.parseAndTransform()
           reads wahapedia-data/*.csv, parses, transforms → UnitWithFaction[]
       → WahapediaUpsertService.upsertAll(units, factions)
           writes to DB via PrismaService
       → WahapediaAltNamesService.generateAndUpdate(unitsByFaction)
           calls LlmService per faction → updates altNames in DB
-```
-
-### `generate-embeddings`
-
-```
-cli.ts
-  → GenerateEmbeddingsCommand
       → PrismaService: fetch units with weapons
       → UnitEmbeddingsService.generateAndStore(units, factionNameById)
           builds text per unit → EmbeddingsService.embedTexts (batched)
@@ -65,8 +55,7 @@ apps/backend/
       ... (existing files unchanged)
     seeding/
       seeding.module.ts
-      import-wahapedia.command.ts
-      generate-embeddings.command.ts
+      seed.command.ts
       wahapedia-parser.service.ts
       wahapedia-upsert.service.ts
       wahapedia-alt-names.service.ts
@@ -82,11 +71,8 @@ Add to `apps/backend/package.json`:
 ## npm Scripts
 
 ```json
-"seed:import": "ts-node cli.ts import-wahapedia",
-"seed:embeddings": "ts-node cli.ts generate-embeddings"
+"seed": "ts-node cli.ts seed"
 ```
-
-Both accept `--factions=SM,ORKS` to filter by faction.
 
 ## Error Handling
 
@@ -94,6 +80,6 @@ Commands follow existing script behavior: log warnings for unknown abilities or 
 
 ## Testing
 
-- `WahapediaParserService` — unit tests for CSV parsing and transformation (port existing `abilities.test.ts`, `alt-names.test.ts`, `transform.test.ts`)
+- `WahapediaParserService` — unit tests for CSV parsing and transformation (port existing `abilities.test.ts`, `transform.test.ts`)
 - `WahapediaUpsertService`, `WahapediaAltNamesService`, `UnitEmbeddingsService` — unit tests with mocked `PrismaService` / `LlmService` / `EmbeddingsService`
-- Commands — no unit tests (thin orchestration only)
+- `SeedCommand` — no unit tests (thin orchestration only)
