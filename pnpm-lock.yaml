@@ -222,6 +222,9 @@ importers:
       postcss-custom-media:
         specifier: 12.0.1
         version: 12.0.1(postcss@8.5.8)
+      postcss-mixins:
+        specifier: 12.1.2
+        version: 12.1.2(postcss@8.5.8)
       react:
         specifier: catalog:react
         version: 19.2.4
@@ -256,9 +259,6 @@ importers:
       msw:
         specifier: catalog:test
         version: 2.11.6(@types/node@25.5.0)(typescript@6.0.2)
-      postcss-mixins:
-        specifier: 12.1.2
-        version: 12.1.2(postcss@8.5.8)
       prettier:
         specifier: 'catalog:'
         version: 3.8.2
