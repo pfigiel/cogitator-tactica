@@ -19,11 +19,11 @@ const cssVariablesResolver: CSSVariablesResolver = () => ({
     "--line-height-text-md": "1.5",
     "--line-height-text-lg": "1.55",
     "--line-height-text-xl": "1.5",
-    "--letter-spacing-text-xs": "0",
-    "--letter-spacing-text-sm": "0",
-    "--letter-spacing-text-md": "0",
-    "--letter-spacing-text-lg": "0",
-    "--letter-spacing-text-xl": "0",
+    "--letter-spacing-text-xs": "0em",
+    "--letter-spacing-text-sm": "0em",
+    "--letter-spacing-text-md": "0em",
+    "--letter-spacing-text-lg": "0em",
+    "--letter-spacing-text-xl": "0em",
     "--font-size-title-xs": "1rem",
     "--font-size-title-sm": "1.25rem",
     "--font-size-title-md": "1.5rem",
@@ -44,7 +44,7 @@ const cssVariablesResolver: CSSVariablesResolver = () => ({
   dark: {},
 });
 
-type Props = Omit<MantineProviderProps, "theme">;
+type Props = Omit<MantineProviderProps, "theme" | "cssVariablesResolver">;
 
 export const UIProvider = (props: Props) => (
   <MantineProvider
