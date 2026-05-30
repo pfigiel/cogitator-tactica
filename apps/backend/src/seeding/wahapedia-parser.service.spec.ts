@@ -1,5 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { parseAbilities, deriveWeaponId } from "./wahapedia-parser.service";
+import {
+  parseAbilities,
+  deriveWeaponId,
+  parseLoadoutDefaults,
+} from "./wahapedia-parser.service";
 
 describe("parseAbilities", () => {
   describe("RAPID FIRE", () => {
@@ -110,5 +114,57 @@ describe("deriveWeaponId", () => {
       return deriveWeaponId("Bolt Rifle", "ranged|2|3|4|1|1", slugToFp, fpToId);
     };
     expect(run()).toBe(run());
+  });
+});
+
+describe("parseLoadoutDefaults", () => {
+  it("should return __all__ key with weapon names when loadout has single-model format", () => {
+    const result = parseLoadoutDefaults(
+      "<b>This model is equipped with:</b> kombi-weapon; twin slugga; big choppa.",
+      ["WARBOSS"],
+    );
+    expect(result.get("__all__")).toEqual([
+      "kombi-weapon",
+      "twin slugga",
+      "big choppa",
+    ]);
+  });
+
+  it("should return __all__ key when loadout uses every model format", () => {
+    const result = parseLoadoutDefaults(
+      "<b>Every model is equipped with:</b> bolt pistol; boltgun; close combat weapon.",
+      ["INTERCESSOR"],
+    );
+    expect(result.get("__all__")).toEqual([
+      "bolt pistol",
+      "boltgun",
+      "close combat weapon",
+    ]);
+  });
+
+  it("should return per-model keys when loadout has multi-model format", () => {
+    const result = parseLoadoutDefaults(
+      "<b>The Boss Nob is equipped with:</b> slugga; big choppa. <br><br><b>Every Boy is equipped with:</b> slugga; choppa.",
+      ["BOY", "BOSS NOB"],
+    );
+    expect(result.get("boss nob")).toEqual(["slugga", "big choppa"]);
+    expect(result.get("boy")).toEqual(["slugga", "choppa"]);
+  });
+
+  it("should return empty map when loadout is empty string", () => {
+    const result = parseLoadoutDefaults("", ["MODEL"]);
+    expect(result.size).toBe(0);
+  });
+
+  it("should strip italic footnotes before parsing weapon names", () => {
+    const result = parseLoadoutDefaults(
+      "<b>This model is equipped with:</b> bolt pistol; boltgun<i>*</i>; close combat weapon.",
+      ["MARINE"],
+    );
+    expect(result.get("__all__")).toEqual([
+      "bolt pistol",
+      "boltgun",
+      "close combat weapon",
+    ]);
   });
 });

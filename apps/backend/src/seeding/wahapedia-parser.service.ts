@@ -205,6 +205,64 @@ export const deriveWeaponId = (
   return id;
 };
 
+// ─── Loadout defaults parsing ─────────────────────────────────────────────────
+
+const normalizeText = (s: string): string =>
+  s
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+
+const resolveLoadoutKey = (header: string, modelNames: string[]): string => {
+  const norm = normalizeText(header);
+
+  if (/^(this|every( other)?)\s+model$/.test(norm)) return "__all__";
+
+  const stripped = norm.replace(/^the\s+/, "").replace(/^every\s+/, "");
+
+  const normalizedModels = modelNames.map(normalizeText);
+  const exact = normalizedModels.find((mn) => mn === stripped);
+  return exact ?? stripped;
+};
+
+export const parseLoadoutDefaults = (
+  loadout: string,
+  modelNames: string[],
+): Map<string, string[]> => {
+  const result = new Map<string, string[]>();
+  if (!loadout) return result;
+
+  const stripped = loadout
+    .replace(/<i[^>]*>.*?<\/i>/gis, "")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  const segmentRe = /([^.]+?)\s+is equipped with:\s*([^.]+)\./gi;
+  let match: RegExpExecArray | null;
+
+  while ((match = segmentRe.exec(stripped)) !== null) {
+    const header = match[1].trim();
+    const weaponList = match[2].trim();
+
+    const weapons = weaponList
+      .split(";")
+      .map((w) =>
+        w
+          .trim()
+          .toLowerCase()
+          .replace(/[^a-z0-9'\- ]+/g, "")
+          .trim(),
+      )
+      .filter(Boolean);
+
+    const key = resolveLoadoutKey(header, modelNames);
+    result.set(key, weapons);
+  }
+
+  return result;
+};
+
 // ─── CSV parsing ──────────────────────────────────────────────────────────────
 
 const parseCsv = (content: string): Record<string, string>[] => {
