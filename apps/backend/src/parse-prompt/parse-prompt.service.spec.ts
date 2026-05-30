@@ -125,6 +125,66 @@ describe("ParsePromptService", () => {
       expect(result.defenderWeapons).toEqual([{ weaponId: "w2" }]);
     });
 
+    it("should use defaultShootingWeaponIds as attackerWeapons when no weapon hints are present and unit has defaults", async () => {
+      const ctx = getMockParsedContext({ phase: "shooting" });
+      const boltRifle = getMockWeaponProfile({ id: "w1", name: "Bolt Rifle" });
+      const auxGrenade = getMockWeaponProfile({
+        id: "w2",
+        name: "Aux Grenade",
+      });
+      const attackerUnit = getMockUnitProfile({
+        id: "u1",
+        shootingWeapons: [boltRifle, auxGrenade],
+        defaultShootingWeaponIds: ["w1"],
+      });
+      const defenderUnit = getMockUnitProfile({
+        id: "u2",
+        meleeWeapons: [getMockWeaponProfile({ id: "w3" })],
+        defaultMeleeWeaponIds: ["w3"],
+      });
+
+      contextExtractionService.extract.mockResolvedValue(ctx);
+      unitResolutionService.resolve.mockResolvedValue({
+        attackerUnit,
+        defenderUnit,
+      });
+
+      const result = await service.parse("some prompt");
+
+      expect(result.attackerWeapons).toEqual([{ weaponId: "w1" }]);
+      expect(result.defenderWeapons).toEqual([{ weaponId: "w3" }]);
+    });
+
+    it("should fall back to first weapon when no weapon hints and no defaults are set", async () => {
+      const ctx = getMockParsedContext({ phase: "shooting" });
+      const boltRifle = getMockWeaponProfile({ id: "w1", name: "Bolt Rifle" });
+      const closeCombat = getMockWeaponProfile({
+        id: "w2",
+        name: "Close Combat Weapon",
+      });
+      const attackerUnit = getMockUnitProfile({
+        id: "u1",
+        shootingWeapons: [boltRifle],
+        defaultShootingWeaponIds: [],
+      });
+      const defenderUnit = getMockUnitProfile({
+        id: "u2",
+        meleeWeapons: [closeCombat],
+        defaultMeleeWeaponIds: [],
+      });
+
+      contextExtractionService.extract.mockResolvedValue(ctx);
+      unitResolutionService.resolve.mockResolvedValue({
+        attackerUnit,
+        defenderUnit,
+      });
+
+      const result = await service.parse("some prompt");
+
+      expect(result.attackerWeapons).toEqual([{ weaponId: "w1" }]);
+      expect(result.defenderWeapons).toEqual([{ weaponId: "w2" }]);
+    });
+
     it("should call WeaponResolutionService when only defender weapon hints are present", async () => {
       const ctx = getMockParsedContext({
         defenderWeaponHints: [{ name: "Choppa" }],

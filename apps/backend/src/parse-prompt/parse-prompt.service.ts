@@ -25,14 +25,24 @@ export class ParsePromptService {
         : attackerUnit.meleeWeapons;
     const defaultDefenderPool = defenderUnit.meleeWeapons;
 
+    const attackerDefaultIds =
+      phase === "shooting"
+        ? attackerUnit.defaultShootingWeaponIds
+        : attackerUnit.defaultMeleeWeaponIds;
+    const defenderDefaultIds = defenderUnit.defaultMeleeWeaponIds;
+
     let attackerWeapons: SelectedWeapon[] =
-      defaultAttackerPool.length > 0
-        ? [{ weaponId: defaultAttackerPool[0].id }]
-        : [];
+      attackerDefaultIds.length > 0
+        ? attackerDefaultIds.map((id) => ({ weaponId: id }))
+        : defaultAttackerPool.length > 0
+          ? [{ weaponId: defaultAttackerPool[0].id }]
+          : [];
     let defenderWeapons: SelectedWeapon[] =
-      defaultDefenderPool.length > 0
-        ? [{ weaponId: defaultDefenderPool[0].id }]
-        : [];
+      defenderDefaultIds.length > 0
+        ? defenderDefaultIds.map((id) => ({ weaponId: id }))
+        : defaultDefenderPool.length > 0
+          ? [{ weaponId: defaultDefenderPool[0].id }]
+          : [];
 
     if (
       ctx.attackerWeaponHints.length > 0 ||
