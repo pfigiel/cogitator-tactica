@@ -5,13 +5,38 @@
 
 ## Overview
 
-Add two typography components to `packages/ui-kit`: `Text` and `Title`. Both are thin wrappers around Mantine components, consistent with all existing ui-kit components.
+Add two typography components to `packages/ui-kit`: `Text` and `Title`. Components use PostCSS mixins for all typography styling. The mixins are also exported for use on any arbitrary element.
+
+## PostCSS Mixins
+
+Install `postcss-mixins` and configure it in `apps/web/postcss.config.ts`.
+
+Define one mixin per size in `packages/ui-kit/src/typography.css`:
+
+```css
+@define-mixin typography-xs {
+  font-size: var(--mantine-font-size-xs);
+  line-height: 1.4;
+  letter-spacing: 0;
+}
+
+@define-mixin typography-sm { ... }
+@define-mixin typography-md { ... }
+@define-mixin typography-lg { ... }
+@define-mixin typography-xl { ... }
+```
+
+Each mixin sets: `font-size` (Mantine CSS variable), `line-height`, `letter-spacing`.
+
+**External use:** `typography.css` is exported from `packages/ui-kit/src/index.ts` as a CSS file so consumers can import it and use the mixins in their own CSS.
 
 ## Components
 
+Both components use CSS modules that `@mixin` the appropriate size mixin. Mantine's `size`/`fz` props are NOT used — all sizing comes from CSS.
+
 ### Text
 
-Wraps Mantine's `Text` with `component="span"` fixed.
+Wraps Mantine's `Text` with `component="span"` fixed. Applies size mixin via CSS module class.
 
 **Props:**
 
@@ -21,11 +46,11 @@ Wraps Mantine's `Text` with `component="span"` fixed.
 | className | string                                 | no       | CSS class override |
 | size      | `"xs" \| "sm" \| "md" \| "lg" \| "xl"` | no       | Font size token    |
 
-**Rendering:** Always a `<span>`. Size maps directly to Mantine's `size` prop (Mantine Text natively supports these tokens).
+**Rendering:** Always a `<span>`.
 
 ### Title
 
-Wraps Mantine's `Title`.
+Wraps Mantine's `Title`. `order` controls HTML element and default visual size via mixin; `size` overrides when provided.
 
 **Props:**
 
@@ -36,24 +61,37 @@ Wraps Mantine's `Title`.
 | order     | `1 \| 2 \| 3 \| 4 \| 5 \| 6`           | yes      | Heading level (h1–h6), also controls default visual size |
 | size      | `"xs" \| "sm" \| "md" \| "lg" \| "xl"` | no       | Overrides visual font size when provided                 |
 
-**Rendering:** `<h{order}>`. If `size` is omitted, visual size derived from `order` (Mantine default). If `size` is provided, passed as `fz={size}` to override (Mantine Box style props accept `fz` with xs/sm/md/lg/xl tokens).
+**Size → order default mapping** (when `size` omitted):
+
+| order | default size |
+| ----- | ------------ |
+| 1     | xl           |
+| 2     | lg           |
+| 3     | md           |
+| 4     | sm           |
+| 5     | xs           |
+| 6     | xs           |
 
 ## File Structure
 
 ```
 packages/ui-kit/src/
+  typography.css          ← mixin definitions, exported for external use
   Text/
     Text.tsx
+    Text.module.css
     index.ts
   Title/
     Title.tsx
+    Title.module.css
     index.ts
 ```
 
-Both exported from `packages/ui-kit/src/index.ts`.
+Both components and `typography.css` exported from `packages/ui-kit/src/index.ts`.
 
 ## Implementation Notes
 
-- No CSS modules — Mantine handles all styling
-- `Size` type shared or duplicated inline (no shared types file exists in ui-kit)
+- `Size` type (`"xs" | "sm" | "md" | "lg" | "xl"`) defined inline in each component — no shared types file exists in ui-kit
 - Pattern matches existing components: `import { X as MantineX, XProps } from "@mantine/core"`
+- `postcss-mixins` must be added to `apps/web/postcss.config.ts` with `mixinsFiles` pointing to `typography.css`
+- PostCSS config in `apps/web` is the only PostCSS config in the project
