@@ -1,4 +1,5 @@
 import { Injectable } from "@nestjs/common";
+import Fuse from "fuse.js";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
@@ -261,6 +262,32 @@ export const parseLoadoutDefaults = (
   }
 
   return result;
+};
+
+export const resolveDefaultWeaponIds = (
+  primaryWeapons: Array<{
+    id: string;
+    name: string;
+    type: "shooting" | "melee";
+  }>,
+  defaultNames: string[],
+): { defaultShootingWeaponIds: string[]; defaultMeleeWeaponIds: string[] } => {
+  if (primaryWeapons.length === 0 || defaultNames.length === 0) {
+    return { defaultShootingWeaponIds: [], defaultMeleeWeaponIds: [] };
+  }
+
+  const fuse = new Fuse(primaryWeapons, { keys: ["name"] });
+  const defaultShootingWeaponIds: string[] = [];
+  const defaultMeleeWeaponIds: string[] = [];
+
+  for (const name of defaultNames) {
+    const match = fuse.search(name)[0]?.item;
+    if (!match) continue;
+    if (match.type === "shooting") defaultShootingWeaponIds.push(match.id);
+    else defaultMeleeWeaponIds.push(match.id);
+  }
+
+  return { defaultShootingWeaponIds, defaultMeleeWeaponIds };
 };
 
 // ─── CSV parsing ──────────────────────────────────────────────────────────────

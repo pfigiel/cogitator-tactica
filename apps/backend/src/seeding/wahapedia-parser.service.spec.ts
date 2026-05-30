@@ -3,6 +3,7 @@ import {
   parseAbilities,
   deriveWeaponId,
   parseLoadoutDefaults,
+  resolveDefaultWeaponIds,
 } from "./wahapedia-parser.service";
 
 describe("parseAbilities", () => {
@@ -166,5 +167,51 @@ describe("parseLoadoutDefaults", () => {
       "boltgun",
       "close combat weapon",
     ]);
+  });
+});
+
+describe("resolveDefaultWeaponIds", () => {
+  const primaryWeapons = [
+    { id: "kombi_weapon", name: "Kombi-weapon", type: "shooting" as const },
+    { id: "twin_slugga", name: "Twin slugga", type: "shooting" as const },
+    { id: "big_choppa", name: "Big choppa", type: "melee" as const },
+    { id: "power_klaw", name: "Power klaw", type: "melee" as const },
+  ];
+
+  it("should return shooting and melee default ids when names match weapons by type", () => {
+    const result = resolveDefaultWeaponIds(primaryWeapons, [
+      "kombi-weapon",
+      "twin slugga",
+      "big choppa",
+    ]);
+    expect(result.defaultShootingWeaponIds).toEqual([
+      "kombi_weapon",
+      "twin_slugga",
+    ]);
+    expect(result.defaultMeleeWeaponIds).toEqual(["big_choppa"]);
+  });
+
+  it("should return empty arrays when defaultNames is empty", () => {
+    const result = resolveDefaultWeaponIds(primaryWeapons, []);
+    expect(result.defaultShootingWeaponIds).toEqual([]);
+    expect(result.defaultMeleeWeaponIds).toEqual([]);
+  });
+
+  it("should return empty arrays when primaryWeapons is empty", () => {
+    const result = resolveDefaultWeaponIds([], ["kombi-weapon"]);
+    expect(result.defaultShootingWeaponIds).toEqual([]);
+    expect(result.defaultMeleeWeaponIds).toEqual([]);
+  });
+
+  it("should match multi-profile weapon base name to primary profile only when names partially match", () => {
+    const weapons = [
+      {
+        id: "gorks_klaw_strike",
+        name: "Gork's Klaw - strike",
+        type: "melee" as const,
+      },
+    ];
+    const result = resolveDefaultWeaponIds(weapons, ["gork's klaw"]);
+    expect(result.defaultMeleeWeaponIds).toEqual(["gorks_klaw_strike"]);
   });
 });
