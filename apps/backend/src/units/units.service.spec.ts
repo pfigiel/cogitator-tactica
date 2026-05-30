@@ -105,6 +105,60 @@ describe("UnitsService", () => {
       });
     });
 
+    it("should return defaultShootingWeaponIds and defaultMeleeWeaponIds from isDefault flags", async () => {
+      const dbUnit = getMockDbUnitWithWeapons({
+        id: "unit-1",
+        name: "Intercessors",
+        toughness: 4,
+        save: 3,
+        invuln: null,
+        wounds: 2,
+        keywords: [],
+        factionId: "f1",
+        altNames: [],
+        unitWeapons: [
+          {
+            unitId: "unit-1",
+            weaponId: "w1",
+            isDefault: true,
+            weapon: {
+              id: "w1",
+              name: "Bolt Rifle",
+              type: "shooting",
+              attacks: "1",
+              skill: 3,
+              strength: "4",
+              ap: -1,
+              damage: "1",
+              abilities: [],
+            },
+          },
+          {
+            unitId: "unit-1",
+            weaponId: "w2",
+            isDefault: false,
+            weapon: {
+              id: "w2",
+              name: "Close Combat Weapon",
+              type: "melee",
+              attacks: "2",
+              skill: 3,
+              strength: "3",
+              ap: 0,
+              damage: "1",
+              abilities: [],
+            },
+          },
+        ],
+      });
+      prisma.unit.findUnique.mockResolvedValue(dbUnit);
+
+      const result = await service.getUnit("unit-1");
+
+      expect(result?.defaultShootingWeaponIds).toEqual(["w1"]);
+      expect(result?.defaultMeleeWeaponIds).toEqual([]);
+    });
+
     it("should return null when unit does not exist", async () => {
       prisma.unit.findUnique.mockResolvedValue(null);
 
