@@ -42,13 +42,28 @@ const CombatForm = ({ state, onChange, onCalculate }: Props) => {
         : attackerUnit.meleeWeapons
       : [];
     const defenderPool = defenderUnit ? defenderUnit.meleeWeapons : [];
+
+    const attackerDefaultIds =
+      phase === "shooting"
+        ? (attackerUnit?.defaultShootingWeaponIds ?? [])
+        : (attackerUnit?.defaultMeleeWeaponIds ?? []);
+    const defenderDefaultIds = defenderUnit?.defaultMeleeWeaponIds ?? [];
+
     onChange({
       ...state,
       phase,
       attackerWeapons:
-        attackerPool.length > 0 ? [{ weaponId: attackerPool[0].id }] : [],
+        attackerDefaultIds.length > 0
+          ? attackerDefaultIds.map((id) => ({ weaponId: id }))
+          : attackerPool.length > 0
+            ? [{ weaponId: attackerPool[0].id }]
+            : [],
       defenderWeapons:
-        defenderPool.length > 0 ? [{ weaponId: defenderPool[0].id }] : [],
+        defenderDefaultIds.length > 0
+          ? defenderDefaultIds.map((id) => ({ weaponId: id }))
+          : defenderPool.length > 0
+            ? [{ weaponId: defenderPool[0].id }]
+            : [],
     });
   };
 
