@@ -10,30 +10,35 @@ describe("parseAbilities", () => {
   describe("RAPID FIRE", () => {
     it("should parse numeric value when parseAbilities is called with RAPID FIRE 2", () => {
       const { abilities, unknownTokens } = parseAbilities("RAPID FIRE 2");
+
       expect(unknownTokens).toEqual([]);
       expect(abilities).toEqual([{ type: "RAPID_FIRE", value: 2 }]);
     });
 
     it("should parse D3 when parseAbilities is called with RAPID FIRE D3", () => {
       const { abilities, unknownTokens } = parseAbilities("RAPID FIRE D3");
+
       expect(unknownTokens).toEqual([]);
       expect(abilities).toEqual([{ type: "RAPID_FIRE", value: "D3" }]);
     });
 
     it("should parse D6 when parseAbilities is called with RAPID FIRE D6", () => {
       const { abilities, unknownTokens } = parseAbilities("RAPID FIRE D6");
+
       expect(unknownTokens).toEqual([]);
       expect(abilities).toEqual([{ type: "RAPID_FIRE", value: "D6" }]);
     });
 
     it("should parse D6+3 when parseAbilities is called with RAPID FIRE D6+3", () => {
       const { abilities, unknownTokens } = parseAbilities("RAPID FIRE D6+3");
+
       expect(unknownTokens).toEqual([]);
       expect(abilities).toEqual([{ type: "RAPID_FIRE", value: "D6+3" }]);
     });
 
     it("should parse D3+1 when parseAbilities is called with RAPID FIRE D3+1", () => {
       const { abilities, unknownTokens } = parseAbilities("RAPID FIRE D3+1");
+
       expect(unknownTokens).toEqual([]);
       expect(abilities).toEqual([{ type: "RAPID_FIRE", value: "D3+1" }]);
     });
@@ -42,18 +47,21 @@ describe("parseAbilities", () => {
   describe("SUSTAINED HITS", () => {
     it("should parse numeric value when parseAbilities is called with SUSTAINED HITS 1", () => {
       const { abilities, unknownTokens } = parseAbilities("SUSTAINED HITS 1");
+
       expect(unknownTokens).toEqual([]);
       expect(abilities).toEqual([{ type: "SUSTAINED_HITS", value: 1 }]);
     });
 
     it("should parse D3 when parseAbilities is called with SUSTAINED HITS D3", () => {
       const { abilities, unknownTokens } = parseAbilities("SUSTAINED HITS D3");
+
       expect(unknownTokens).toEqual([]);
       expect(abilities).toEqual([{ type: "SUSTAINED_HITS", value: "D3" }]);
     });
 
     it("should parse D6 when parseAbilities is called with SUSTAINED HITS D6", () => {
       const { abilities, unknownTokens } = parseAbilities("SUSTAINED HITS D6");
+
       expect(unknownTokens).toEqual([]);
       expect(abilities).toEqual([{ type: "SUSTAINED_HITS", value: "D6" }]);
     });
@@ -62,6 +70,7 @@ describe("parseAbilities", () => {
       const { abilities, unknownTokens } = parseAbilities(
         "SUSTAINED HITS D6+3",
       );
+
       expect(unknownTokens).toEqual([]);
       expect(abilities).toEqual([{ type: "SUSTAINED_HITS", value: "D6+3" }]);
     });
@@ -70,6 +79,7 @@ describe("parseAbilities", () => {
       const { abilities, unknownTokens } = parseAbilities(
         "SUSTAINED HITS D3+1",
       );
+
       expect(unknownTokens).toEqual([]);
       expect(abilities).toEqual([{ type: "SUSTAINED_HITS", value: "D3+1" }]);
     });
@@ -80,6 +90,7 @@ describe("deriveWeaponId", () => {
   it("should return slug of name for first occurrence when deriveWeaponId is called", () => {
     const slugToFp = new Map<string, string>();
     const fpToId = new Map<string, string>();
+
     expect(
       deriveWeaponId("Bolt Rifle", "ranged|2|3|4|0|1", slugToFp, fpToId),
     ).toBe("bolt_rifle");
@@ -89,7 +100,9 @@ describe("deriveWeaponId", () => {
     const slugToFp = new Map<string, string>();
     const fpToId = new Map<string, string>();
     const fp = "ranged|2|3|4|0|1";
+
     deriveWeaponId("Bolt Rifle", fp, slugToFp, fpToId);
+
     expect(deriveWeaponId("Bolt Rifle", fp, slugToFp, fpToId)).toBe(
       "bolt_rifle",
     );
@@ -100,8 +113,10 @@ describe("deriveWeaponId", () => {
     const fpToId = new Map<string, string>();
     const fp1 = "ranged|2|3|4|0|1";
     const fp2 = "ranged|2|3|4|1|1";
+
     const id1 = deriveWeaponId("Bolt Rifle", fp1, slugToFp, fpToId);
     const id2 = deriveWeaponId("Bolt Rifle", fp2, slugToFp, fpToId);
+
     expect(id1).toBe("bolt_rifle");
     expect(id2).toMatch(/^bolt_rifle_[a-f0-9]{6}$/);
     expect(id1).not.toBe(id2);
@@ -114,6 +129,7 @@ describe("deriveWeaponId", () => {
       deriveWeaponId("Bolt Rifle", "ranged|2|3|4|0|1", slugToFp, fpToId);
       return deriveWeaponId("Bolt Rifle", "ranged|2|3|4|1|1", slugToFp, fpToId);
     };
+
     expect(run()).toBe(run());
   });
 });
@@ -124,6 +140,7 @@ describe("parseLoadoutDefaults", () => {
       "<b>This model is equipped with:</b> kombi-weapon; twin slugga; big choppa.",
       ["WARBOSS"],
     );
+
     expect(result.get("__all__")).toEqual([
       "kombi-weapon",
       "twin slugga",
@@ -136,6 +153,7 @@ describe("parseLoadoutDefaults", () => {
       "<b>Every model is equipped with:</b> bolt pistol; boltgun; close combat weapon.",
       ["INTERCESSOR"],
     );
+
     expect(result.get("__all__")).toEqual([
       "bolt pistol",
       "boltgun",
@@ -148,12 +166,14 @@ describe("parseLoadoutDefaults", () => {
       "<b>The Boss Nob is equipped with:</b> slugga; big choppa. <br><br><b>Every Boy is equipped with:</b> slugga; choppa.",
       ["BOY", "BOSS NOB"],
     );
+
     expect(result.get("boss nob")).toEqual(["slugga", "big choppa"]);
     expect(result.get("boy")).toEqual(["slugga", "choppa"]);
   });
 
   it("should return empty map when loadout is empty string", () => {
     const result = parseLoadoutDefaults("", ["MODEL"]);
+
     expect(result.size).toBe(0);
   });
 
@@ -162,6 +182,7 @@ describe("parseLoadoutDefaults", () => {
       "<b>This model is equipped with:</b> bolt pistol; boltgun<i>*</i>; close combat weapon.",
       ["MARINE"],
     );
+
     expect(result.get("__all__")).toEqual([
       "bolt pistol",
       "boltgun",
@@ -184,6 +205,7 @@ describe("resolveDefaultWeaponIds", () => {
       "twin slugga",
       "big choppa",
     ]);
+
     expect(result.defaultShootingWeaponIds).toEqual([
       "kombi_weapon",
       "twin_slugga",
@@ -193,12 +215,14 @@ describe("resolveDefaultWeaponIds", () => {
 
   it("should return empty arrays when defaultNames is empty", () => {
     const result = resolveDefaultWeaponIds(primaryWeapons, []);
+
     expect(result.defaultShootingWeaponIds).toEqual([]);
     expect(result.defaultMeleeWeaponIds).toEqual([]);
   });
 
   it("should return empty arrays when primaryWeapons is empty", () => {
     const result = resolveDefaultWeaponIds([], ["kombi-weapon"]);
+
     expect(result.defaultShootingWeaponIds).toEqual([]);
     expect(result.defaultMeleeWeaponIds).toEqual([]);
   });
@@ -212,6 +236,7 @@ describe("resolveDefaultWeaponIds", () => {
       },
     ];
     const result = resolveDefaultWeaponIds(weapons, ["gork's klaw"]);
+
     expect(result.defaultMeleeWeaponIds).toEqual(["gorks_klaw_strike"]);
   });
 });

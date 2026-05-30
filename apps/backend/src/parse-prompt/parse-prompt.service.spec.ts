@@ -133,19 +133,40 @@ describe("ParsePromptService", () => {
         name: "Aux Grenade",
       });
       const attackerUnit = getMockUnitProfile({
-        id: "u1",
         shootingWeapons: [boltRifle, auxGrenade],
         defaultShootingWeaponIds: ["w2"],
       });
-      const defenderUnit = getMockUnitProfile({
-        id: "u2",
-        meleeWeapons: [
-          getMockWeaponProfile({ id: "w3" }),
-          getMockWeaponProfile({ id: "w4" }),
-        ],
-        defaultMeleeWeaponIds: ["w4"],
+      contextExtractionService.extract.mockResolvedValue(ctx);
+      unitResolutionService.resolve.mockResolvedValue({
+        attackerUnit,
+        defenderUnit: getMockUnitProfile(),
       });
 
+      const result = await service.parse("some prompt");
+
+      expect(result.attackerWeapons).toEqual([{ weaponId: "w2" }]);
+    });
+
+    it("should use defaultMeleeWeaponIds as attacker and defender weapons when no weapon hints are present and units have defaults", async () => {
+      const ctx = getMockParsedContext({ phase: "melee" });
+      const closeCombatWeapon = getMockWeaponProfile({
+        id: "w1",
+        name: "Close Combat Weapon",
+      });
+      const chainsaw = getMockWeaponProfile({ id: "w2", name: "Chainsaw" });
+      const powerFist = getMockWeaponProfile({ id: "w3", name: "Power Fist" });
+      const combatKnife = getMockWeaponProfile({
+        id: "w4",
+        name: "Combat Knife",
+      });
+      const attackerUnit = getMockUnitProfile({
+        meleeWeapons: [closeCombatWeapon, chainsaw],
+        defaultMeleeWeaponIds: ["w2"],
+      });
+      const defenderUnit = getMockUnitProfile({
+        meleeWeapons: [powerFist, combatKnife],
+        defaultMeleeWeaponIds: ["w3"],
+      });
       contextExtractionService.extract.mockResolvedValue(ctx);
       unitResolutionService.resolve.mockResolvedValue({
         attackerUnit,
@@ -155,7 +176,7 @@ describe("ParsePromptService", () => {
       const result = await service.parse("some prompt");
 
       expect(result.attackerWeapons).toEqual([{ weaponId: "w2" }]);
-      expect(result.defenderWeapons).toEqual([{ weaponId: "w4" }]);
+      expect(result.defenderWeapons).toEqual([{ weaponId: "w3" }]);
     });
 
     it("should fall back to first weapon when no weapon hints and no defaults are set", async () => {

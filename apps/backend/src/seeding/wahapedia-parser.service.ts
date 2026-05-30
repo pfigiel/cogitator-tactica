@@ -141,7 +141,7 @@ const PARAMETERIZED: ParameterizedParser[] = [
   },
 ];
 
-export type ParseAbilitiesResult = {
+type ParseAbilitiesResult = {
   abilities: WeaponAbility[];
   unknownTokens: string[];
 };
