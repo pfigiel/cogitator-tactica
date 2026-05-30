@@ -1,13 +1,13 @@
 ---
 id: TASK-21
 title: Add support for default wargear
-status: In Progress
+status: Done
 assignee: []
 created_date: "2026-05-29 19:37"
-updated_date: "2026-05-29 19:37"
+updated_date: "2026-05-30 16:06"
 labels: []
 dependencies: []
-ordinal: 1000
+ordinal: 9000
 ---
 
 ## Description
