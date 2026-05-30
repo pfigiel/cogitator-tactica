@@ -38,6 +38,7 @@
     "eslint-plugin-prefer-arrow": "catalog:lint",
     "jsdom": "29.1.1",
     "msw": "catalog:test",
+    "postcss-mixins": "12.1.2",
     "prettier": "catalog:",
     "typescript-eslint": "catalog:lint",
     "vitest": "catalog:test"
