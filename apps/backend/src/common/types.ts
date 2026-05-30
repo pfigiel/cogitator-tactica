@@ -67,6 +67,8 @@ export type UnitProfile = {
   keywords: string[];
   shootingWeapons: WeaponProfile[];
   meleeWeapons: WeaponProfile[];
+  defaultShootingWeaponIds: string[];
+  defaultMeleeWeaponIds: string[];
 };
 
 export type AttackerContext = {

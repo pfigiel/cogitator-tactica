@@ -18,5 +18,8 @@ export const getMockDbUnitWithWeapons = ({
   ...overrides
 }: Partial<DbUnitWithWeapons> = {}): DbUnitWithWeapons => ({
   ...getMockDbUnit(overrides),
-  unitWeapons: unitWeapons ?? [],
+  unitWeapons: (unitWeapons ?? []).map((uw) => ({
+    ...uw,
+    isDefault: uw.isDefault ?? false,
+  })),
 });

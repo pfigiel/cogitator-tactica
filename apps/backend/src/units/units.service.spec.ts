@@ -57,6 +57,7 @@ describe("UnitsService", () => {
           {
             unitId: "unit-1",
             weaponId: "w1",
+            isDefault: false,
             weapon: {
               id: "w1",
               name: "Bolt Rifle",
@@ -95,6 +96,8 @@ describe("UnitsService", () => {
         ],
         toughness: 4,
         wounds: 2,
+        defaultShootingWeaponIds: [],
+        defaultMeleeWeaponIds: [],
       });
       expect(prisma.unit.findUnique).toHaveBeenCalledWith({
         where: { id: "unit-1" },

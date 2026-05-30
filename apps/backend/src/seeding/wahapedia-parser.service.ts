@@ -465,6 +465,8 @@ export class WahapediaParserService {
           keywords,
           shootingWeapons,
           meleeWeapons,
+          defaultShootingWeaponIds: [],
+          defaultMeleeWeaponIds: [],
           factionId: sheet.faction_id,
         });
       }

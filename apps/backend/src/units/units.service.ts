@@ -114,6 +114,12 @@ export class UnitsService {
           meleeWeapons: db.unitWeapons
             .filter((uw) => uw.weapon.type === "melee")
             .map((uw) => this.toWeaponProfile(uw.weapon)),
+          defaultShootingWeaponIds: db.unitWeapons
+            .filter((uw) => uw.weapon.type === "shooting" && uw.isDefault)
+            .map((uw) => uw.weaponId),
+          defaultMeleeWeaponIds: db.unitWeapons
+            .filter((uw) => uw.weapon.type === "melee" && uw.isDefault)
+            .map((uw) => uw.weaponId),
         };
   }
 }
