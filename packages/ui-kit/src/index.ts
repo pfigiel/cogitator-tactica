@@ -16,3 +16,5 @@ export { ColorSchemeScript } from "@mantine/core";
 export { breakpoints, mq } from "./breakpoints";
 export type { Breakpoint } from "./breakpoints";
 export type { ComponentSize } from "./types";
+export { Text } from "./Text";
+export { Title } from "./Title";
