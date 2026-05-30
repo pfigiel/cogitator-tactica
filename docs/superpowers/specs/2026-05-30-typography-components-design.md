@@ -11,22 +11,27 @@ Add two typography components to `packages/ui-kit`: `Text` and `Title`. Componen
 
 Install `postcss-mixins` and configure it in `apps/web/postcss.config.ts`.
 
-Define one mixin per size in `packages/ui-kit/src/typography.css`:
+Define separate mixin sets for text and title in `packages/ui-kit/src/typography.css`:
 
 ```css
-@define-mixin typography-xs {
+@define-mixin text-xs {
   font-size: var(--mantine-font-size-xs);
   line-height: 1.4;
   letter-spacing: 0;
 }
+@define-mixin text-sm { ... }
+@define-mixin text-md { ... }
+@define-mixin text-lg { ... }
+@define-mixin text-xl { ... }
 
-@define-mixin typography-sm { ... }
-@define-mixin typography-md { ... }
-@define-mixin typography-lg { ... }
-@define-mixin typography-xl { ... }
+@define-mixin title-xs { ... }
+@define-mixin title-sm { ... }
+@define-mixin title-md { ... }
+@define-mixin title-lg { ... }
+@define-mixin title-xl { ... }
 ```
 
-Each mixin sets: `font-size` (Mantine CSS variable), `line-height`, `letter-spacing`.
+`text-*` and `title-*` mixins each set: `font-size` (Mantine CSS variable), `line-height`, `letter-spacing`. Title mixins will have tighter line-height and stronger negative letter-spacing appropriate for headings.
 
 **External use:** `typography.css` is exported from `packages/ui-kit/src/index.ts` as a CSS file so consumers can import it and use the mixins in their own CSS.
 
