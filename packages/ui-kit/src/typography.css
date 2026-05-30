@@ -1,0 +1,59 @@
+@define-mixin text-xs {
+  font-size: var(--font-size-text-xs);
+  line-height: var(--line-height-text-xs);
+  letter-spacing: var(--letter-spacing-text-xs);
+}
+
+@define-mixin text-sm {
+  font-size: var(--font-size-text-sm);
+  line-height: var(--line-height-text-sm);
+  letter-spacing: var(--letter-spacing-text-sm);
+}
+
+@define-mixin text-md {
+  font-size: var(--font-size-text-md);
+  line-height: var(--line-height-text-md);
+  letter-spacing: var(--letter-spacing-text-md);
+}
+
+@define-mixin text-lg {
+  font-size: var(--font-size-text-lg);
+  line-height: var(--line-height-text-lg);
+  letter-spacing: var(--letter-spacing-text-lg);
+}
+
+@define-mixin text-xl {
+  font-size: var(--font-size-text-xl);
+  line-height: var(--line-height-text-xl);
+  letter-spacing: var(--letter-spacing-text-xl);
+}
+
+@define-mixin title-xs {
+  font-size: var(--font-size-title-xs);
+  line-height: var(--line-height-title-xs);
+  letter-spacing: var(--letter-spacing-title-xs);
+}
+
+@define-mixin title-sm {
+  font-size: var(--font-size-title-sm);
+  line-height: var(--line-height-title-sm);
+  letter-spacing: var(--letter-spacing-title-sm);
+}
+
+@define-mixin title-md {
+  font-size: var(--font-size-title-md);
+  line-height: var(--line-height-title-md);
+  letter-spacing: var(--letter-spacing-title-md);
+}
+
+@define-mixin title-lg {
+  font-size: var(--font-size-title-lg);
+  line-height: var(--line-height-title-lg);
+  letter-spacing: var(--letter-spacing-title-lg);
+}
+
+@define-mixin title-xl {
+  font-size: var(--font-size-title-xl);
+  line-height: var(--line-height-title-xl);
+  letter-spacing: var(--letter-spacing-title-xl);
+}
