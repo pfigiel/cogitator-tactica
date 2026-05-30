@@ -1,0 +1,19 @@
+.xs {
+  @mixin title-xs;
+}
+
+.sm {
+  @mixin title-sm;
+}
+
+.md {
+  @mixin title-md;
+}
+
+.lg {
+  @mixin title-lg;
+}
+
+.xl {
+  @mixin title-xl;
+}
