@@ -109,8 +109,13 @@ export class WahapediaUpsertService {
         ...unit.shootingWeapons.map((w) => ({
           unitId: unit.id,
           weaponId: w.id,
+          isDefault: unit.defaultShootingWeaponIds.includes(w.id),
         })),
-        ...unit.meleeWeapons.map((w) => ({ unitId: unit.id, weaponId: w.id })),
+        ...unit.meleeWeapons.map((w) => ({
+          unitId: unit.id,
+          weaponId: w.id,
+          isDefault: unit.defaultMeleeWeaponIds.includes(w.id),
+        })),
       ]);
 
       if (unitWeaponData.length > 0) {
