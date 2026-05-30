@@ -94,9 +94,18 @@ packages/ui-kit/src/
 
 Both components and `typography.css` exported from `packages/ui-kit/src/index.ts`.
 
+## PostCSS Setup
+
+`packages/ui-kit` has no PostCSS config — it has no standalone build step. `apps/web/postcss.config.ts` is the single PostCSS config in the project, and it processes CSS for both `apps/web` and `packages/ui-kit` (ui-kit CSS modules are resolved and processed through web's build pipeline).
+
+Configuring `postcss-mixins` in `apps/web/postcss.config.ts` therefore covers:
+
+- ui-kit's `Text.module.css` and `Title.module.css` (which use `@mixin text-*` / `@mixin title-*`)
+- any CSS in `apps/web` that imports and uses the mixins
+
+The plugin must be configured with `mixinsFiles` pointing to `packages/ui-kit/src/typography.css` so PostCSS can resolve the mixin definitions from both locations.
+
 ## Implementation Notes
 
 - `Size` type (`"xs" | "sm" | "md" | "lg" | "xl"`) defined inline in each component — no shared types file exists in ui-kit
 - Pattern matches existing components: `import { X as MantineX, XProps } from "@mantine/core"`
-- `postcss-mixins` must be added to `apps/web/postcss.config.ts` with `mixinsFiles` pointing to `typography.css`
-- PostCSS config in `apps/web` is the only PostCSS config in the project
