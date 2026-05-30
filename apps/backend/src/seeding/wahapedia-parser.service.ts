@@ -14,7 +14,12 @@ const DATA_DIR = join(__dirname, "../../wahapedia-data");
 
 // ─── Row types ────────────────────────────────────────────────────────────────
 
-type DatasheetRow = { id: string; name: string; faction_id: string };
+type DatasheetRow = {
+  id: string;
+  name: string;
+  faction_id: string;
+  loadout: string;
+};
 type ModelRow = {
   datasheet_id: string;
   line: string;
@@ -27,6 +32,7 @@ type ModelRow = {
 type WargearRow = {
   datasheet_id: string;
   line: string;
+  line_in_wargear: string;
   name: string;
   description: string;
   type: string;
@@ -442,6 +448,7 @@ export class WahapediaParserService {
         id: r["id"],
         name: r["name"],
         faction_id: r["faction_id"],
+        loadout: r["loadout"] ?? "",
       })),
       models: modRaw.map((r) => ({
         datasheet_id: r["datasheet_id"],
@@ -455,6 +462,7 @@ export class WahapediaParserService {
       wargear: wgRaw.map((r) => ({
         datasheet_id: r["datasheet_id"],
         line: r["line"],
+        line_in_wargear: r["line_in_wargear"],
         name: r["name"],
         description: r["description"],
         type: r["type"],
@@ -506,6 +514,11 @@ export class WahapediaParserService {
       const wargearRows = wargearBySheet.get(sheet.id) ?? [];
       const keywords = keywordsBySheet.get(sheet.id) ?? [];
 
+      const defaultsMap = parseLoadoutDefaults(
+        sheet.loadout,
+        (modelsBySheet.get(sheet.id) ?? []).map((ml) => ml.name),
+      );
+
       for (let i = 0; i < modelLines.length; ++i) {
         const modelLine = modelLines[i];
         const unitName =
@@ -517,6 +530,12 @@ export class WahapediaParserService {
 
         const shootingWeapons: WeaponProfile[] = [];
         const meleeWeapons: WeaponProfile[] = [];
+
+        const primaryWeapons: Array<{
+          id: string;
+          name: string;
+          type: "shooting" | "melee";
+        }> = [];
 
         for (const wgRow of wargearRows) {
           const weaponData = buildWeapon(wgRow, unitName, warnings);
@@ -537,7 +556,19 @@ export class WahapediaParserService {
           const weapon: WeaponProfile = { id, ...weaponData };
           if (wtype === "shooting") shootingWeapons.push(weapon);
           else meleeWeapons.push(weapon);
+
+          if (wgRow.line_in_wargear === "1") {
+            primaryWeapons.push({ id, name: weaponData.name, type: wtype });
+          }
         }
+
+        const normalizedModelName = normalizeText(modelLine.name);
+        const defaultNames =
+          defaultsMap.get(normalizedModelName) ??
+          defaultsMap.get("__all__") ??
+          [];
+        const { defaultShootingWeaponIds, defaultMeleeWeaponIds } =
+          resolveDefaultWeaponIds(primaryWeapons, defaultNames);
 
         const invuln = parseInvuln(modelLine.inv_sv);
         units.push({
@@ -550,8 +581,8 @@ export class WahapediaParserService {
           keywords,
           shootingWeapons,
           meleeWeapons,
-          defaultShootingWeaponIds: [],
-          defaultMeleeWeaponIds: [],
+          defaultShootingWeaponIds,
+          defaultMeleeWeaponIds,
           factionId: sheet.faction_id,
         });
       }
