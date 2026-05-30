@@ -16,7 +16,7 @@ Each unit in `Datasheets.csv` has a `loadout` field (HTML) describing the weapon
 
 `apps/backend/wahapedia-data/Datasheets.csv` — `loadout` column. Examples:
 
-- `<b>This model is equipped with:</b> kombi-weapon; twin slugga; big choppa.`
+- `<b>This model is equipped with:</b> kombi-weapon; twin slug; big choppa.`
 - `<b>The Boss Nob is equipped with:</b> slugga; big choppa. <br><br><b>Every Boy is equipped with:</b> slugga; choppa.`
 - `<b>Every model is equipped with:</b> bolt pistol; boltgun; close combat weapon.`
 
@@ -149,7 +149,46 @@ Same pattern for `defenderWeapons` (always melee phase, use `defaultMeleeWeaponI
 - `units.service.spec.ts`: verify `defaultShootingWeaponIds` / `defaultMeleeWeaponIds` populated from DB.
 - `parse-prompt.service.spec.ts`: verify default weapons used when no weapon hints present in prompt.
 
+## Frontend Changes
+
+### `apps/web/src/features/calculator/types.ts`
+
+`UnitProfile` gains (mirroring backend):
+
+```ts
+defaultShootingWeaponIds: string[];
+defaultMeleeWeaponIds: string[];
+```
+
+### `CombatForm.tsx` — `handlePhaseChange`
+
+Replace `[0].id` fallbacks with default weapon IDs:
+
+```ts
+const attackerDefaultIds =
+  phase === "shooting"
+    ? (attackerUnit?.defaultShootingWeaponIds ?? [])
+    : (attackerUnit?.defaultMeleeWeaponIds ?? []);
+const defenderDefaultIds = defenderUnit?.defaultMeleeWeaponIds ?? [];
+
+onChange({
+  ...state,
+  phase,
+  attackerWeapons:
+    attackerDefaultIds.length > 0
+      ? attackerDefaultIds.map((id) => ({ weaponId: id }))
+      : attackerPool.length > 0
+        ? [{ weaponId: attackerPool[0].id }]
+        : [],
+  defenderWeapons:
+    defenderDefaultIds.length > 0
+      ? defenderDefaultIds.map((id) => ({ weaponId: id }))
+      : defenderPool.length > 0
+        ? [{ weaponId: defenderPool[0].id }]
+        : [],
+});
+```
+
 ## Out of Scope
 
-- Frontend changes: WeaponSelector already displays whatever is pre-selected; no UI changes needed.
 - Per-model-count defaults: the calculator pre-selects weapons, users adjust counts manually.
