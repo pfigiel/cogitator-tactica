@@ -26,5 +26,7 @@ export const getMockUnitWithFaction = (
   keywords: ["INFANTRY"],
   shootingWeapons: [],
   meleeWeapons: [],
+  defaultShootingWeaponIds: [],
+  defaultMeleeWeaponIds: [],
   ...overrides,
 });

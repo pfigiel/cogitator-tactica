@@ -1,4 +1,5 @@
 import { Injectable } from "@nestjs/common";
+import Fuse from "fuse.js";
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
@@ -13,7 +14,12 @@ const DATA_DIR = join(__dirname, "../../wahapedia-data");
 
 // ─── Row types ────────────────────────────────────────────────────────────────
 
-type DatasheetRow = { id: string; name: string; faction_id: string };
+type DatasheetRow = {
+  id: string;
+  name: string;
+  faction_id: string;
+  loadout: string;
+};
 type ModelRow = {
   datasheet_id: string;
   line: string;
@@ -26,6 +32,7 @@ type ModelRow = {
 type WargearRow = {
   datasheet_id: string;
   line: string;
+  line_in_wargear: string;
   name: string;
   description: string;
   type: string;
@@ -134,7 +141,7 @@ const PARAMETERIZED: ParameterizedParser[] = [
   },
 ];
 
-export type ParseAbilitiesResult = {
+type ParseAbilitiesResult = {
   abilities: WeaponAbility[];
   unknownTokens: string[];
 };
@@ -203,6 +210,90 @@ export const deriveWeaponId = (
 
   fpToId.set(fingerprint, id);
   return id;
+};
+
+// ─── Loadout defaults parsing ─────────────────────────────────────────────────
+
+const normalizeText = (s: string): string =>
+  s
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+
+const resolveLoadoutKey = (header: string, modelNames: string[]): string => {
+  const norm = normalizeText(header);
+
+  if (/^(this|every( other)?)\s+model$/.test(norm)) return "__all__";
+
+  const stripped = norm.replace(/^the\s+/, "").replace(/^every\s+/, "");
+
+  const normalizedModels = modelNames.map(normalizeText);
+  const exact = normalizedModels.find((mn) => mn === stripped);
+  return exact ?? stripped;
+};
+
+export const parseLoadoutDefaults = (
+  loadout: string,
+  modelNames: string[],
+): Map<string, string[]> => {
+  const result = new Map<string, string[]>();
+  if (!loadout) return result;
+
+  const stripped = loadout
+    .replace(/<i[^>]*>.*?<\/i>/gis, "")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  const segmentRe = /([^.]+?)\s+is equipped with:\s*([^.]+)\./gi;
+  let match: RegExpExecArray | null;
+
+  while ((match = segmentRe.exec(stripped)) !== null) {
+    const header = match[1].trim();
+    const weaponList = match[2].trim();
+
+    const weapons = weaponList
+      .split(";")
+      .map((w) =>
+        w
+          .trim()
+          .toLowerCase()
+          .replace(/[^a-z0-9'\- ]+/g, "")
+          .trim(),
+      )
+      .filter(Boolean);
+
+    const key = resolveLoadoutKey(header, modelNames);
+    result.set(key, weapons);
+  }
+
+  return result;
+};
+
+export const resolveDefaultWeaponIds = (
+  primaryWeapons: Array<{
+    id: string;
+    name: string;
+    type: "shooting" | "melee";
+  }>,
+  defaultNames: string[],
+): { defaultShootingWeaponIds: string[]; defaultMeleeWeaponIds: string[] } => {
+  if (primaryWeapons.length === 0 || defaultNames.length === 0) {
+    return { defaultShootingWeaponIds: [], defaultMeleeWeaponIds: [] };
+  }
+
+  const fuse = new Fuse(primaryWeapons, { keys: ["name"] });
+  const defaultShootingWeaponIds: string[] = [];
+  const defaultMeleeWeaponIds: string[] = [];
+
+  for (const name of defaultNames) {
+    const match = fuse.search(name)[0]?.item;
+    if (!match) continue;
+    if (match.type === "shooting") defaultShootingWeaponIds.push(match.id);
+    else defaultMeleeWeaponIds.push(match.id);
+  }
+
+  return { defaultShootingWeaponIds, defaultMeleeWeaponIds };
 };
 
 // ─── CSV parsing ──────────────────────────────────────────────────────────────
@@ -357,6 +448,7 @@ export class WahapediaParserService {
         id: r["id"],
         name: r["name"],
         faction_id: r["faction_id"],
+        loadout: r["loadout"] ?? "",
       })),
       models: modRaw.map((r) => ({
         datasheet_id: r["datasheet_id"],
@@ -370,6 +462,7 @@ export class WahapediaParserService {
       wargear: wgRaw.map((r) => ({
         datasheet_id: r["datasheet_id"],
         line: r["line"],
+        line_in_wargear: r["line_in_wargear"],
         name: r["name"],
         description: r["description"],
         type: r["type"],
@@ -421,6 +514,11 @@ export class WahapediaParserService {
       const wargearRows = wargearBySheet.get(sheet.id) ?? [];
       const keywords = keywordsBySheet.get(sheet.id) ?? [];
 
+      const defaultsMap = parseLoadoutDefaults(
+        sheet.loadout,
+        (modelsBySheet.get(sheet.id) ?? []).map((ml) => ml.name),
+      );
+
       for (let i = 0; i < modelLines.length; ++i) {
         const modelLine = modelLines[i];
         const unitName =
@@ -432,6 +530,12 @@ export class WahapediaParserService {
 
         const shootingWeapons: WeaponProfile[] = [];
         const meleeWeapons: WeaponProfile[] = [];
+
+        const primaryWeapons: Array<{
+          id: string;
+          name: string;
+          type: "shooting" | "melee";
+        }> = [];
 
         for (const wgRow of wargearRows) {
           const weaponData = buildWeapon(wgRow, unitName, warnings);
@@ -452,7 +556,19 @@ export class WahapediaParserService {
           const weapon: WeaponProfile = { id, ...weaponData };
           if (wtype === "shooting") shootingWeapons.push(weapon);
           else meleeWeapons.push(weapon);
+
+          if (wgRow.line_in_wargear === "1") {
+            primaryWeapons.push({ id, name: weaponData.name, type: wtype });
+          }
         }
+
+        const normalizedModelName = normalizeText(modelLine.name);
+        const defaultNames =
+          defaultsMap.get(normalizedModelName) ??
+          defaultsMap.get("__all__") ??
+          [];
+        const { defaultShootingWeaponIds, defaultMeleeWeaponIds } =
+          resolveDefaultWeaponIds(primaryWeapons, defaultNames);
 
         const invuln = parseInvuln(modelLine.inv_sv);
         units.push({
@@ -465,6 +581,8 @@ export class WahapediaParserService {
           keywords,
           shootingWeapons,
           meleeWeapons,
+          defaultShootingWeaponIds,
+          defaultMeleeWeaponIds,
           factionId: sheet.faction_id,
         });
       }

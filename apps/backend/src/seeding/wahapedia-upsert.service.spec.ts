@@ -91,7 +91,28 @@ describe("WahapediaUpsertService", () => {
       ],
     });
     expect(prisma.unitWeapon.createMany).toHaveBeenCalledWith({
-      data: [{ unitId: "intercessors", weaponId: "bolt_rifle" }],
+      data: [
+        expect.objectContaining({
+          unitId: "intercessors",
+          weaponId: "bolt_rifle",
+        }),
+      ],
+    });
+  });
+
+  it("should set isDefault on unit weapon records matching defaultShootingWeaponIds", async () => {
+    const weapon = getMockWeaponWithFaction({ id: "bolt_rifle" });
+    const unit = getMockUnitWithFaction({
+      shootingWeapons: [weapon],
+      defaultShootingWeaponIds: ["bolt_rifle"],
+    });
+
+    await service.upsertAll([unit], [{ id: "SM", name: "Space Marines" }]);
+
+    expect(prisma.unitWeapon.createMany).toHaveBeenCalledWith({
+      data: [
+        { unitId: "intercessors", weaponId: "bolt_rifle", isDefault: true },
+      ],
     });
   });
 

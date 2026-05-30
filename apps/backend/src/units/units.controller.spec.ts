@@ -41,6 +41,8 @@ describe("UnitsController", () => {
         keywords: ["Infantry"],
         shootingWeapons: [],
         meleeWeapons: [],
+        defaultShootingWeaponIds: [],
+        defaultMeleeWeaponIds: [],
       };
       unitsService.getUnit.mockResolvedValue(profile);
 

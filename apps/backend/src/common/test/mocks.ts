@@ -25,5 +25,7 @@ export const getMockUnitProfile = (
   keywords: [],
   shootingWeapons: [],
   meleeWeapons: [],
+  defaultShootingWeaponIds: [],
+  defaultMeleeWeaponIds: [],
   ...overrides,
 });

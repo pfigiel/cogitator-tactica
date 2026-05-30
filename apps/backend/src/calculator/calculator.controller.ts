@@ -48,6 +48,8 @@ export class CalculatorController {
       keywords: dto.keywords,
       shootingWeapons: dto.shootingWeapons.map((w) => this.mapWeapon(w)),
       meleeWeapons: dto.meleeWeapons.map((w) => this.mapWeapon(w)),
+      defaultShootingWeaponIds: [],
+      defaultMeleeWeaponIds: [],
     };
   }
 

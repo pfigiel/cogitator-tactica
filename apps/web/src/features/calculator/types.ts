@@ -148,6 +148,8 @@ export type UnitProfile = {
   keywords: string[];
   shootingWeapons: WeaponProfile[];
   meleeWeapons: WeaponProfile[];
+  defaultShootingWeaponIds: string[];
+  defaultMeleeWeaponIds: string[];
 };
 
 // ─── Combat input ─────────────────────────────────────────────────────────────
