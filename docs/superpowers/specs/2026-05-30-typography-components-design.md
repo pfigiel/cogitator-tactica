@@ -114,6 +114,7 @@ Wraps Mantine's `Title`. `order` controls HTML element and default visual size v
 ```
 packages/ui-kit/src/
   typography.css          ← mixin definitions, exported for external use
+  types.ts                ← shared ComponentSize type, exported from index.ts
   Provider.tsx            ← updated: add cssVariablesResolver
   Text/
     Text.tsx
@@ -125,7 +126,7 @@ packages/ui-kit/src/
     index.ts
 ```
 
-Both components and `typography.css` exported from `packages/ui-kit/src/index.ts`.
+Both components, `typography.css`, and `ComponentSize` exported from `packages/ui-kit/src/index.ts`.
 
 ## PostCSS Setup
 
@@ -140,6 +141,6 @@ The plugin must be configured with `mixinsFiles` pointing to `packages/ui-kit/sr
 
 ## Implementation Notes
 
-- `Size` type (`"xs" | "sm" | "md" | "lg" | "xl"`) defined inline in each component — no shared types file exists in ui-kit
+- `ComponentSize` type (`"xs" | "sm" | "md" | "lg" | "xl"`) defined in `packages/ui-kit/src/types.ts` and exported from `index.ts` — used by both Text and Title, and available for other components going forward
 - Pattern matches existing components: `import { X as MantineX, XProps } from "@mantine/core"`
 - CSS variables injected via `cssVariablesResolver` are scoped to `:root` and `:host` by default (Mantine default behavior)
