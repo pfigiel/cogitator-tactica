@@ -2,7 +2,7 @@
   "name": "cogitator-tactica",
   "version": "1.0.0",
   "private": true,
-  "packageManager": "pnpm@10.13.1",
+  "packageManager": "pnpm@11.7.0",
   "scripts": {
     "backlog": "backlog browser",
     "dev": "turbo dev",
@@ -13,12 +13,6 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prepare": "husky"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "@prisma/client",
-      "prisma"
-    ]
   },
   "devDependencies": {
     "backlog.md": "1.45.1",
