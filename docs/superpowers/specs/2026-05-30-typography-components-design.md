@@ -1,0 +1,146 @@
+# Typography Components Design
+
+**Date:** 2026-05-30
+**Task:** TASK-4
+
+## Overview
+
+Add two typography components to `packages/ui-kit`: `Text` and `Title`. Components use PostCSS mixins for all typography styling. The mixins are also exported for use on any arbitrary element.
+
+## Custom CSS Variables
+
+Define custom typography CSS variables via Mantine's `cssVariablesResolver` in `UIProvider` (`packages/ui-kit/src/Provider.tsx`). This is the Mantine-idiomatic way to inject custom CSS variables that are available globally alongside Mantine's own variables.
+
+Variables to define:
+
+```ts
+const resolver: CSSVariablesResolver = () => ({
+  variables: {
+    // text sizes
+    "--font-size-text-xs": "...",
+    "--font-size-text-sm": "...",
+    "--font-size-text-md": "...",
+    "--font-size-text-lg": "...",
+    "--font-size-text-xl": "...",
+    "--line-height-text-xs": "...",
+    // ... line-height and letter-spacing per size
+
+    // title sizes
+    "--font-size-title-xs": "...",
+    "--font-size-title-sm": "...",
+    "--font-size-title-md": "...",
+    "--font-size-title-lg": "...",
+    "--font-size-title-xl": "...",
+    "--line-height-title-xs": "...",
+    // ... line-height and letter-spacing per size
+  },
+  light: {},
+  dark: {},
+});
+```
+
+Exact values determined at implementation time. Title mixins use tighter line-height and negative letter-spacing; text mixins use looser line-height and neutral letter-spacing.
+
+## PostCSS Mixins
+
+Install `postcss-mixins` and configure it in `apps/web/postcss.config.ts`.
+
+Define separate mixin sets for text and title in `packages/ui-kit/src/typography.css`. Mixins reference the custom CSS variables — no direct Mantine token references:
+
+```css
+@define-mixin text-xs {
+  font-size: var(--font-size-text-xs);
+  line-height: var(--line-height-text-xs);
+  letter-spacing: var(--letter-spacing-text-xs);
+}
+@define-mixin text-sm { ... }
+@define-mixin text-md { ... }
+@define-mixin text-lg { ... }
+@define-mixin text-xl { ... }
+
+@define-mixin title-xs { ... }
+@define-mixin title-sm { ... }
+@define-mixin title-md { ... }
+@define-mixin title-lg { ... }
+@define-mixin title-xl { ... }
+```
+
+**External use:** `typography.css` is exported from `packages/ui-kit/src/index.ts` as a CSS file so consumers can import it and use the mixins in their own CSS.
+
+## Components
+
+Both components use CSS modules that `@mixin` the appropriate size mixin. Mantine's `size`/`fz` props are NOT used — all sizing comes from CSS.
+
+### Text
+
+Wraps Mantine's `Text` with `component="span"` fixed. Applies size mixin via CSS module class.
+
+**Props:**
+
+| Prop      | Type                                   | Required | Description        |
+| --------- | -------------------------------------- | -------- | ------------------ |
+| children  | ReactNode                              | yes      | Content            |
+| className | string                                 | no       | CSS class override |
+| size      | `"xs" \| "sm" \| "md" \| "lg" \| "xl"` | no       | Font size token    |
+
+**Rendering:** Always a `<span>`.
+
+### Title
+
+Wraps Mantine's `Title`. `order` controls HTML element and default visual size via mixin; `size` overrides when provided.
+
+**Props:**
+
+| Prop      | Type                                   | Required | Description                                              |
+| --------- | -------------------------------------- | -------- | -------------------------------------------------------- |
+| children  | ReactNode                              | yes      | Content                                                  |
+| className | string                                 | no       | CSS class override                                       |
+| order     | `1 \| 2 \| 3 \| 4 \| 5 \| 6`           | yes      | Heading level (h1–h6), also controls default visual size |
+| size      | `"xs" \| "sm" \| "md" \| "lg" \| "xl"` | no       | Overrides visual font size when provided                 |
+
+**Size → order default mapping** (when `size` omitted):
+
+| order | default size |
+| ----- | ------------ |
+| 1     | xl           |
+| 2     | lg           |
+| 3     | md           |
+| 4     | sm           |
+| 5     | xs           |
+| 6     | xs           |
+
+## File Structure
+
+```
+packages/ui-kit/src/
+  typography.css          ← mixin definitions, exported for external use
+  types.ts                ← shared ComponentSize type, exported from index.ts
+  Provider.tsx            ← updated: add cssVariablesResolver
+  Text/
+    Text.tsx
+    Text.module.css
+    index.ts
+  Title/
+    Title.tsx
+    Title.module.css
+    index.ts
+```
+
+Both components, `typography.css`, and `ComponentSize` exported from `packages/ui-kit/src/index.ts`.
+
+## PostCSS Setup
+
+`packages/ui-kit` has no PostCSS config — it has no standalone build step. `apps/web/postcss.config.ts` is the single PostCSS config in the project, and it processes CSS for both `apps/web` and `packages/ui-kit` (ui-kit CSS modules are resolved and processed through web's build pipeline).
+
+Configuring `postcss-mixins` in `apps/web/postcss.config.ts` therefore covers:
+
+- ui-kit's `Text.module.css` and `Title.module.css` (which use `@mixin text-*` / `@mixin title-*`)
+- any CSS in `apps/web` that imports and uses the mixins
+
+The plugin must be configured with `mixinsFiles` pointing to `packages/ui-kit/src/typography.css` so PostCSS can resolve the mixin definitions from both locations.
+
+## Implementation Notes
+
+- `ComponentSize` type (`"xs" | "sm" | "md" | "lg" | "xl"`) defined in `packages/ui-kit/src/types.ts` and exported from `index.ts` — used by both Text and Title, and available for other components going forward
+- Pattern matches existing components: `import { X as MantineX, XProps } from "@mantine/core"`
+- CSS variables injected via `cssVariablesResolver` are scoped to `:root` and `:host` by default (Mantine default behavior)

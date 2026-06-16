@@ -1,0 +1,19 @@
+.xs {
+  @mixin text-xs;
+}
+
+.sm {
+  @mixin text-sm;
+}
+
+.md {
+  @mixin text-md;
+}
+
+.lg {
+  @mixin text-lg;
+}
+
+.xl {
+  @mixin text-xl;
+}

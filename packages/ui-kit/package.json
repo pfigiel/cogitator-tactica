@@ -4,7 +4,9 @@
   "private": true,
   "main": "src/index.ts",
   "types": "src/index.ts",
-  "sideEffects": false,
+  "sideEffects": [
+    "**/*.css"
+  ],
   "scripts": {
     "lint": "eslint src",
     "typecheck": "tsc --noEmit",
@@ -24,14 +26,16 @@
   "devDependencies": {
     "@cogitator-tactica/eslint-plugin": "workspace:*",
     "@eslint/js": "catalog:lint",
+    "@testing-library/react": "16.3.2",
     "@types/react": "catalog:react",
     "@types/react-dom": "catalog:react",
     "eslint": "catalog:lint",
     "eslint-config-prettier": "catalog:lint",
     "eslint-plugin-prefer-arrow": "catalog:lint",
+    "jsdom": "29.1.1",
+    "prettier": "catalog:",
     "typescript": "catalog:",
     "typescript-eslint": "catalog:lint",
-    "prettier": "catalog:",
     "vitest": "catalog:test"
   }
 }

@@ -10,6 +10,11 @@ const config = {
         ),
       ],
     },
+    "postcss-mixins": {
+      mixinsFiles: [
+        path.resolve(process.cwd(), "../../packages/ui-kit/src/typography.css"),
+      ],
+    },
     "postcss-custom-media": {},
   },
 };
